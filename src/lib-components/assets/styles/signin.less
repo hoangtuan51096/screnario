@@ -1,0 +1,51 @@
+@import "./constants.less";
+
+.signin-wrapper > div {
+  height: 100vh;
+}
+
+.signin-wrapper > div > div {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.signin-wrapper button {
+  background: @primary-color;
+}
+
+.signin-wrapper button:active {
+  background: @secondary-color;
+}
+
+.signin-wrapper > div > div > div[data-test="sign-in-header-section"],
+div[data-test="forgot-password-header-section"] {
+  text-align: center;
+}
+
+.signin-wrapper > div > div > div.error {
+  margin-top: 30px;
+  color: @error-color;
+}
+
+.signin-indicator {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  color: @primary-color;
+}
+
+.version-number {
+  margin: 0;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
