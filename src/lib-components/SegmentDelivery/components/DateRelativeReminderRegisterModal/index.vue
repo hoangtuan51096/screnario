@@ -99,24 +99,8 @@ import ItemSelector from './ItemSelector.vue';
 import SampleDownloader from './SampleDownloader.vue';
 import SurveySelector from './SurveySelector.vue';
 
-interface LocalState {
-  localDateRelativeReminderSettingsList: DateRelativeReminderSettings[];
-  fileData: File | null;
-
-  isFetchingSurveyConfigs: boolean;
-  isRegisting: boolean;
-
-  selectedItemKey: string | null;
-  selectedItemTitle: string | null,
-  selectedSurveyId: string | null;
-  selectedSurveyTitle: string | null;
-  surveyConfigs: any[],
-
-  dateItemTypes: ['date', 'birthday'];
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       localDateRelativeReminderSettingsList: [],
       fileData: null,
@@ -148,14 +132,14 @@ export default Vue.extend({
   },
   computed: {
     isShow: {
-      get(): boolean {
+      get() {
         return this.isShowProp;
       },
-      set(): void {
+      set() {
         this.$emit('close');
       },
     },
-    surveySchema(): any {
+    surveySchema() {
       if (this.selectedSurveyId) {
         const surveyConfig = this.surveyConfigs.find(item => item.surveyId === this.selectedSurveyId);
         return surveyConfig.surveySchema;
@@ -163,10 +147,10 @@ export default Vue.extend({
         return [];
       }
     },
-    canSelectFile(): boolean {
+    canSelectFile() {
       return !!this.selectedSurveyId && !!this.selectedItemKey;
     },
-    canRegist(): boolean {
+    canRegist() {
       return this.localDateRelativeReminderSettingsList.length > 0;
     },
   },
@@ -194,7 +178,7 @@ export default Vue.extend({
       });
       return attachedContents;
     },
-    filterConfgisByNonReservedAndHasDateItem(configs: any[]): any[] {
+    filterConfgisByNonReservedAndHasDateItem(configs)[] {
       return configs.filter(config => {
         const reservationItem = config.surveySchema.find(item => item.type === 'reservation');
         const dateTypeItem = config.surveySchema.find(item => this.dateItemTypes.includes(item.type));
@@ -222,7 +206,7 @@ export default Vue.extend({
         this.isFetchingSurveyConfigs = false;
       }
     },
-    async handleRegistReminderSettings(): Promise<void> {
+    async handleRegistReminderSettings() {
       try {
         this.isRegisting = true;
         await this.registReminderSettings(this.localDateRelativeReminderSettingsList);
@@ -237,24 +221,24 @@ export default Vue.extend({
         this.isRegisting = false;
       }
     },
-    initAll(): void {
+    initAll() {
       this.initImportData();
       this.initSelectedItem();
       this.initSelectedSurvey();
     },
-    initImportData(): void {
+    initImportData() {
       this.localDateRelativeReminderSettingsList = [];
       this.fileData = null;
     },
-    initSelectedItem(): void {
+    initSelectedItem() {
       this.selectedItemKey = null;
       this.selectedItemTitle = null;
     },
-    initSelectedSurvey(): void {
+    initSelectedSurvey() {
       this.selectedSurveyId = null;
       this.selectedSurveyTitle = null;
     },
-    selectSurvey(surveyId: string | null): void {
+    selectSurvey(surveyId) {
       const surveyConfig = this.surveyConfigs.find(config => config.surveyId === surveyId);
       if (surveyId === null || !surveyConfig) {
         this.initSelectedSurvey();
@@ -263,7 +247,7 @@ export default Vue.extend({
         this.selectedSurveyTitle = surveyConfig.surveyTitle;
       }
     },
-    selectItem(itemKey: string | null): void {
+    selectItem(itemKey) {
       const selectedItem = this.surveySchema.find(item => item.itemKey === itemKey);
       if (itemKey === null || !selectedItem) {
         this.initSelectedItem();
@@ -272,13 +256,13 @@ export default Vue.extend({
         this.selectedItemTitle = selectedItem.title;
       }
     },
-    setDateRelativeReminderSettingsList(contents: CsvContent[]): void {
+    setDateRelativeReminderSettingsList(contents: CsvContent[]) {
       this.localDateRelativeReminderSettingsList = this.attachRequiredParamsToContents(contents);
     },
-    setFileData(file: File | null): void {
+    setFileData(file: File | null) {
       this.fileData = file;
     },
-    showRegistConfirm(): void {
+    showRegistConfirm() {
       this.$dialog.show({
         title: '確認',
         text: 'この内容で登録してもよろしいですか？',

@@ -14,7 +14,7 @@ License for the specific language governing permissions and limitations
 under the License.
 -->
 <template>
-  <v-container>
+  <v-container class="sticker-preview">
     <img
       :src="require('@/assets/line-stickers/' + message.sticker.packageId + '/' + message.sticker.stickerId + '.png')"
       class="preview-sticker-message"

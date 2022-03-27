@@ -60,13 +60,6 @@ import { mapState, mapMutations } from "vuex";
 import { cloneDeep } from "lodash";
 import { isNullOrEmpty } from "@/utils/stringUtils";
 
-interface LocalState {
-  newVersionName: any;
-  rules: Partial<{
-    isValidVersionName: (value: string) => boolean,
-  }>;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -81,7 +74,7 @@ export default Vue.extend({
       }
     }
   },
-  data(): LocalState {
+  data() {
     return {
       newVersionName: null,
       rules: {},
@@ -97,10 +90,10 @@ export default Vue.extend({
       !this.checkValidVersionName(this.newVersionName);
     },
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean) {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -108,11 +101,11 @@ export default Vue.extend({
     },
   },
   methods: {
-    updateVersionName(): void {
+    updateVersionName() {
       this.$emit("updateVersion", this.newVersionName);
       this.show = false;
     },
-    checkValidVersionName(value: any): boolean {
+    checkValidVersionName(value) {
       return !this.existingVersions.includes(value); // valid === not in the version list
     },
   },

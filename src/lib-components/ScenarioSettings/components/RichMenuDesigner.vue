@@ -413,35 +413,12 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
-import MultiSelectAreasImage from "@/pages/admin/ScenarioSettings/ImageMultiSelector/MultiSelectAreasImage.vue";
+import MultiSelectAreasImage from "../ImageMultiSelector/MultiSelectAreasImage.vue";
 import { CREATE_RICH_MENU, DELETE_RICH_MENU, FETCH_ALL_RICHMENUS_ALIAS_LIST } from "@/store/action-types";
 import { RICH_MENU_WIDTH, RICH_MENU_HEIGHT_LARGE, RICH_MENU_HEIGHT_SHORT } from "@/constants/scenario.constants";
 import { cloneDeep } from "lodash";
 import { invalid } from "moment";
 import { isNullOrEmpty } from '@/utils/stringUtils';
-
-interface LocalState {
-  lastDeletedId: any;
-  editFocus: boolean;
-  isEditing: boolean;
-  oldRichMenuId: any;
-  settingUpEdit: boolean;
-  displayAreas: Array<any>;
-  richMenu: any;
-  hasError: boolean;
-  errorMessage: string;
-  areaLength: number;
-  richMenuImageFile: any;
-  richMenuImageUrl: any;
-  richMenuFileSize: any;
-  richMenuImageHeight: number;
-  fileModels: any;
-  actionTypes: Array<any>;
-  itemsDefault: Array<any>;
-  itemsBaseHeight: Array<any>;
-  richMenuImageWidth: number;
-  urlRegex: any;
-}
 
 export default Vue.extend({
   name: "RichMenuDesigner",
@@ -462,7 +439,7 @@ export default Vue.extend({
     oppositeEnvironmentBosaiMenu: Object,
     itemsRichMenu: Array,
   },
-  data(): LocalState {
+  data() {
     return {
       lastDeletedId: null,
       editFocus: false,
@@ -533,7 +510,7 @@ export default Vue.extend({
           let $this = this;
           var img = new Image();
           img.onload = function() {
-            $this.richMenuImageHeight = (this as any).height * ($this.richMenuImageWidth / (this as any).width);
+            $this.richMenuImageHeight = (this).height * ($this.richMenuImageWidth / (this).width);
             let tempAreaArray = [];
             for (let index = 0; index < $this.richMenu.areas.length; index++) {
               $this.richMenu.areas[index].id = index + 1;
@@ -576,14 +553,14 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      isCreatingRichMenu: (state: any) => state.scenarios.isCreatingRichMenu,
-      isCreatingRichMenuError: (state: any) => state.scenarios.isCreatingRichMenuError,
+      isCreatingRichMenu: (state) => state.scenarios.isCreatingRichMenu,
+      isCreatingRichMenuError: (state) => state.scenarios.isCreatingRichMenuError,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -595,7 +572,7 @@ export default Vue.extend({
       createRichMenu: CREATE_RICH_MENU,
       deleteRichMenu: DELETE_RICH_MENU,
     }),
-    resetFields(): void {
+    resetFields() {
       this.richMenu = {
         size: {
           width: RICH_MENU_WIDTH,
@@ -623,7 +600,7 @@ export default Vue.extend({
       this.editFocus = false;
       this.richMenuImageHeight = 0;
     },
-    scrollTop(): number {
+    scrollTop() {
       const elem = document.getElementById('designerCard')
       if (elem) {
         return elem.getBoundingClientRect().top * -1;
@@ -631,7 +608,7 @@ export default Vue.extend({
         return 0;
       }
     },
-    scrollLeft(): number {
+    scrollLeft() {
       const elem = document.getElementById('designerCard')
       if (elem) {
         return elem.getBoundingClientRect().left * -1;
@@ -639,11 +616,11 @@ export default Vue.extend({
         return 0;
       }
     },
-    checkValidUrl(url: any): any {
+    checkValidUrl(url) {
       var regex = new RegExp(this.urlRegex);
       return url.match(regex);
     },
-    canCreateMenu(): boolean {
+    canCreateMenu() {
       var invalidAreas = false;
       this.richMenu.areas.forEach((area) => {
         if (area.action) {
@@ -688,7 +665,7 @@ export default Vue.extend({
         invalidAreas
       );
     },
-    getListAreas(valueBounds: any): void {
+    getListAreas(valueBounds) {
       if (this.settingUpEdit) {
         return;
       }
@@ -720,7 +697,7 @@ export default Vue.extend({
           return obj.id === elem.id;
         });
 
-        var mappedValue: any = {};
+        var mappedValue  = {};
         if (existingAction.length > 0) {
           //matching element was found, save the existing data and new bounds
           mappedValue = {
@@ -795,14 +772,14 @@ export default Vue.extend({
         }
       });
     },
-    fileDataChanged(event: any): void {
+    fileDataChanged(event) {
       if (event) {
         if (event.type === "image/jpg" || event.type === "image/jpeg" || event.type === "image/png") {
           this.errorMessage = "";
           this.hasError = false;
           var reader = new FileReader();
           reader.onload = (e) => {
-            let img: any = new Image();
+            let img  = new Image();
             img.onload = () => {
               //run validation here
               if (event.size > 1000000) {
@@ -843,7 +820,7 @@ export default Vue.extend({
         this.richMenuImageUrl = null;
       }
     },
-    checkError(errorMessage: any, successMessage: any): void {
+    checkError(errorMessage , successMessage) {
       if (!errorMessage) {
         this.hasError = false;
         this.$snackbar.show({
@@ -852,7 +829,7 @@ export default Vue.extend({
         this.resetFields();
       }
     },
-    async saveRichMenu(): Promise<void> {
+    async saveRichMenu() {
       if (this.editableItem == null && this.productionList) {
         var allItems = this.productionList.concat(this.sandboxList);
         for (let index = 0; index < allItems.length; index++) {
@@ -949,7 +926,7 @@ export default Vue.extend({
         }
       }
     },
-    focusArea(areaId: any): void {
+    focusArea(areaId) {
       var indexToReplace = this.displayAreas.findIndex((x) => x.id === areaId);
       for (var index = 0; index < this.displayAreas.length; index++) {
         if (index == indexToReplace) {
@@ -963,7 +940,7 @@ export default Vue.extend({
         }
       }
     },
-    deleteArea(areaId: any): void {
+    deleteArea(areaId) {
       //this.lastDeletedId = areaId;
       var indexToReplace = this.displayAreas.findIndex((x) => x.id == areaId);
       if (indexToReplace >= 0) {
@@ -971,7 +948,7 @@ export default Vue.extend({
         this.getListAreas(this.displayAreas);
       }
     },
-    deleteSelectedArea(event: any): void {
+    deleteSelectedArea(event) {
       if (event.keyCode == 8 && !this.editFocus) {
         var indexToReplace = this.displayAreas.findIndex((x) => x.selected);
         if (indexToReplace >= 0) {
@@ -980,7 +957,7 @@ export default Vue.extend({
         }
       }
     },
-    changingXCoordinate(area: any): void {
+    changingXCoordinate(area) {
       if (area.bounds.x < 0) {
         area.bounds.x = 0;
       } else if (parseInt(area.bounds.x) + parseInt(area.bounds.width) > this.richMenu.size.width) {
@@ -993,7 +970,7 @@ export default Vue.extend({
       var indexToUpdate = this.displayAreas.findIndex((item) => item.id === area.id);
       this.displayAreas[indexToUpdate].x = mappedX;
     },
-    changingYCoordinate(area: any): void {
+    changingYCoordinate(area) {
       if (area.bounds.y < 0) {
         area.bounds.y = 0;
       } else if (parseInt(area.bounds.y) + parseInt(area.bounds.height) > this.richMenu.size.height) {
@@ -1006,7 +983,7 @@ export default Vue.extend({
       var indexToUpdate = this.displayAreas.findIndex((item) => item.id === area.id);
       this.displayAreas[indexToUpdate].y = mappedY;
     },
-    changingWidthCoordinate(area: any): void {
+    changingWidthCoordinate(area) {
       if (area.bounds.width < 0) {
         area.bounds.width = 0;
       } else if (parseInt(area.bounds.x) + parseInt(area.bounds.width) > this.richMenu.size.width) {
@@ -1020,7 +997,7 @@ export default Vue.extend({
       var indexToUpdate = this.displayAreas.findIndex((item) => item.id === area.id);
       this.displayAreas[indexToUpdate].width = mappedWidth;
     },
-    changingHeightCoordinate(area: any): void {
+    changingHeightCoordinate(area) {
       if (area.bounds.height < 0) {
         area.bounds.height = 0;
       } else if (parseInt(area.bounds.y) + parseInt(area.bounds.height) > this.richMenu.size.height) {
@@ -1034,18 +1011,18 @@ export default Vue.extend({
       var indexToUpdate = this.displayAreas.findIndex((item) => item.id === area.id);
       this.displayAreas[indexToUpdate].height = mappedHeight;
     },
-    cancelRichMenuCreate(): void {
+    cancelRichMenuCreate() {
       this.show = false;
       this.resetFields();
     },
-    focusIn(): void {
+    focusIn() {
       this.editFocus = true;
     },
-    focusOut(): void {
+    focusOut() {
       this.editFocus = false;
     },
-    clickingOnSelectArea(): void {
-      (document as any).activeElement.blur();
+    clickingOnSelectArea() {
+      (document).activeElement.blur();
     },
   },
   created() {

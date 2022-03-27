@@ -80,13 +80,7 @@ under the License.
 
 <script lang="ts">
 import Vue from "vue";
-import ActionProperty from "@/components/BotDesigner/CommonProperties/ActionProperty.vue";
-
-interface LocalState {
-  baseWidthOptions: Array<number>;
-  baseHeightOptions: Array<number>;
-  yesNoOptions: Array<any>;
-}
+import ActionProperty from "./CommonProperties/ActionProperty.vue";
 
 export default Vue.extend({
   name: "ItemRichMenu",
@@ -105,7 +99,7 @@ export default Vue.extend({
     },
   },
   components: { ActionProperty },
-  data(): LocalState {
+  data() {
     return {
       baseWidthOptions: [2500],
       baseHeightOptions: [1686, 843],
@@ -123,7 +117,7 @@ export default Vue.extend({
     this.scrollToAction(branchIndex);
   },
   methods: {
-    scrollToAction(branchIndex: any): void {
+    scrollToAction(branchIndex) {
       if (!Number.isInteger(branchIndex)) {
         return;
       }
@@ -139,7 +133,7 @@ export default Vue.extend({
         );
       }
     },
-    getActionByNumber(number: any): any {
+    getActionByNumber(number) {
       let actionObj = this.params[`area.${number}`];
       return actionObj;
     },

@@ -23,7 +23,7 @@ under the License.
 </style>
 
 <template>
-  <v-container>
+  <v-container class="image-preview-common">
     <img
       v-if="message.previewImageUrl.startsWith('data:image')"
       v-bind:src="message.previewImageUrl"

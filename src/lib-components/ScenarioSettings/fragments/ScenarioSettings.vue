@@ -60,21 +60,8 @@ import ScenarioEnvironmentTable from "../components/ScenarioEnvironmentTable.vue
 import VersionImportModal from "../components/VersionImportModal.vue";
 import VersionCreateModal from "../components/VersionCreateModal.vue";
 import VersionDeleteModal from "../components/VersionDeleteModal.vue";
-import ContentLoadError from "@/components/common/ContentLoadError.vue";
+import ContentLoadError from "../../components/common/ContentLoadError.vue";
 import VisualizationModal from "../../ScenarioSettingsDetail/components/VisualizationModal.vue";
-
-interface LocalState {
-  showScenarioVersion: boolean;
-  showImportModal: boolean;
-  showCreateModal: boolean;
-  showDeleteModal: boolean;
-  checkmarkedScenario: any;
-  showVisualizationModal: boolean;
-  previousSelection: Array<any>;
-  resetSelection: boolean;
-  headers: Array<any>;
-  searchCriteriaLocal: any;
-}
 
 export default Vue.extend({
   props: {
@@ -135,16 +122,16 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      scenariosList: (state: any) => state.scenarios.scenariosList,
-      isFetchingScenarios: (state: any) => state.scenarios.isFetchingScenarios,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      fetchScenariosError: (state: any) => state.scenarios.fetchScenariosError,
-      importingScenarioDataWarning: (state: any) => state.scenarios.importingScenarioDataWarning,
-      exportingScenarioDataWarning: (state: any) => state.scenarios.exportingScenarioDataWarning,
-      isFetchingScenarioDetail: (state: any) => state.scenarios.isFetchingScenarioDetail,
+      scenariosList: (state) => state.scenarios.scenariosList,
+      isFetchingScenarios: (state) => state.scenarios.isFetchingScenarios,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      fetchScenariosError: (state) => state.scenarios.fetchScenariosError,
+      importingScenarioDataWarning: (state) => state.scenarios.importingScenarioDataWarning,
+      exportingScenarioDataWarning: (state) => state.scenarios.exportingScenarioDataWarning,
+      isFetchingScenarioDetail: (state) => state.scenarios.isFetchingScenarioDetail,
     }),
-    scenariosItems(): any {
+    scenariosItems() {
       return this.scenariosList.map((obj) => {
         return {
           value: obj.scenarioId,
@@ -152,7 +139,7 @@ export default Vue.extend({
         };
       });
     },
-    versionList(): any {
+    versionList() {
       if (!this.activeScenario || !this.activeScenario.versions) {
         return [];
       }
@@ -181,33 +168,33 @@ export default Vue.extend({
     ...mapActions({
       fetchScenarioTalk: FETCH_SCENARIO_DETAIL_TALK,
     }),
-    onChangeVersion(): void {
+    onChangeVersion() {
       this.showScenarioVersion = true;
     },
-    onImportTrigger(): void {
+    onImportTrigger() {
       this.showImportModal = true;
       this.showScenarioVersion = false;
     },
-    onImportFinishSuccess(): void {
+    onImportFinishSuccess() {
       this.showImportModal = false;
       this.importFinishSuccess(false);
       this.fetchDataList = !this.fetchDataList
     },
-    onCreateFinishSuccess(): void {
+    onCreateFinishSuccess() {
       this.showCreateModal = false;
       this.createFinishSuccess(false);
       this.$snackbar.show({ text: "新規シナリオを作成しました。", type: "success" });
       this.fetchDataList = !this.fetchDataList
     },
-    onExportFinishSuccess(): void {
+    onExportFinishSuccess() {
       this.showScenarioVersion = true;
       this.exportFinishSuccess(false);
     },
-    onCreateClick(): void {
+    onCreateClick() {
       this.resetSelection = true;
       this.showCreateModal = true;
     },
-    onDeleteTrigger(val: any): void {
+    onDeleteTrigger(val) {
       this.checkmarkedScenario = {
         ...this.checkmarkedScenario,
         scenarioName: this.activeScenario?.scenarioId,
@@ -218,7 +205,7 @@ export default Vue.extend({
       this.showDeleteModal = true;
       this.showScenarioVersion = false;
     },
-    onDeleteFinishSuccess(): void {
+    onDeleteFinishSuccess() {
       this.showDeleteModal = false;
       this.showScenarioVersion = false;
       this.deleteFinishSuccess(false);
@@ -235,13 +222,13 @@ export default Vue.extend({
       this.$snackbar.show({ text: `"${text}"を削除しました。`, type: "success" });
       this.fetchDataList = !this.fetchDataList
     },
-    backToSelect(): void {
+    backToSelect() {
       this.previousSelection = this.checkmarkedScenario.versionNames;
       this.resetSelection = false;
       this.showDeleteModal = false;
       this.showScenarioVersion = true;
     },
-    async onShowVisualization(env: any): Promise<void> {
+    async onShowVisualization(env) {
       await this.fetchScenarioTalk({
         scenarioId: this.activeScenarioData.activeScenarioId,
         versionId: this.activeScenarioData.envMapping[env],

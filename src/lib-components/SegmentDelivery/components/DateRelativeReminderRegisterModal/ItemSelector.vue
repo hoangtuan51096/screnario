@@ -20,7 +20,7 @@ under the License.
       <label>質問項目</label>
     </v-col>
     <v-col cols="10">
-      <v-autocomplete 
+      <v-autocomplete
         dense
         hide-details
         outlined
@@ -51,10 +51,10 @@ export default Vue.extend({
   },
   computed: {
     selectedItemKey: {
-      get(): any {
+      get() {
         return this.selectedItemKeyProp;
       },
-      set(itemKey: string | null): void {
+      set(itemKey) {
         this.$emit('selectItem', itemKey);
       },
     },

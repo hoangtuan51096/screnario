@@ -30,7 +30,7 @@
 <script lang="ts">
 import Vue from "vue";
 import ScenarioSettings from './fragments/ScenarioSettings.vue';
-import SubAppBar from '@/components/common/SubAppBar.vue';
+import SubAppBar from '../components/common/SubAppBar.vue';
 import {mapActions, mapState} from 'vuex';
 import {FETCH_ALL_SCENARIOS, FETCH_SCENARIO_TALK} from "@/store/action-types";
 import {
@@ -39,12 +39,8 @@ import {
   SET_TALK_SEARCH_VALUE
 } from "../../../../src/store/mutation-types";
 
-interface LocalState {
-  tab: string;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       tab: 'scenario-setting',
     };
@@ -55,14 +51,24 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      isFetchingScenarios: (state: any) => state.scenarios.isFetchingScenarios,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
+      isFetchingScenarios: (state) => state.scenarios.isFetchingScenarios,
+      activeScenario: (state) => state.scenarios.activeScenario,
     }),
   },
   methods: {
     ...mapActions({
       getDataForDetails: FETCH_SCENARIO_TALK,
     }),
+  },
+  watch: {
+    activeScenario: {
+      handler() {
+        if (this.activeScenario.versions[this.$route.params.versionId] === undefined) {
+          this.$router.push({name: 'ScenarioSettingsPage'})
+        }
+      },
+      deep: true
+    }
   },
   async created() {
     if (!this.activeScenario.scenarioId) {

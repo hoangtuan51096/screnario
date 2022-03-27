@@ -320,16 +320,8 @@ import { cloneDeep } from 'lodash';
 import CateorySelector from './components/CategorySelector.vue';
 import SurveySelector from './components/SurveySelector.vue';
 
-interface LocalState {
-  textMessageRules: any;
-  daysBeforRules: any;
-  sendTimeRules: any;
-  timePickerProperty: Array<any>;
-  reminderSettings: Array<any>;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       textMessageRules: [(v) => !!v || ''],
       daysBeforRules: [(v) =>  (!!v && v >= 0) || ''],
@@ -344,7 +336,7 @@ export default Vue.extend({
           value: '12:00',
           show: false,
           targetIndex: null,
-        }  
+        }
       ],
       reminderSettings: [],
     };
@@ -355,43 +347,43 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      isFetchingReminderConfig: (state: any) => state.segments.isFetchingReminderConfig,
-      displayReminderSettings: (state: any) => state.segments.displayReminderSettings,
-      isUpdatingReminderConfig: (state: any) => state.segments.isUpdatingReminderConfig,
-      isUpdatingReminderConfigError: (state: any) => state.segments.isUpdatingReminderConfigError,
-      selectedCategoryId: (state: any) => state.segments.selectedCategoryId,
-      isLoadingCategories: (state: any) => state.segments.isFetchingAllRemindCategories,
-      selectedSurveyId: (state: any) => state.segments.selectedSurveyId,
-      isFetchingAllSurveyConfigs: (state: any)  => state.segments.isFetchingAllSurveyConfigs,
-      reminderConfiguration: (state: any) => state.segments.reminderConfiguration,
-      surveyConfigs: (state: any)  => state.segments.allSurveyConfigs,
-      categories: (state: any) => state.segments.allReminderCategories,
-      hasPermissionForViewingReminderConfig: (state: any) => state.segments.hasPermissionForViewingReminderConfig,
+      isFetchingReminderConfig: (state) => state.segments.isFetchingReminderConfig,
+      displayReminderSettings: (state) => state.segments.displayReminderSettings,
+      isUpdatingReminderConfig: (state) => state.segments.isUpdatingReminderConfig,
+      isUpdatingReminderConfigError: (state) => state.segments.isUpdatingReminderConfigError,
+      selectedCategoryId: (state) => state.segments.selectedCategoryId,
+      isLoadingCategories: (state) => state.segments.isFetchingAllRemindCategories,
+      selectedSurveyId: (state) => state.segments.selectedSurveyId,
+      isFetchingAllSurveyConfigs: (state)  => state.segments.isFetchingAllSurveyConfigs,
+      reminderConfiguration: (state) => state.segments.reminderConfiguration,
+      surveyConfigs: (state)  => state.segments.allSurveyConfigs,
+      categories: (state) => state.segments.allReminderCategories,
+      hasPermissionForViewingReminderConfig: (state) => state.segments.hasPermissionForViewingReminderConfig,
 
-      permissionsFromTeam: (state: any) => state.auth.permissionsFromTeam,
+      permissionsFromTeam: (state) => state.auth.permissionsFromTeam,
     }),
-    isAdministrator(): boolean {
+    isAdministrator() {
       return this.permissionsFromTeam.isAdministrator;
     },
-    isSelectedSurveyId(): boolean {
+    isSelectedSurveyId() {
       return this.selectedSurveyId !== null;
     },
-    isSelectedCategoryId(): boolean {
+    isSelectedCategoryId() {
       return this.selectedCategoryId !== null;
     },
-    isLoading(): boolean {
+    isLoading() {
       return this.isLoadingCategories
         || this.isFetchingAllSurveyConfigs
         || this.isFetchingReminderConfig
         || this.isUpdatingReminderConfig;
     },
-    isNewSettings(): boolean {
+    isNewSettings() {
       return this.reminderConfiguration === null;
     },
-    canUpdate(): boolean {
+    canUpdate() {
       return this.isAdministrator ? this.isSelectedSurveyId : this.isSelectedSurveyId && this.isSelectedCategoryId;
     },
-    canDelete(): boolean {
+    canDelete() {
       if (this.isNewSettings) {
         return false;
       }
@@ -420,22 +412,22 @@ export default Vue.extend({
       setDisplayReminderSettings: SET_DISPLAY_REMINDER_SETTINGS,
       setReminderConfiguration: SET_REMINDER_CONFIGURATION,
     }),
-    onChangeMessageTypes(value: any, index1: any, index2: any): void {
+    onChangeMessageTypes(value , index1, index2) {
       this.toggleMessageType({
         type: value,
         index1,
         index2
       });
     },
-    onChangeTextMessage(value: any, index1: any, index2: any): void {
+    onChangeTextMessage(value, index1, index2) {
       this.updateReminderSettingsTextMessage({
         text: value,
         index1,
         index2,
       });
     },
-    addMessage(index: any): void {
-      const message: any = {
+    addMessage(index) {
+      const message = {
         text: '',
         type: 'text',
         imageUrl: '',
@@ -447,14 +439,14 @@ export default Vue.extend({
       };
       this.addReminderSettingsMessage({ message, index });
     },
-    removeMessage(index1: any, index2: any): void {
+    removeMessage(index1, index2) {
       this.removeReminderSettingsMessage({ index1, index2 });
     },
-    uploadImage(index1: any, index2: any): void {
+    uploadImage(index1, index2) {
       const refName = `inputFile${index1}${index2}`;
       this.$refs[refName][0].click();
     },
-    removeImage(index1: any, index2: any): void {
+    removeImage(index1, index2) {
       const image = {
         imageUrl: '',
         file: null,
@@ -466,9 +458,9 @@ export default Vue.extend({
         index2
       });
     },
-    onChangeImageMessage(event: any, index1: any, index2: any): void {
+    onChangeImageMessage(event, index1, index2) {
       const file = event.target.files[0];
-      const totalSizeMB: any = (file.size / Math.pow(1024, 2)).toFixed(2);
+      const totalSizeMB = (file.size / Math.pow(1024, 2)).toFixed(2);
       const refName = `inputFile${index1}${index2}`;
       const image = {
         imageUrl: '',
@@ -495,33 +487,33 @@ export default Vue.extend({
       });
       this.$refs[refName][0].value = '';
     },
-    addNewSettings(): void {
+    addNewSettings() {
       this.addReminderSettings(cloneDeep(DEFAULT_REMINDER_SETTINGS));
     },
-    isMaxMessages(index: any): boolean {
+    isMaxMessages(index) {
       return this.displayReminderSettings[index].messages.length === 2;
     },
-    isMaxSettings(): boolean {
+    isMaxSettings() {
       return this.displayReminderSettings.length === 2;
     },
-    isMinMessages(index: any): boolean {
+    isMinMessages(index) {
       return this.displayReminderSettings[index].messages.length === 1;
     },
-    isMinSettings(): boolean {
+    isMinSettings() {
       return this.displayReminderSettings.length === 1;
     },
-    showTimePicker(index: any): void {
+    showTimePicker(index) {
       const setTime = this.displayReminderSettings[index].sendTime ? this.displayReminderSettings[index].sendTime : '00:00';
       this.timePickerProperty[index].value = setTime
       this.timePickerProperty[index].show = true;
     },
-    selectTime(index: any): void {
+    selectTime(index) {
       const { value } = this.timePickerProperty[index];
       this.updateReminderSettingsSendTime({ index, value });
       this.timePickerProperty[index].show = false;
     },
-    async handleUpsertReminder(): Promise<void> {
-      const message: any = {
+    async handleUpsertReminder() {
+      const message = {
         text: 'リマインド配信設定を更新しました。',
       };
 
@@ -540,7 +532,7 @@ export default Vue.extend({
       }
       this.$snackbar.show(message);
     },
-    validateSettings(): any {
+    validateSettings() {
       let errorMessage = null;
       for (const settings of this.displayReminderSettings) {
         const { daysBefore, sendTime, messages } = settings;
@@ -567,14 +559,14 @@ export default Vue.extend({
       }
       return errorMessage;
     },
-    validateSendTime(sendTime: any): boolean {
+    validateSendTime(sendTime) {
       if (!sendTime) {
         return false;
       }
       // sendTimeのフォーマットがhh:mmかチェック
       return sendTime.match(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/) !== null;
     },
-    validateBeforeDays(daysBefore: any): boolean {
+    validateBeforeDays(daysBefore) {
       // daysBeforeが0以上の半角数値かチェック
       const pattern = /^([1-9]\d*|0)$/;
       if (!pattern.test(daysBefore)) {
@@ -585,18 +577,18 @@ export default Vue.extend({
       const _daysBefore = Number(daysBefore);
       return _daysBefore >= 0 && _daysBefore <= 9;
     },
-    async handleDeleteReminder(): Promise<void> {
-      const message: any = {
+    async handleDeleteReminder() {
+      const message = {
         text: 'リマインド配信設定を削除しました。',
       };
 
       if (this.reminderConfiguration) {
         await this.deleteReminderConfig(this.reminderConfiguration.id);
-        
+
         if (this.isUpdatingReminderConfigError) {
           message.text = 'リマインド配信設定の削除に失敗しました。管理者にお問い合わせください。';
           message.type = 'error';
-        } 
+        }
       } else {
         message.text = '未保存の設定は削除できません。',
         message.type = 'error';
@@ -604,23 +596,23 @@ export default Vue.extend({
 
       this.$snackbar.show(message);
     },
-    initSelected(): void {
+    initSelected() {
       this.setSelectedSurveyId(null);
       this.setSelectedCategoryId(null);
       this.initReminderConfig();
     },
-    initReminderConfig(): void {
+    initReminderConfig() {
       this.setReminderConfiguration(null);
       const defaultSettings = cloneDeep(DEFAULT_REMINDER_SETTINGS);
       this.setDisplayReminderSettings([defaultSettings]);
     },
-    async fetchSurveyConfigsAndCategories(): Promise<void> {
+    async fetchSurveyConfigsAndCategories() {
       await Promise.all([
         this.fetchAllSurveyConfigs(),
         this.fetchAllReminderCategories()
       ]);
     },
-    getIdsInRouterParams(): null | { surveyId: string; categoryId: string | undefined } {
+    getIdsInRouterParams(): null | { surveyId; categoryId } {
       const { surveyId, categoryId } = this.$route.params;
       if (!surveyId) {
         return null;
@@ -631,7 +623,7 @@ export default Vue.extend({
         categoryId
       };
     },
-    isExistSurveyAndCategory(surveyId, categoryId): boolean {
+    isExistSurveyAndCategory(surveyId, categoryId) {
       const isExistSurveyConfigs = !!this.surveyConfigs.find(config => config.surveyId === surveyId);
       // surveyIdのみで予約リマインド配信設定が設定されている場合もあるので、paramsにcategoryIdが存在しない場合はtrueを代入するようにする
       const isExistCategory = categoryId ? !!this.categories.find(category => category.id === categoryId) : true;
@@ -640,7 +632,7 @@ export default Vue.extend({
   },
   async created() {
     await this.fetchSurveyConfigsAndCategories();
-    
+
     const ids = this.getIdsInRouterParams();
     if (ids === null) {
       this.initSelected();

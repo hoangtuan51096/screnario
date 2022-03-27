@@ -357,28 +357,17 @@ import { cloneDeep, omit } from "lodash";
 import moment from "moment";
 
 interface GridCols {
-  label: number;
-  date: number;
-  time: number;
-  period: number;
+  label;
+  date;
+  time;
+  period;
 }
-
-interface LocalState {
-  gridCols: GridCols;
-  periodOptions: Array<any>;
-  days: Array<any>;
-  customTypes: Array<any>;
-  weekNumbers: Array<any>;
-  skipTypes: Array<any>;
-  skipLengthRules: any;    
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
     close: Function,
   },
-  data(): LocalState {
+  data() {
     return {
       gridCols: {
         label: 2,
@@ -453,13 +442,13 @@ export default Vue.extend({
   mixins: [DatetimeFormatter],
   computed: {
     ...mapState({
-      distributionDetail: (state: any) => state.segments.distributionDetail,
+      distributionDetail: (state) => state.segments.distributionDetail,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           // this.resetValidation();
           this.$emit("close");
@@ -467,42 +456,42 @@ export default Vue.extend({
       },
     },
     period: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.period;
       },
-      set(value: any): void {
+      set(value) {
         // this.handleUpdate(omit(cloneDeep(DEFAULT_RECURRING_SETTINGS), ['withExclude', 'exclude']));
         this.handleUpdate({ period: value });
       },
     },
     startType: {
-      get(): any {
+      get()  {
         return this.distributionDetail.startType;
       },
       // warning: startType is not a recurringSettings attribute
     },
     // exclude settings
     withExclude: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.withExclude;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ withExclude: value });
       },
     },
     exclude: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.exclude;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ exclude: value });
       },
     },
     excludeDaysOfWeek: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.exclude.daysOfWeek;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           exclude: {
             ...this.distributionDetail.recurringSettings.exclude,
@@ -512,10 +501,10 @@ export default Vue.extend({
       },
     },
     excludeDates: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.exclude.dates;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           exclude: {
             ...this.distributionDetail.recurringSettings.exclude,
@@ -526,14 +515,14 @@ export default Vue.extend({
     },
     // Weekly settings
     daysOfWeek: {
-      get(): any {
+      get()  {
         let arr = [];
         for (let item of this.distributionDetail.recurringSettings.daysOfWeek) {
           arr.push(`daysOfWeek_${item}`);
         }
         return arr;
       },
-      set(value: any): void {
+      set(value) {
         let arr = [];
         for (let item of value) {
           const splitResult = item.split("_");
@@ -545,14 +534,14 @@ export default Vue.extend({
     },
     // Monthly settings
     daysOfMonth: {
-      get(): any {
+      get()  {
         let arr = [];
         for (let item of this.distributionDetail.recurringSettings.daysOfMonth) {
           arr.push(`daysOfMonth_${item}`);
         }
         return arr;
       },
-      set(value: any): void {
+      set(value) {
         let arr = [];
         for (let item of value) {
           const splitResult = item.split("_");
@@ -564,18 +553,18 @@ export default Vue.extend({
     },
     // Custom settings
     custom: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.custom;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ custom: value });
       },
     },
     customType: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.custom.type;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -585,10 +574,10 @@ export default Vue.extend({
       },
     },
     customSkip: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.custom.skip;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -598,10 +587,10 @@ export default Vue.extend({
       },
     },
     customSkipPeriod: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.custom.skip.period;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -614,10 +603,10 @@ export default Vue.extend({
       },
     },
     customSkipLength: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.custom.skip.length;
       },
-      set(value: any): void {
+      set(value) {
         let num = Number(value);
         let length = 0;
         if (!isNaN(num)) {
@@ -644,7 +633,7 @@ export default Vue.extend({
       },
     },
     customNumberedDayOfWeekFirst: {
-      get(): any {
+      get()  {
         let arr = [];
         for (let item of this.distributionDetail.recurringSettings.custom.numberedDayOfWeek) {
           if (item.number === 1) {
@@ -653,7 +642,7 @@ export default Vue.extend({
         }
         return arr;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -663,7 +652,7 @@ export default Vue.extend({
       },
     },
     customNumberedDayOfWeekSecond: {
-      get(): any {
+      get()  {
         let arr = [];
         for (let item of this.distributionDetail.recurringSettings.custom.numberedDayOfWeek) {
           if (item.number === 2) {
@@ -672,7 +661,7 @@ export default Vue.extend({
         }
         return arr;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -682,7 +671,7 @@ export default Vue.extend({
       },
     },
     customNumberedDayOfWeekThird: {
-      get(): any {
+      get()  {
         let arr = [];
         for (let item of this.distributionDetail.recurringSettings.custom.numberedDayOfWeek) {
           if (item.number === 3) {
@@ -691,7 +680,7 @@ export default Vue.extend({
         }
         return arr;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -701,7 +690,7 @@ export default Vue.extend({
       },
     },
     customNumberedDayOfWeekFourth: {
-      get(): any {
+      get()  {
         let arr = [];
         for (let item of this.distributionDetail.recurringSettings.custom.numberedDayOfWeek) {
           if (item.number === 4) {
@@ -710,7 +699,7 @@ export default Vue.extend({
         }
         return arr;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -720,7 +709,7 @@ export default Vue.extend({
       },
     },
     customNumberedDayOfWeekFifth: {
-      get(): any {
+      get()  {
         let arr = [];
         for (let item of this.distributionDetail.recurringSettings.custom.numberedDayOfWeek) {
           if (item.number === 5) {
@@ -729,7 +718,7 @@ export default Vue.extend({
         }
         return arr;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -739,10 +728,10 @@ export default Vue.extend({
       },
     },
     customDates: {
-      get(): any {
+      get()  {
         return this.distributionDetail.recurringSettings.custom.dates;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({
           custom: {
             ...this.distributionDetail.recurringSettings.custom,
@@ -757,16 +746,16 @@ export default Vue.extend({
     ...mapMutations({
       updateRecurringSettings: SET_RECURRING_SETTINGS,
     }),
-    handleUpdate(value: any): void {
+    handleUpdate(value) {
       this.updateRecurringSettings({ ...this.distributionDetail.recurringSettings, ...value });
     },
-    skipTypeToJapanese(value: any): any {
+    skipTypeToJapanese(value)  {
       if (value === "days") return "日";
       if (value === "weeks") return "週";
       if (value === "months") return "月";
       return value;
     },
-    convertCustomNumberedDayOfWeek(number: any, value: any): Array<any> {
+    convertCustomNumberedDayOfWeek(number , value) {
       let arr = [];
       for (let item of this.distributionDetail.recurringSettings.custom.numberedDayOfWeek) {
         if (item.number !== number) {
@@ -778,7 +767,7 @@ export default Vue.extend({
         const dayOfWeek = Number(splitResult[splitResult.length - 1]);
         arr.push({
           dayOfWeek: dayOfWeek,
-          number: number,
+          number,
         });
       }
       return arr;

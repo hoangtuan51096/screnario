@@ -64,7 +64,7 @@ under the License.
 </style>
 
 <template>
-  <v-container class="bubble-flex-preview-container">
+  <v-container class="bubble-flex-preview-container bubble-flex-preview">
     <div class="single-bubble-flex-container" v-html="renderedBubbleFlex"></div>
   </v-container>
 </template>
@@ -74,16 +74,12 @@ import Vue from "vue";
 import { mapState, mapActions, mapGetters } from "vuex";
 import { render } from "@/services/flexRender.ts";
 
-interface LocalState {
-  renderedBubbleFlex: string;
-}
-
 export default Vue.extend({
   name: "ButtonTemplatePreview",
   props: {
     message: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       renderedBubbleFlex: "<span>読み込んで中</span>",
     };

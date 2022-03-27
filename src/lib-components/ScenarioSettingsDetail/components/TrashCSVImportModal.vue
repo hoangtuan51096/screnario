@@ -70,8 +70,8 @@ under the License.
             <v-col cols="1" class="gomi-import-instruction-line" style="background: linear-gradient(#000, #000) no-repeat center/1px 100%;"> </v-col>
             <v-col cols="4">
               <v-img
-                @click="imageDisplay(require('@/assets/scenario-assets/gomiSample.jpg'))"
-                :src="require('@/assets/scenario-assets/gomiSample.jpg')"
+                @click="imageDisplay(require('../../assets/scenario-assets/gomiSample.jpg'))"
+                :src="require('../../assets/scenario-assets/gomiSample.jpg')"
                 max-width="250"
               >
               </v-img>
@@ -196,19 +196,7 @@ under the License.
 import Vue from "vue";
 import { mapState, mapActions } from "vuex";
 import {UPLOAD_CSV_FILE, UPLOAD_LOCATION_CSV_FILE} from "@/store/action-types";
-import ImageDisplayModal from "@/components/common/ImageDisplayModal.vue";
-
-interface LocalState {
-  fileData: any;
-  disableImport: boolean;
-  scenarioVersion: string;
-  rules: any;
-  showImageDisplay: boolean;
-  imageSource: any;
-  sampleFileName: string;
-  sampleZipCodeFileName: string;
-  baseSampleFileUrl: any;
-}
+import ImageDisplayModal from "../../components/common/ImageDisplayModal.vue";
 
 export default Vue.extend({
   props: {
@@ -235,7 +223,7 @@ export default Vue.extend({
       }
     },
   },
-  data(): LocalState {
+  data() {
     return {
       fileData: undefined,
       disableImport: true,
@@ -251,29 +239,29 @@ export default Vue.extend({
   components: { ImageDisplayModal },
   computed: {
     ...mapState({
-      isFetchingScenarioDetail: (state: any) => state.scenarios.isFetchingScenarioDetail,
-      importingScenarioDataError: (state: any) => state.scenarios.importingScenarioDataError,
-      importFinishSuccess: (state: any) => state.scenarios.importFinishSuccess,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      zipCodes: (state: any) => state.scenarios.zipCodes,
+      isFetchingScenarioDetail: (state) => state.scenarios.isFetchingScenarioDetail,
+      importingScenarioDataError: (state) => state.scenarios.importingScenarioDataError,
+      importFinishSuccess: (state) => state.scenarios.importFinishSuccess,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      zipCodes: (state) => state.scenarios.zipCodes,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
       },
     },
-    maxWidthDialog(): number {
+    maxWidthDialog() {
       if (this.isLocationCSV && this.hasZipCodes) return 700;
       else if (this.existingTalks.includes("ゴミ分別")) return 700;
       return 1000;
     },
-    hasZipCodes(): boolean {
+    hasZipCodes() {
       return this.zipCodes.length > 0;
     },
   },
@@ -282,11 +270,11 @@ export default Vue.extend({
       uploadCSVFile: UPLOAD_CSV_FILE,
       uploadLocationCSV: UPLOAD_LOCATION_CSV_FILE,
     }),
-    endImport(): void {
+    endImport() {
       this.show = false;
       this.fileData = undefined;
     },
-    async importFile(): Promise<void> {
+    async importFile() {
       var payload = {
         fileData: this.fileData,
         scenarioId: this.scenarioName,
@@ -295,7 +283,7 @@ export default Vue.extend({
       };
       if (this.fileData.name.split(".").pop() != 'csv') {
         this.$snackbar.show({
-          text: "CSVファイルの処理中にエラーが発生しました：CSVサイズが正しくありません。 列数を確認してください。",
+          text: "Error: CSVファイルのデコード中にエラーが発生しました。次のコーデックがサポートされています。「shift_jis」「shift_jis_2004」「shift_jisx0213」「utf_8」'",
           type: "error",
         });
         return;
@@ -308,14 +296,14 @@ export default Vue.extend({
       this.endImport();
       this.checkError(this.importingScenarioDataError, "保存しました");
     },
-    checkValidVersionName(value: any): boolean {
+    checkValidVersionName(value) {
       return !this.versionList.includes(value); // valid === not in the version list
     },
-    imageDisplay(src: any): void {
+    imageDisplay(src) {
       this.imageSource = src;
       this.showImageDisplay = true;
     },
-    checkError(errorMessage: any, successMessage: any): void {
+    checkError(errorMessage , successMessage) {
       if (errorMessage) {
         this.$snackbar.show({
           text: errorMessage,

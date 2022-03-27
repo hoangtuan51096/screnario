@@ -39,7 +39,7 @@ under the License.
 </style>
 
 <template>
-  <v-container>
+  <v-container class="confirm-preview">
     <div class="preview-text-message">
       <div class="preview-text-content">
         <v-row>

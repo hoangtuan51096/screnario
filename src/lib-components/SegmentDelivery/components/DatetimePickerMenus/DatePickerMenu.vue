@@ -43,19 +43,13 @@ import { SET_DISTRIBUTION_DETAIL, SET_RECURRING_SETTINGS } from "@/store/mutatio
 
 import DatetimeFormatter from "@/mixins/DatetimeFormatter";
 
-interface LocalState {
-  menu_date: boolean;
-  fromDateString: string;
-  toDateString: string;
-}
-
 export default Vue.extend({
   props: {
     field: String,
     isEndDate: Boolean,
     enablePicker: Boolean,
   },
-  data(): LocalState {
+  data() {
     return {
       menu_date: false,
       fromDateString: "",
@@ -66,10 +60,10 @@ export default Vue.extend({
   mixins: [DatetimeFormatter],
   computed: {
     ...mapState({
-      distributionDetail: (state: any) => state.segments.distributionDetail,
+      distributionDetail: (state) => state.segments.distributionDetail,
     }),
     date: {
-      get(): any {
+      get()  {
         if (this.field == "recurringSettings") {
           if (this.distributionDetail.recurringSettings.period == "LastDay") {
             return this.isEndDate
@@ -92,7 +86,7 @@ export default Vue.extend({
           return this.distributionDetail.scheduledStartDate;
         }
       },
-      set(value: any): void {
+      set(value) {
         if (this.field == "recurringSettings") {
           this.isEndDate ? this.handleUpdate({ toDate: value }) : this.handleUpdate({ fromDate: value });
         } else {
@@ -101,7 +95,7 @@ export default Vue.extend({
       },
     },
     datetype: {
-      get(): any {
+      get()  {
         if (this.field == "recurringSettings" && this.distributionDetail.recurringSettings.period == "LastDay") {
           return "month";
         }
@@ -109,12 +103,12 @@ export default Vue.extend({
       },
     },
     startType: {
-      get(): any {
+      get()  {
         return this.distributionDetail.startType;
       },
     },
     dateRules: {
-      get(): any {
+      get()  {
         if (this.enablePicker) {
           return [(v) => !!v || "日付は必須入力です。"];
         }
@@ -128,7 +122,7 @@ export default Vue.extend({
       updateDistributionDetail: SET_DISTRIBUTION_DETAIL,
       updateRecurringSettings: SET_RECURRING_SETTINGS,
     }),
-    handleUpdate(value: any): void {
+    handleUpdate(value) {
       if (this.field == "recurringSettings") {
         this.updateRecurringSettings({ ...this.distributionDetail.recurringSettings, ...value });
       } else {

@@ -23,7 +23,7 @@ under the License.
 </style>
 
 <template>
-  <v-container>
+  <v-container class="image-map-preview">
     <img
       v-if="message && message.baseUrl && message.baseUrl.startsWith('data:image')"
       v-bind:src="message.baseUrl"

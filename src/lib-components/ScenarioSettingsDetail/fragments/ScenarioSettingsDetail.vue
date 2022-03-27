@@ -107,7 +107,7 @@ under the License.
                     color="primary"
                     :disabled="hasActionPermission('disableButton', 'ScenarioSettings_CreateCompositeMessage_Click')"
                     @click="openCompositeMessage">
-                  複合メッセージを追加
+                  新規作成
                 </v-btn>
               </span>
               <span v-if="isVisible">
@@ -180,7 +180,7 @@ under the License.
                   outlined
                   dense
                   clearable
-                  placeholder="メッセージ名"
+                  placeholder=" キーワード"
                   :disabled="!searchAttribute"
               ></v-text-field>
               <v-text-field
@@ -190,7 +190,7 @@ under the License.
                   outlined
                   dense
                   clearable
-                  placeholder="テキスト"
+                  placeholder=" キーワード"
                   :disabled="!searchAttribute"
               ></v-text-field>
               <v-text-field
@@ -200,7 +200,7 @@ under the License.
                   outlined
                   dense
                   clearable
-                  placeholder="ユーザー入力"
+                  placeholder=" キーワード"
                   :disabled="!searchAttribute"
               ></v-text-field>
               <v-text-field
@@ -210,7 +210,7 @@ under the License.
                   outlined
                   dense
                   clearable
-                  placeholder="キーワード"
+                  placeholder=" キーワード"
                   :disabled="true"
               ></v-text-field>
               <v-btn
@@ -229,6 +229,7 @@ under the License.
               > 条件クリア </v-btn>
             </v-toolbar>
           </div>
+          <Pagination :data-table-options="dataPaginate" :total="listData.length" :scenarios-list-paginate="listData" @change="changePaginate"></Pagination>
           <v-data-table
               class="scenario-table"
               :headers="headers"
@@ -237,12 +238,8 @@ under the License.
               :show-select="true"
               :single-select="false"
               :loading="loadingMessageSearch"
-              :footer-props="{
-                'items-per-page-options': [20, 50, 100],
-              }"
-              sort-by="nameLBD"
-              :sort-desc="false"
               item-key="id"
+              hide-default-footer
               v-model="tableSelected"
           >
             <template v-slot:item.data-table-select="{ isSelected, select, item }">
@@ -307,7 +304,13 @@ under the License.
             </template>
             <template v-slot:item.previewValue="{ item }">
               <div v-if="item && item.previewType === 'text'">
-                {{ item.previewValue }}
+                <v-tooltip v-if="item.previewValue !== '-'" top>
+                  <template v-slot:activator="{ on, attrs }">
+                    <span class="text-show" v-bind="attrs" v-on="on">{{ item.previewValue || "" }}</span>
+                  </template>
+                  <span class="tooltip-text-show">{{ item.params ? item.params.text : "-" }}</span>
+                </v-tooltip>
+                <span v-else>{{ item.previewValue || "" }}</span>
               </div>
               <div v-if="item && item.previewType === 'icon'">
                 <v-icon>{{ item.previewValue }}</v-icon>
@@ -320,6 +323,7 @@ under the License.
               <div>{{ typeTitle(item.dataType) }}</div>
             </template>
           </v-data-table>
+          <Pagination :data-table-options="dataPaginate" :total="listData.length" :scenarios-list-paginate="listData" @change="changePaginate"></Pagination>
         </v-container>
       </v-container>
     </v-card>
@@ -423,61 +427,21 @@ import { cloneDeep } from "lodash";
 import { DISPLAY_MESSAGES, SET_USER_MESSAGES } from "@/store/mutation-types";
 import { SPECIAL_TALK_TYPES } from "@/store/modules/scenarios/scenarios.constants";
 import DeleteMessageModal from "../components/DeleteMessageModal.vue";
-
-interface LocalState {
-  scenarioId: any;
-  versionId: any;
-  basicPayload: any;
-  hideTextMapping: Array<any>;
-  displayTalkOptions: any;
-  isVisible: boolean;
-  fmVisible: boolean;
-  csvVisible: boolean;
-  isLocationCSV: boolean;
-  showLoadingExport: boolean;
-  showItemProperties: boolean;
-  showCompositeMessage: boolean;
-  showUserTextEdit: boolean;
-  showSpecialTalk: boolean;
-  showImportTalk: boolean;
-  showZipCodeModal: boolean;
-  showDeleteModal: boolean;
-  showTalkNameChangeModal: boolean;
-  selectedItem: any;
-  selectedTalk: any;
-  searchCriteriaLocal: any;
-  tableItems: Array<any>;
-  tableItemsPerPage: number;
-  filteredTableItems: Array<any>;
-  tableSelected: Array<any>;
-  searchContentsPhrase: any;
-  searchContentsPhraseLowercase: any;
-  loadingMessageSearch: boolean;
-  textPreviews: Array<string>;
-  iconPreviews: Array<string>;
-  imagePreviews: Array<string>;
-  specialTalks: Array<string>;
-  specialTalkScenariosToDisplay: Array<string>;
-  headers: Array<any>;
-  showSearch: boolean;
-  svgIconConstants: any;
-  cardClicked: boolean;
-  localSearchAttribute: string;
-  localSearchKeyword: string;
-  searchOptions: Array<any>;
-}
+import Pagination from "../components/Pagination.vue";
 
 export default Vue.extend({
   props: {
     searchCriteria: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       scenarioId: null,
       versionId: null,
+      talkId: null,
       basicPayload: {
         scenarioId: null,
         versionId: null,
+        talkId: null,
       },
       hideTextMapping: ["jsonTemplate"],
       displayTalkOptions: null,
@@ -555,6 +519,13 @@ export default Vue.extend({
       localSearchAttribute: "",
       localSearchKeyword: "",
       searchOptions: SCENARIO_SETTING_SEARCH_ATTRIBUTE_OPTIONS,
+      listData: [],
+      dataPaginate: {
+        page: 1,
+        perPage: 10,
+        from: 0,
+        to: 0,
+      }
     };
   },
   watch: {
@@ -599,6 +570,9 @@ export default Vue.extend({
         if (val instanceof String) {
           this.$snackbar.show({ text: val, type: "error" });
         } else {
+          if (val.message === 'シナリオが見つかりません。') {
+            this.$router.push({name: 'ScenarioSettingsPage'})
+          }
           this.$snackbar.show({ text: val.message, type: "error" });
         }
       }
@@ -639,37 +613,38 @@ export default Vue.extend({
     TrashCSVImportModal,
     ZipCodeList,
     TalkNameChangeModal,
+    Pagination
   },
   computed: {
     ...mapState({
-      scenarioMessages: (state: any) => state.scenarios.scenarioMessages,
-      scenarioMindmap: (state: any) => state.scenarios.scenarioMindmap,
-      isExportingScenarioData: (state: any) => state.scenarios.isExportingScenarioData,
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
-      userMessages: (state: any) => state.scenarios.userMessages,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
-      isFetchingScenarioDetail: (state: any) => state.scenarios.isFetchingScenarioDetail,
-      fetchScenarioDetailError: (state: any) => state.scenarios.fetchScenarioDetailError,
-      isSavingActiveScenario: (state: any) => state.scenarios.isSavingActiveScenario,
-      exportingScenarioDataError: (state: any) => state.scenarios.exportingScenarioDataError,
-      deleteScenarioTalkSuccess: (state: any) => state.scenarios.deleteScenarioTalkSuccess,
-      changingTalkNameError: (state: any) => state.scenarios.changingTalkNameError,
+      scenarioMessages: (state) => state.scenarios.scenarioMessages,
+      scenarioMindmap: (state) => state.scenarios.scenarioMindmap,
+      isExportingScenarioData: (state) => state.scenarios.isExportingScenarioData,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
+      userMessages: (state) => state.scenarios.userMessages,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
+      isFetchingScenarioDetail: (state) => state.scenarios.isFetchingScenarioDetail,
+      fetchScenarioDetailError: (state) => state.scenarios.fetchScenarioDetailError,
+      isSavingActiveScenario: (state) => state.scenarios.isSavingActiveScenario,
+      exportingScenarioDataError: (state) => state.scenarios.exportingScenarioDataError,
+      deleteScenarioTalkSuccess: (state) => state.scenarios.deleteScenarioTalkSuccess,
+      changingTalkNameError: (state) => state.scenarios.changingTalkNameError,
     }),
-    getTalkNameFromId(): any {
+    getTalkNameFromId() {
       const talk = this.scenarioTalks.find(elem => elem.id == this.$route.params.talkId);
       return talk ? talk.params.name : "トーク名";
     },
-    getTalkDataIdFromId(): any {
+    getTalkDataIdFromId() {
       const talk = this.scenarioTalks.find(elem => elem.id == this.$route.params.talkId);
       return talk ? talk.dataId : "トーク名";
     },
-    getTalkDataById(): any {
+    getTalkDataById() {
       const talk = this.scenarioTalks.find(elem => elem.id == this.$route.params.talkId);
       return talk;
     },
-    displayScenarioMessages(): any {
+    displayScenarioMessages() {
       const displayData = cloneDeep(this.scenarioMessages);
       displayData.forEach((message) => {
         const idToFind = message.dataId;
@@ -685,7 +660,7 @@ export default Vue.extend({
       });
       return displayData;
     },
-    environment(): any {
+    environment() {
       return SCENARIO_ENV_TYPES[this.$route.params.env.toLowerCase()].text;
     },
     productionStatus() {
@@ -697,7 +672,7 @@ export default Vue.extend({
     searchAttribute() {
       return this.localSearchAttribute
     },
-    isClearDisabled(): void {
+    isClearDisabled() {
       return (!this.searchAttribute && !this.searchKeyword) || this.isFetchingUserList;
     }
   },
@@ -720,12 +695,12 @@ export default Vue.extend({
       setDeleteScenarioTalkSuccess: DELETE_SCENARIO_TALK_SUCCESS,
       setIsSavingActiveScenario: SET_IS_SAVING_ACTIVE_SCENARIO,
     }),
-    clickOnMainContent(): void {
+    clickOnMainContent() {
       if (this.showItemProperties) {
         this.cardClicked = !this.cardClicked;
       }
     },
-    saveTextMappingIntoMindMap(): void {
+    saveTextMappingIntoMindMap() {
       const payload = {
         versionName: this.versionId,
         valueName: "textMapping",
@@ -733,7 +708,7 @@ export default Vue.extend({
       };
       this.updateMindMapMessages(payload);
     },
-    saveScenarioMessagesIntoMindMap(): void {
+    saveScenarioMessagesIntoMindMap() {
       const payload = {
         versionName: this.versionId,
         valueName: this.selectedTalk,
@@ -741,7 +716,7 @@ export default Vue.extend({
       };
       this.updateMindMapMessages(payload);
     },
-    setMessagePreviewItems(message: any): void {
+    setMessagePreviewItems(message) {
       if (this.textPreviews.includes(message.dataType)) {
         message["previewType"] = "text";
         message["previewValue"] =
@@ -762,10 +737,10 @@ export default Vue.extend({
         message["previewIcon"] = "mdi-border-none-variant";
       }
     },
-    talkOptions(): any {
+    talkOptions() {
       return this.scenarioTalks ? this.scenarioTalks.map((a) => a.params.name).sort() : [];
     },
-    isLbdWebTalk(talkName: any): any {
+    isLbdWebTalk(talkName) {
       if (!this.scenarioTalks) {
         return false;
       }
@@ -773,46 +748,48 @@ export default Vue.extend({
           this.scenarioTalks.findIndex((talk) => talk.params.name === talkName && talk.params.editor === "lbd-web") !== -1
       );
     },
-    specialScenarioTalkSelected(selectedTalk: any): any {
+    specialScenarioTalkSelected(selectedTalk) {
       return selectedTalk === null || SPECIAL_TALK_TYPES.includes(selectedTalk);
     },
-    onEditProperties(item: any): void {
+    onEditProperties(item) {
       this.selectedItem = cloneDeep(item);
       this.showItemProperties = true;
     },
-    onCloseEditProperties(): void {
+    onCloseEditProperties() {
       this.showItemProperties = false;
       this.selectedItem = {};
     },
-    onEditPropertiesById(itemId: any): void {
+    onEditPropertiesById(itemId) {
       let _item = this.scenarioMessages.find((obj) => obj.dataId === itemId);
       if (_item) {
         this.selectedItem = _item;
         this.showItemProperties = true;
       }
     },
-    onEditUserText(item: any): void {
+    onEditUserText(item) {
       this.selectedItem = item;
       this.showUserTextEdit = true;
     },
-    onExportFinishSuccess(): void {
+    onExportFinishSuccess() {
       //this.showScenarioVersion = true;
       this.exportFinishSuccess(false);
     },
-    openCompositeMessage(): void {
+    openCompositeMessage() {
       this.showCompositeMessage = true;
     },
-    openZipCodeCSVUploader(): void {
+    openZipCodeCSVUploader() {
       this.isLocationCSV = true;
       this.showImportTalk = true;
     },
-    typeTitle(value: any): void {
+    typeTitle(value) {
       return BOT_ITEM_TYPES[value] ? BOT_ITEM_TYPES[value].text : "";
     },
-    save(result: any, originalInput: any): void {
+    save(result , originalInput) {
       const payload = {
         dataId: result.dataId,
         userInput: result.userInput,
+        startMessage: result.userInput[0],
+        talkId: this.talkId,
         textMappingData: this.scenarioTextMap,
         talkName: this.getTalkNameFromId,
       };
@@ -841,8 +818,9 @@ export default Vue.extend({
       }
 
       this.updateTextMapping(payload);
+      this.$snackbar.show({ text: "メッセージョン名を更新しました。", type: "success" });
     },
-    selectTalk(talk: any): any {
+    selectTalk(talk) {
       if (talk) {
         const result = this.scenarioTalks.filter((obj) => {
           return obj.params.name === talk;
@@ -870,7 +848,7 @@ export default Vue.extend({
         this.tableItems = this.displayScenarioMessages;
       }
     },
-    createSpecialScenarios(talk: any): void {
+    createSpecialScenarios(talk) {
       const payload = cloneDeep(this.basicPayload);
       payload.talkName = talk;
       switch (talk) {
@@ -885,11 +863,11 @@ export default Vue.extend({
       }
       this.setScenarioSpecialTalkData(talk, true);
     },
-    toggleSpecialScenarios(talk: any): void {
+    toggleSpecialScenarios(talk) {
       const value = this.activeScenario["versions"][this.versionId]["specialTalks"][SPECIAL_TALK_TYPES_MAPPING[talk]];
       this.setScenarioSpecialTalkData(talk, !value);
     },
-    deleteSpecialScenarios(talk: any): void {
+    deleteSpecialScenarios(talk) {
       if (talk === this.selectedTalk) {
         this.selectedTalk = null;
         this.selectTalk(null);
@@ -908,7 +886,7 @@ export default Vue.extend({
         },
       });
     },
-    setScenarioSpecialTalkData(talk: any, valueToSet: any): void {
+    setScenarioSpecialTalkData(talk , valueToSet) {
       const talkName = SPECIAL_TALK_TYPES_MAPPING[talk];
       const scenarioDataToSave = cloneDeep(this.activeScenario);
       if (talkName != null) {
@@ -922,7 +900,7 @@ export default Vue.extend({
         this.updateActiveScenario(scenarioDataToSave);
       }
     },
-    exportTrashCSV(): void {
+    exportTrashCSV() {
       this.showLoadingExport = true;
       if (this.getTalkDataById.params?.path) {
         var filename = this.getTalkDataById.params?.path.replace(/.*\//, "");
@@ -936,7 +914,7 @@ export default Vue.extend({
         this.showLoadingExport = false;
       }
     },
-    filterTableItems(): void {
+    filterTableItems() {
       this.loadingMessageSearch = true;
 
       const {
@@ -947,7 +925,6 @@ export default Vue.extend({
       } = this.searchCriteriaLocal || {};
 
       let results = [...this.tableItems];
-
       if (messageName) {
         results = results.filter((item) => {
           return item.nameLBD.includes(messageName);
@@ -1006,24 +983,36 @@ export default Vue.extend({
             break
         }
       }
-      this.filteredTableItems = results;
+      this.listData = results;
+      this.dataPaginate.from = ((this.dataPaginate.page - 1) * this.dataPaginate.perPage) + 1;
+      if (results.length > (this.dataPaginate.page * this.dataPaginate.perPage)) {
+        this.filteredTableItems = results.slice((this.dataPaginate.page - 1) * this.dataPaginate.perPage, this.dataPaginate.page * this.dataPaginate.perPage);
+        this.dataPaginate.to = this.dataPaginate.page * this.dataPaginate.perPage
+      } else {
+        this.filteredTableItems = results.slice((this.dataPaginate.page - 1) * this.dataPaginate.perPage, results.length);
+        this.dataPaginate.to = results.length
+      }
 
       this.loadingMessageSearch = false;
     },
-    checkTextComponentSearchMatch(item: any, textProperty: any): any {
+    changePaginate(value){
+      this.dataPaginate.page = value
+      this.filterTableItems()
+    },
+    checkTextComponentSearchMatch(item , textProperty) {
       return (
           item.params &&
           item.params[textProperty] &&
           item.params[textProperty].toLowerCase().includes(this.searchContentsPhraseLowercase)
       );
     },
-    checkNameLBDSearchMatch(item: any): any {
+    checkNameLBDSearchMatch(item) {
       return item.nameLBD && item.nameLBD.toLowerCase().includes(this.searchContentsPhraseLowercase);
     },
-    checkActionComponentSearchMatch(action: any): any {
+    checkActionComponentSearchMatch(action) {
       return action && action.label && action.label.toLowerCase().includes(this.searchContentsPhraseLowercase);
     },
-    checkButtonActionsSearchMatch(item: any): boolean {
+    checkButtonActionsSearchMatch(item) {
       let actionsMatch = false;
       if (item.params && item.params.actionCount) {
         for (let index = 0; index < item.params.actionCount; index++) {
@@ -1036,7 +1025,7 @@ export default Vue.extend({
       }
       return actionsMatch;
     },
-    checkCarouselActionsSearchMatch(item: any): boolean {
+    checkCarouselActionsSearchMatch(item) {
       let actionsMatch = false;
       if (item.params && item.params.columnCount && item.params.actionCount) {
         const columnCount = item.params.columnCount;
@@ -1057,7 +1046,7 @@ export default Vue.extend({
       }
       return actionsMatch;
     },
-    checkBubbleFlexSearchMatch(item: any): boolean {
+    checkBubbleFlexSearchMatch(item) {
       let foundInBody = false;
       if (item.params && item.params.body) {
         if (item.params.body.contents) {
@@ -1093,7 +1082,7 @@ export default Vue.extend({
       }
       return foundInBody || foundInHeader || foundInFooter;
     },
-    componentContentsSearchMatch(contents: any): boolean {
+    componentContentsSearchMatch(contents) {
       let tempResult = false;
       for (let index = 0; index < contents.length; index++) {
         if (this.componentSearchMatch(contents[index])) {
@@ -1103,7 +1092,7 @@ export default Vue.extend({
       }
       return tempResult;
     },
-    componentSearchMatch(component: any): any {
+    componentSearchMatch(component) {
       if (!component.type) {
         return false;
       }
@@ -1123,7 +1112,7 @@ export default Vue.extend({
         return false;
       }
     },
-    checkCarouselTextSearchMatch(item: any): boolean {
+    checkCarouselTextSearchMatch(item) {
       let foundMatch = false;
       if (item.params) {
         for (let index = 0; index < item.params.columnCount; index++) {
@@ -1138,7 +1127,7 @@ export default Vue.extend({
       }
       return foundMatch;
     },
-    checkCarouselTitleSearchMatch(item: any): boolean {
+    checkCarouselTitleSearchMatch(item) {
       let foundMatch = false;
       if (item.params && item.params.useTitle) {
         for (let index = 0; index < item.params.columnCount; index++) {
@@ -1153,13 +1142,15 @@ export default Vue.extend({
       }
       return foundMatch;
     },
-    openZipCodeList(): void {
+    openZipCodeList() {
       this.showZipCodeModal = true;
       //other data to be added
     },
-    disableDeleteButton(): any {
+    disableDeleteButton() {
       if (this.tableSelected.length === 0) {
         return true;
+      } else {
+        return false;
       }
 
       return this.tableSelected.some((modelLocal) => {
@@ -1184,7 +1175,7 @@ export default Vue.extend({
         return modelInCompositeMessage;
       });
     },
-    async onDeleteItem(): Promise<void> {
+    async onDeleteItem() {
       this.setIsSavingActiveScenario(true);
       try {
         let text = []
@@ -1214,7 +1205,7 @@ export default Vue.extend({
         this.setIsSavingActiveScenario(false);
       }
     },
-    async updateTalkName(newTalkName: any): Promise<void> {
+    async updateTalkName(newTalkName) {
       this.setIsSavingActiveScenario(true);
       try {
         let response = await this.updateScenarioTalkName({
@@ -1233,7 +1224,7 @@ export default Vue.extend({
         this.setIsSavingActiveScenario(false);
       }
     },
-    async setUpTalkData(): Promise<void> {
+    async setUpTalkData() {
       await this.getDataForDetails(this.basicPayload);
 
       this.selectedTalk = this.getTalkNameFromId;
@@ -1242,7 +1233,7 @@ export default Vue.extend({
     async handleSearch() {
       this.filterTableItems()
     },
-    handleClearAllSearchCriteria(): void {
+    handleClearAllSearchCriteria() {
       this.localSearchAttribute = ""
       this.localSearchKeyword = ""
       this.handleSearch()
@@ -1251,9 +1242,11 @@ export default Vue.extend({
   created() {
     this.scenarioId = this.$route.params.scenarioId;
     this.versionId = this.$route.params.versionId;
+    this.talkId = this.$route.params.talkId;
     this.basicPayload = {
       scenarioId: this.$route.params.scenarioId,
       versionId: this.$route.params.versionId,
+      talkId: this.$route.params.talkId,
     };
     this.displayTalkOptions = this.talkOptions();
     this.searchCriteriaLocal = this.searchCriteria;

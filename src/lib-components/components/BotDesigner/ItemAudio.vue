@@ -83,22 +83,6 @@ under the License.
 import Vue from "vue";
 import { cloneDeep } from "lodash";
 
-interface LocalState {
-  editSoundFile: boolean;
-  tempAudioUrl: any;
-  tempAudioFile: any;
-  validTempAudioUrl: boolean;
-  validTempAudioFile: boolean;
-  fileModels: Array<any>;
-  audioOptions: Array<any>;
-  allowedContentType: Array<string>;
-  sizeLimitOriginal: number;
-  rules: any;
-  isValidSize: Array<boolean>;
-  isValidType: Array<boolean>;
-  originalContentUrlBackUp: any;
-}
-
 export default Vue.extend({
   name: "ItemAudio",
   props: {
@@ -143,7 +127,7 @@ export default Vue.extend({
       }
     },
   },
-  data(): LocalState {
+  data() {
     return {
       editSoundFile: false,
       tempAudioUrl: null,
@@ -164,7 +148,7 @@ export default Vue.extend({
       },
       isValidSize: [true],
       isValidType: [true],
-      originalContentUrlBackUp: cloneDeep((this as any).params.originalContentUrl) || {},
+      originalContentUrlBackUp: cloneDeep((this).params.originalContentUrl) || {},
     };
   },
   mounted() {
@@ -174,7 +158,7 @@ export default Vue.extend({
     this.$emit("updateSaveStatus", { key: `ItemAudio`, value: true });
   },
   methods: {
-    onChangeValue(event: any, keyValue: any): void {
+    onChangeValue(event, keyValue) {
       if (keyValue == "originalContentUrl") {
         if (event !== "") {
           const response = fetch(event, {
@@ -226,7 +210,7 @@ export default Vue.extend({
         this.reportValidation();
       }
     },
-    fileDataChanged(event: any, index: any): void {
+    fileDataChanged(event, index) {
       this.isValidSize[index - 1] = !(event !== undefined && event.size > 200000000);
       this.isValidType[index - 1] = !(event !== undefined && event.type !== "audio/x-m4a");
       if (event) {
@@ -249,7 +233,7 @@ export default Vue.extend({
       this.fileModels[index - 1] = event;
       this.$emit("fileAudioDataUpdate", this.fileModels);
     },
-    reportValidation(): void {
+    reportValidation() {
       if (this.editSoundFile && this.params.audioFileLocal) {
         if (!this.validTempAudioFile) {
           this.$emit("updateSaveStatus", { key: `ItemAudio`, value: false });

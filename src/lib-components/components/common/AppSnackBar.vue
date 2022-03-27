@@ -27,16 +27,8 @@ under the License.
 import Vue from "vue";
 import Snackbar from "@/plugins/snackbar";
 
-interface LocalState {
-  visible: boolean;
-  title: string;
-  text: string;
-  timeout: number;
-  type: string;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       visible: false,
       title: "",
@@ -48,7 +40,7 @@ export default Vue.extend({
   beforeMount() {
     // here we need to listen for emited events
     // we declared those events inside our plugin
-    Snackbar.EventBus.$on("show", (params: any) => {
+    Snackbar.EventBus.$on("show", (params) => {
       this.show(params);
     });
     Snackbar.EventBus.$on("hide", () => {
@@ -56,10 +48,10 @@ export default Vue.extend({
     });
   },
   methods: {
-    hide(): void {
+    hide() {
       this.visible = false;
     },
-    confirm(): void {
+    confirm() {
       // we must check if this.onConfirm is function
       if (typeof this.onConfirm === "function") {
         // run passed function and then close the modal
@@ -70,7 +62,7 @@ export default Vue.extend({
         this.hide();
       }
     },
-    show(params: any): void {
+    show(params) {
       // making modal visible
       this.visible = true;
       this.text = params.text;

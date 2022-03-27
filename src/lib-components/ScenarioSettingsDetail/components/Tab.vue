@@ -22,16 +22,13 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 
-interface LocalState {
-  active: boolean;
-}
 
 export default Vue.extend({
   name: "Tab",
   props: {
     title: String,
   },
-  data(): LocalState {
+  data() {
     return {
       active: false,
     };

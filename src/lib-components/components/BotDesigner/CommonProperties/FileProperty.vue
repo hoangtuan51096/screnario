@@ -63,16 +63,12 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 
-interface LocalState {
-  fileTypesOptions: Array<any>;
-}
-
 export default Vue.extend({
   props: {
     title: String,
     value: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       fileTypesOptions: [
         { value: "url", text: "URL" },

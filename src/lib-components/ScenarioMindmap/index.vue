@@ -36,9 +36,13 @@ under the License.
                 <span class="blue-grey--text mx-1" style="opacity: 0.6">
               -
               </span>
+              <router-link
+                  color="primary"
+                  :to="onScenarioSettings">
                 <span class="blue-grey--text">
-                {{ $route.params.talkName }}
-              </span>
+                  {{ $route.params.talkName }}
+                </span>
+              </router-link>
             </div>
             <v-spacer />
             <v-col class="editor-buttons" cols="auto" style="padding-left: 0;padding-right: 0; display: flex; align-items: center;">
@@ -201,6 +205,7 @@ under the License.
                   <template v-slot:activator="{ on, attrs }">
                     <span v-bind="attrs" v-on="on">
                       <v-btn
+                          color="error"
                           class="editor-button"
                           tile
                           :elevation="0"
@@ -378,53 +383,14 @@ import {
 } from "@/store/action-types";
 import { SET_SCENARIO_MINDMAP, SET_SCENARIO_MINDMAP_MESSAGES, SET_SCENARIO_TEXTMAP } from "@/store/mutation-types";
 import PanZoom from "panzoom";
-import SubAppBar from "@/components/common/SubAppBar.vue";
+import SubAppBar from "../components/common/SubAppBar.vue";
 
 const DOUBLE_CLICK_TIMEOUT_MILLI_SEC = 333;
 
 const ALLOW_LINK_DATA_TYPES = ["buttons"];
 
-interface LocalState {
-  talkName: string;
-  panzoom: any;
-  scenarioId: any;
-  versionId: any;
-  validTextMappings: Array<any>;
-  mindMapGenerations: Array<any>;
-  tempMindMapForDrawing: Array<any>;
-  scenarioMindmapMessages: Array<any>;
-  rootNode: any;
-  mindMapErrorMessage: any;
-  loadingMindMap: boolean;
-  svgNS: string;
-  svgHeight: number;
-  highlightedNodes: Array<any>;
-  editProperties: boolean;
-  activeItem: any
-  editItem: any;
-  linkItem: any;
-  saved: boolean;
-  scale: number;
-  minScale: number;
-  maxScale: number;
-  nodeClickHandler: any;
-  deleteTargets: Array<any>;
-  displayTalkOptions: any;
-  lastClickPosition: any;
-  previousState: any;
-  nextState: any;
-  onSaveDeleteTargetIds: Array<any>;
-  validScenarioTextMap: any;
-  copiedItems: any;
-  isChangingEditItem: boolean;
-  scenarioMindmapSnapshot: any;
-  editMenuDummyModel: any;
-  editItemDataType: any;
-  newTalkUUID: any;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       talkName: "",
       panzoom: null,
@@ -523,20 +489,33 @@ export default Vue.extend({
     editItem(val) {
       this.editItemDataType = val ? val.dataType : null;
     },
+    fetchScenarioDetailError(val) {
+      if (val) {
+        if (val instanceof String) {
+          this.$snackbar.show({ text: val, type: "error" });
+        } else {
+          if (val.message === 'シナリオが見つかりません。') {
+            this.$router.push({name: 'ScenarioSettingsPage'})
+          }
+          this.$snackbar.show({ text: val.message, type: "error" });
+        }
+      }
+    }
   },
   computed: {
     ...mapState({
-      scenarioMindmap: (state: any) => state.scenarios.scenarioMindmap,
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
-      scenarioMessages: (state: any) => state.scenarios.scenarioMessages,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
-      userMessages: (state: any) => state.scenarios.userMessages,
-      isSavingTalkNodes: (state: any) => state.scenarios.isSavingTalkNodes,
-      saveTalkNodesSuccess: (state: any) => state.scenarios.saveTalkNodesSuccess,
-      saveTalkNodesError: (state: any) => state.scenarios.saveTalkNodesError,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
+      scenarioMindmap: (state) => state.scenarios.scenarioMindmap,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
+      scenarioMessages: (state) => state.scenarios.scenarioMessages,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
+      userMessages: (state) => state.scenarios.userMessages,
+      isSavingTalkNodes: (state) => state.scenarios.isSavingTalkNodes,
+      saveTalkNodesSuccess: (state) => state.scenarios.saveTalkNodesSuccess,
+      saveTalkNodesError: (state) => state.scenarios.saveTalkNodesError,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      fetchScenarioDetailError: (state) => state.scenarios.fetchScenarioDetailError,
     }),
-    onScenarioSettings(): any {
+    onScenarioSettings() {
       if (this.getTalkIdFromName()) {
         return {
           name: "ScenarioSettingsDetailPage",
@@ -553,12 +532,12 @@ export default Vue.extend({
         }
       }
     },
-    onScenarioHome(): any {
+    onScenarioHome() {
       return {
         name: "ScenarioSettingsPage",
       };
     },
-    filteredScenarioTextMap(): any {
+    filteredScenarioTextMap() {
       const nextScenarioTextMap = cloneDeep(this.scenarioTextMap);
       const { textMapping } = cloneDeep(nextScenarioTextMap);
       const filteredTextMap = {};
@@ -570,16 +549,16 @@ export default Vue.extend({
       return { ...nextScenarioTextMap, textMapping: filteredTextMap };
     },
     showDrawer: {
-      get(): boolean {
+      get() {
         return !!(this.editProperties && this.editItem);
       },
-      set(): void {},
+      set() {},
     },
     showRootMessageDrawer: {
-      get(): boolean {
+      get() {
         return !!(this.editProperties && this.editItem && !this.editItem.dataId);
       },
-      set(): void {},
+      set() {},
     },
     showPropertyDrawer: {
       get() {
@@ -587,10 +566,10 @@ export default Vue.extend({
       },
       set() {},
     },
-    isMacOS(): boolean {
+    isMacOS() {
       return navigator.platform.toLowerCase().includes("mac");
     },
-    propertyTabWidth(): number {
+    propertyTabWidth() {
       return ["bubbleFlex"].includes(this.editItemDataType) ? 35 : 25;
     }
   },
@@ -605,17 +584,17 @@ export default Vue.extend({
       updateMindMapMessages: SET_SCENARIO_MINDMAP_MESSAGES,
       updateMindMap: SET_SCENARIO_MINDMAP,
     }),
-    onMount(force = false): void {
+    onMount(force = false) {
       this.fetchProperties(force);
     },
-    talkOptions(): any {
+    talkOptions() {
       return this.scenarioTalks ? this.scenarioTalks.map((a) => a.params.name).sort() : [];
     },
-    getTalkIdFromName(): any {
+    getTalkIdFromName() {
       const talk = this.scenarioTalks.find(elem => elem.params.name === this.talkName);
       return talk ? talk.dataId : '';
     },
-    selectTalk(talk: any): void {
+    selectTalk(talk) {
       this.loadingMindMap = true;
       this.$router.replace({
         name: "ScenarioMindmapPage",
@@ -630,7 +609,7 @@ export default Vue.extend({
     // Main mindmap functions
     //================================================================
     //Run this method whenever a new talk is selected
-    async buildMindMapFromNewTalk(): Promise<void> {
+    async buildMindMapFromNewTalk() {
       this.scenarioMindmapMessages = cloneDeep(this.scenarioMindmap[this.versionId][this.talkName]);
       this.validTextMappings = cloneDeep(this.scenarioMindmap[this.versionId].textMapping);
       this.mindMapGenerations = [];
@@ -655,14 +634,14 @@ export default Vue.extend({
 
       this.recenterMap(0);
     },
-    onZoom(): void {
+    onZoom() {
       if (!this.panzoom) {
         return;
       }
       const { scale } = this.panzoom.getTransform();
       this.scale = Math.round(scale * 100);
     },
-    onClickEnlargeButton(): void {
+    onClickEnlargeButton() {
       if (!this.panzoom) {
         return;
       }
@@ -680,7 +659,7 @@ export default Vue.extend({
       this.scale = next;
       this.panzoom.smoothZoomAbs(x, y, next / 100);
     },
-    onClickShrinkButton(): void {
+    onClickShrinkButton() {
       if (!this.panzoom) {
         return;
       }
@@ -698,21 +677,21 @@ export default Vue.extend({
       this.scale = next;
       this.panzoom.smoothZoomAbs(x, y, next / 100);
     },
-    onClickResetButton(): void {
+    onClickResetButton() {
       if (!this.panzoom) {
         return;
       }
       const { x, y } = this.panzoom.getTransform();
       this.panzoom.smoothZoomAbs(x, y, 1);
     },
-    onInputZoomLevel(event: any): void {
+    onInputZoomLevel(event) {
       if (!this.panzoom || event.inputType) {
         return;
       }
       const { x, y } = this.panzoom.getTransform();
       this.panzoom.smoothZoomAbs(x, y, this.scale / 100);
     },
-    async buildTheMindMap(): Promise<void> {
+    async buildTheMindMap() {
       this.rootNode = null;
       this.mindMapErrorMessage = null;
       this.mindMapGenerations = [];
@@ -810,7 +789,7 @@ export default Vue.extend({
     //recenter the map using panzoom on a certain node
     // id: id of the node to center the map on
     // to center on root node, send 0 to method
-    recenterMap(id: any): void {
+    recenterMap(id) {
       const elem = document.getElementById("node." + id);
       if (elem) {
         this.panzoom.centerOn(elem);
@@ -819,7 +798,7 @@ export default Vue.extend({
     //delete the children of the svg group
     //effectively deleting the mindmap
     //call this whenever redrawing
-    deleteMindMapChildren(): void {
+    deleteMindMapChildren() {
       const myNode = document.getElementById("mindMapSVG");
       while (myNode.firstChild) {
         myNode.removeChild(myNode.lastChild);
@@ -828,7 +807,7 @@ export default Vue.extend({
     //================================================================
     // Helper functions for drawing on the map
     //================================================================
-    createTheSVGNodes(): void {
+    createTheSVGNodes() {
       const mindmapNodes = cloneDeep(this.mindMapGenerations).flat();
       const drawBackGroundForCarouselGroupTargets = [];
       this.tempMindMapForDrawing.forEach((gen, genCounter) => {
@@ -1058,7 +1037,7 @@ export default Vue.extend({
         }
       });
     },
-    drawTheSVGConnections(): void {
+    drawTheSVGConnections() {
       for (let x = this.tempMindMapForDrawing.length - 1; x > 0; x--) {
         const currentGenNodes = this.tempMindMapForDrawing[x];
         const parentGenNodes = this.tempMindMapForDrawing[x - 1];
@@ -1080,7 +1059,7 @@ export default Vue.extend({
       }
     },
     //Draw icons on the linked nodes (ancestor or previously drawn on map)
-    drawParentSVGIcons(): void {
+    drawParentSVGIcons() {
       const listOfNodesWithLinks = [];
       const listOfNodesWithLoops = [];
       const listOfLinkedNodes = [];
@@ -1152,7 +1131,7 @@ export default Vue.extend({
     //================================================================
     // General helper functions for component
     //================================================================
-    setValueOfNodeInMindmap(elem: any, attribute: any, value: any): void {
+    setValueOfNodeInMindmap(elem, attribute, value) {
       //helper function to set an attribute in mindmap using clone deep
       let genCounter = 0;
       this.mindMapGenerations.some((gen) => {
@@ -1169,7 +1148,7 @@ export default Vue.extend({
         genCounter++;
       });
     },
-    deleteValueOfNodeInMindmap(elem: any, attribute: any): void {
+    deleteValueOfNodeInMindmap(elem, attribute) {
       //helper function to delete an attribute in mindmap using clone deep
       let genCounter = 0;
       this.mindMapGenerations.some((gen) => {
@@ -1184,7 +1163,7 @@ export default Vue.extend({
         genCounter++;
       });
     },
-    toggleValueOfNodeInMindmap(elem: any, attribute: any): void {
+    toggleValueOfNodeInMindmap(elem, attribute) {
       //helper function to toggle an attribute in mindmap using clone deep
       let genCounter = 0;
       this.mindMapGenerations.some((gen) => {
@@ -1201,7 +1180,7 @@ export default Vue.extend({
         genCounter++;
       });
     },
-    expandMindMapToDisplayNode(elementId: any): void {
+    expandMindMapToDisplayNode(elementId) {
       let genCounter = 0;
       let indexOfElem = 0;
       this.mindMapGenerations.some((gen) => {
@@ -1222,7 +1201,7 @@ export default Vue.extend({
         parentNodeId = parentNode.parentId;
       }
     },
-    redrawMapForExpandCollapse(elementId: any = null): void {
+    redrawMapForExpandCollapse(elementId = null) {
       const innerSvg = document.getElementById("mindMapSVG");
       let innerRectSnapshot;
       if (innerSvg) {
@@ -1254,7 +1233,7 @@ export default Vue.extend({
 
         const innerRect = innerSvg.getBoundingClientRect();
         const svg = document.getElementById("svgElem");
-        const rect: any = node.querySelector("rect[height]");
+        const rect = node.querySelector("rect[height]");
         if (!svg || !rect) {
           // NOTE: fallback;
           this.recenterMap(elementId);
@@ -1274,7 +1253,7 @@ export default Vue.extend({
         );
       }
     },
-    redrawFromRoot(elementRootText: any): void {
+    redrawFromRoot(elementRootText) {
       this.deleteMindMapChildren();
       this.mindMapGenerations[0][0].value = elementRootText;
       this.tempMindMapForDrawing = cloneDeep(this.mindMapGenerations);
@@ -1292,7 +1271,7 @@ export default Vue.extend({
       clearActiveItem = true,
       clearLinkItem = true,
       clearLinkHighlight = true
-    ): Promise<void> {
+    ) {
       this.previousState = {
         scenarioMindmapMessages: oldState,
         onSaveDeleteTargetIds: cloneDeep(this.onSaveDeleteTargetIds),
@@ -1355,7 +1334,7 @@ export default Vue.extend({
     // Mindmap click event handlers
     //================================================================
     //Function for expanding/collapsing a node on the mindmap
-    toggleExpand(elem: any, event: any): void {
+    toggleExpand(elem, event) {
       if (event && event.stopPropagation) {
         event.stopPropagation();
       }
@@ -1367,7 +1346,7 @@ export default Vue.extend({
       }
     },
     //Highlight a list of element ids
-    highlightListOfElems(nodeIdsToHighlight: any, nodeToCenterOn: any, event: any): void {
+    highlightListOfElems(nodeIdsToHighlight, nodeToCenterOn, event) {
       event.stopPropagation();
       this.unhighightLinks(null);
 
@@ -1390,12 +1369,12 @@ export default Vue.extend({
         }
       });
     },
-    clearNodeClickHandler(): void {
+    clearNodeClickHandler() {
       console.log("clearNodeClickHandler:", this.nodeClickHandler);
       clearTimeout(this.nodeClickHandler);
       this.nodeClickHandler = null;
     },
-    clearActiveItem(): void {
+    clearActiveItem() {
       console.log("clearActiveItem:", this.activeItem);
       if (!this.activeItem) {
         return;
@@ -1412,7 +1391,7 @@ export default Vue.extend({
       }
       this.activeItem = null;
     },
-    clearLinkItem(): void {
+    clearLinkItem() {
       console.log("clearLinkItem:", this.linkItem);
       if (!this.linkItem) {
         return;
@@ -1430,7 +1409,7 @@ export default Vue.extend({
       this.linkItem = null;
     },
     //function for unhighlighting any nodes currently highlighted
-    unhighightLinks(): void {
+    unhighightLinks() {
       console.log("MOHEMOHE", "unhighightLinks()", "activeItem:", this.activeItem);
       const targets = document.querySelectorAll('.node[filter="url(#linkhighlight)"]');
       if (targets) {
@@ -1445,7 +1424,7 @@ export default Vue.extend({
       this.highlightedNodes = [];
     },
     //function to rebuild mindmap using a new talk
-    moveToTalk(moveToTalkName: any): void {
+    moveToTalk(moveToTalkName) {
       if (!(moveToTalkName in this.scenarioMindmap[this.versionId])) {
         this.saveTalkMessagesIntoMindmap(moveToTalkName);
       }
@@ -1461,7 +1440,7 @@ export default Vue.extend({
       this.buildMindMapFromNewTalk();
     },
     //function for editing/node was clicked
-    onClickNode(elem: any, event: any): any {
+    onClickNode(elem, event) {
       console.log("clicking to select element", elem, event);
       event.stopPropagation();
       if (this.nodeClickHandler) {
@@ -1473,10 +1452,10 @@ export default Vue.extend({
         this.onSingleClickNode(elem, event);
       }, DOUBLE_CLICK_TIMEOUT_MILLI_SEC);
     },
-    asyncSleep(timeout: any) {
-      return new Promise<void>((resolve) => setTimeout(() => resolve(), timeout));
+    asyncSleep(timeout) {
+      return new Promise((resolve) => setTimeout(() => resolve(), timeout));
     },
-    async onSingleClickNode(elem: any, event: any): Promise<any> {
+    async onSingleClickNode(elem, event) {
       if (event.shiftKey) {
         return this.onShiftSingleClickNode(elem, event);
       }
@@ -1527,7 +1506,7 @@ export default Vue.extend({
         this.editProperties = false;
       }
     },
-    renderActiveNodeBorder(elem: any): any {
+    renderActiveNodeBorder(elem) {
       let editItem;
       const target = document.getElementById(`node.${elem.mindmapId}`);
       if (target) {
@@ -1568,7 +1547,7 @@ export default Vue.extend({
       }
       return editItem;
     },
-    onShiftSingleClickNode(elem: any): void {
+    onShiftSingleClickNode(elem) {
       if (elem.dataType === "__INITIAL__") {
         this.$snackbar.show({
           text: "初期状態のノードには関連付けできません",
@@ -1641,29 +1620,29 @@ export default Vue.extend({
       console.log("updated activeItem:", this.editItem);
       this.editItem = { ...this.editItem, branchIndex: actionCount - 1 };
     },
-    onDoubleClickNode(elem: any, event: any): void {
+    onDoubleClickNode(elem, event) {
       console.log("double click element", elem, event);
       if (event && event.stopPropagation) {
         event.stopPropagation();
       }
       this.toggleExpand(elem);
     },
-    onClickSVGContainer(): void {
+    onClickSVGContainer() {
       this.clearNodeClickHandler();
     },
-    stopProperties(value: any): void {
+    stopProperties(value) {
       this.editProperties = value;
       this.editItem = value ? this.activeItem : null;
       this.clearActiveItem();
       this.clearLinkItem();
     },
-    updateEditState(value: any): void {
+    updateEditState(value) {
       this.isChangingEditItem = value;
     },
     //================================================================
     // Fetching methods for refresh on mindmap
     //================================================================
-    saveTalkMessagesIntoMindmap(talkNameToSave: any): void {
+    saveTalkMessagesIntoMindmap(talkNameToSave) {
       //Get the messages that belong to a talk and save into mindmap
 
       //Fetch the talk (list of user/bot messages)
@@ -1703,7 +1682,7 @@ export default Vue.extend({
         this.updateMindMapMessages(payload);
       }
     },
-    async fetchProperties(force: any): Promise<void> {
+    async fetchProperties(force) {
       const payload = {
         scenarioId: this.scenarioId,
         versionId: this.versionId,
@@ -1725,14 +1704,14 @@ export default Vue.extend({
         this.loadingMindMap = false;
       }
     },
-    onResizeWindow(): void {
+    onResizeWindow() {
       if (!this.$refs.svgContainer) {
         // NOTE: we need fallback to avoid blank page.
         this.svgHeight = 500;
       }
       this.svgHeight = this.$refs.svgContainer.clientHeight;
     },
-    toggleRootMessageDrawer(open: any = null): boolean {
+    toggleRootMessageDrawer(open = null) {
       try {
         if (open === true) {
           this.$refs["root-drawer"].$el.classList.remove("drawer-shrink");
@@ -1749,7 +1728,7 @@ export default Vue.extend({
       }
       return false;
     },
-    togglePropertyDrawer(open: any = null): boolean {
+    togglePropertyDrawer(open = null) {
       try {
         if (open === true) {
           this.$refs["property-drawer"].$el.classList.remove("drawer-shrink");
@@ -1766,7 +1745,7 @@ export default Vue.extend({
       }
       return false;
     },
-    onSvgContainerMouseDown(event: any): void {
+    onSvgContainerMouseDown(event) {
       if (event.target.id !== "svgElem") {
         return;
       }
@@ -1785,7 +1764,7 @@ export default Vue.extend({
       }
       console.log("onSvgContainerMouseDown:", this.lastClickPosition);
     },
-    onSvgContainerMouseUp(event: any): void {
+    onSvgContainerMouseUp(event) {
       if (event.target.id !== "svgElem") {
         return;
       }
@@ -1831,7 +1810,7 @@ export default Vue.extend({
         }
       }
     },
-    onClickSaveButton(): void {
+    onClickSaveButton() {
       const originalTalkId = this.getTalkIdFromName();
       this.newTalkUUID = originalTalkId;
 
@@ -1847,7 +1826,7 @@ export default Vue.extend({
       };
       this.saveTalkNodes(payload);
     },
-    onClickDeleteButton(): any {
+    onClickDeleteButton() {
       if (!this.editItem) {
         return;
       }
@@ -1873,7 +1852,7 @@ export default Vue.extend({
       this.markDeleteNode();
       this.$snackbar.show({ text: "もう一度削除ボタンをクリックすると削除します", type: "warn" });
     },
-    markDeleteNode(): void {
+    markDeleteNode() {
       if (Array.isArray(this.deleteTargets)) {
         this.deleteTargets.forEach((deleteTarget) => {
           const element = document.getElementById(`node.${deleteTarget.mindmapId}`);
@@ -1883,14 +1862,14 @@ export default Vue.extend({
         });
       }
     },
-    unmarkDeleteNode(): void {
+    unmarkDeleteNode() {
       const nodes = document.getElementsByClassName("delete-target");
       if (nodes) {
         Array.from(nodes).forEach((node) => node.classList.remove("delete-target"));
       }
       this.deleteTargets = [];
     },
-    deleteNodes(): void {
+    deleteNodes() {
       if (this.deleteTargets.length === 0) {
         return;
       }
@@ -1978,7 +1957,7 @@ export default Vue.extend({
       this.unmarkDeleteNode();
       this.reRenderSVG();
     },
-    onClickUndoButton(): void {
+    onClickUndoButton() {
       this.nextState = {
         scenarioMindmapMessages: cloneDeep(this.scenarioMindmapMessages),
         onSaveDeleteTargetIds: cloneDeep(this.onSaveDeleteTargetIds),
@@ -1990,7 +1969,7 @@ export default Vue.extend({
       this.editProperties = false;
       this.reRenderSVG();
     },
-    onClickRedoButton(): void {
+    onClickRedoButton() {
       this.previousState = {
         scenarioMindmapMessages: cloneDeep(this.scenarioMindmapMessages),
         onSaveDeleteTargetIds: cloneDeep(this.onSaveDeleteTargetIds),
@@ -2002,7 +1981,7 @@ export default Vue.extend({
       this.editProperties = false;
       this.reRenderSVG();
     },
-    replaceState(state: any): void {
+    replaceState(state) {
       const { scenarioMindmapMessages, onSaveDeleteTargetIds, validTextMappings } = cloneDeep(state);
       this.validTextMappings = cloneDeep(validTextMappings);
       this.scenarioMindmap[this.versionId].textMapping = cloneDeep(validTextMappings);
@@ -2010,14 +1989,14 @@ export default Vue.extend({
       this.scenarioMindmapMessages = cloneDeep(scenarioMindmapMessages);
       this.onSaveDeleteTargetIds = cloneDeep(onSaveDeleteTargetIds);
     },
-    reRenderSVG(): void {
+    reRenderSVG() {
       this.clearNodeClickHandler();
       this.clearLinkItem();
       this.clearActiveItem();
       this.deleteMindMapChildren();
       this.buildTheMindMap();
     },
-    onWindowKeyDown(event: any): any {
+    onWindowKeyDown(event) {
       if (event.path.find((path) => path.id === "drawer-content")) {
         // NOTE: keydown on drawer textarea. we should ignore event
         return true;
@@ -2038,7 +2017,7 @@ export default Vue.extend({
         return this.onClickRedoButton();
       }
     },
-    onCopy(event: any): void {
+    onCopy(event) {
       if (!this.activeItem) {
         return;
       }
@@ -2060,7 +2039,7 @@ export default Vue.extend({
       }
       this.copiedItems = copiedItems;
     },
-    onPaste(event: any): void {
+    onPaste(event) {
       if (!this.activeItem || !this.copiedItems) {
         return;
       }
@@ -2177,7 +2156,7 @@ export default Vue.extend({
       this.editProperties = false;
       this.reRenderSVG();
     },
-    localDataTypeUpdate(dataType: any): void {
+    localDataTypeUpdate(dataType) {
       this.editItemDataType = dataType;
     },
   },
@@ -2215,27 +2194,14 @@ export default Vue.extend({
     this.onWindowKeyDown = this.onWindowKeyDown.bind(this);
     this.talkName = this.$route.params.talkName;
   },
-  beforeRouteLeave(to, from, next) {
 
+  beforeRouteLeave(to, from, next) {
     if (!isEqual(this.scenarioMindmapSnapshot, this.scenarioMindmap)) {
       this.$dialog.show({
         title: "このページを離れてもよろしいですか？",
         text: "行った変更は破棄されます。",
         btnConfirmTitle: "このページを離れる",
         onConfirm: () => {
-          //When leaving an unsaved talk,
-          //Delete the talk from mindmap and delete any pending text mappings
-          // let tempMindMap = cloneDeep(this.scenarioMindmap);
-          // delete tempMindMap[this.versionId][this.talkName];
-          //
-          // this.mindMapGenerations.forEach(generation => {
-          //   generation.forEach(node => {
-          //     if (node.type === 'message' && !('messageLinkToOtherTalk' in node)) {
-          //       delete tempMindMap[this.versionId].textMapping[node.value];
-          //     }
-          //   })
-          // })
-
           this.updateMindMap(cloneDeep(this.scenarioMindmapSnapshot));
           next();
         },
@@ -2407,9 +2373,6 @@ export default Vue.extend({
   }
 
   .editor-buttons .combined-buttons .editor-button[disabled] {
-    background-color: rgba(0, 0, 0, 0.12) !important;
-  }
-  .editor-buttons{
     background-color: rgba(0, 0, 0, 0.12) !important;
   }
 </style>

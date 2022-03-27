@@ -140,25 +140,13 @@ import TalkModal from "../components/TalkModal/index.vue";
 import { emitSnackbar } from "@/utils/emitComponents";
 
 interface TextValuePair {
-  text: string;
-  value: string;
-}
-
-interface LocalState {
-  tab: string;
-  perOnPage: number;
-  selected: Array<any>;
-  mailHeaders: Array<TextValuePair>;
-  talkHeaders: Array<TextValuePair>;
-  showDataModal: boolean;
-  showTalkModal: boolean;
-  selectedItem: any;
-  distributionCondition: any;
+  text;
+  value;
 }
 
 export default Vue.extend({
   components: { DataModal, TalkModal },
-  data(): LocalState {
+  data() {
     return {
       tab: "mail-delivery-list",
       perOnPage: 10,
@@ -213,29 +201,29 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      mailDeliveryList: (state: any) => state.segments.mailDeliveryList,
-      talkDeliveryList: (state: any) => state.segments.talkDeliveryList,
+      mailDeliveryList: (state) => state.segments.mailDeliveryList,
+      talkDeliveryList: (state) => state.segments.talkDeliveryList,
 
-      isFetchingMailDeliveryList: (state: any) => state.segments.isFetchingMailDeliveryList,
-      isFetchingTalkDeliveryList: (state: any) => state.segments.isFetchingTalkDeliveryList,
+      isFetchingMailDeliveryList: (state) => state.segments.isFetchingMailDeliveryList,
+      isFetchingTalkDeliveryList: (state) => state.segments.isFetchingTalkDeliveryList,
 
-      fetchMailDeliveryListError: (state: any) => state.segments.fetchMailDeliveryListError,
-      fetchTalkDeliveryListError: (state: any) => state.segments.fetchTalkDeliveryListError,
+      fetchMailDeliveryListError: (state) => state.segments.fetchMailDeliveryListError,
+      fetchTalkDeliveryListError: (state) => state.segments.fetchTalkDeliveryListError,
 
-      segmentsList: (state: any) => state.segments.segmentsList,
-      isFetchingSegmentDeliveries: (state: any) => state.segments.isFetchingSegmentDeliveries,
-      fetchSegmentDeliveriesError: (state: any) => state.segments.fetchSegmentDeliveriesError,
-      currentPage: (state: any) => state.segments.currentPage,
+      segmentsList: (state) => state.segments.segmentsList,
+      isFetchingSegmentDeliveries: (state) => state.segments.isFetchingSegmentDeliveries,
+      fetchSegmentDeliveriesError: (state) => state.segments.fetchSegmentDeliveriesError,
+      currentPage: (state) => state.segments.currentPage,
     }),
     ...mapGetters({
       filteredMailDistributions: "filteredMailDistributions",
       filteredTalkDistributions: "filteredTalkDistributions",
     }),
     page: {
-      get(): number {
+      get() {
         return this.currentPage;
       },
-      set(value: number): void {
+      set(value) {
         this.updatePage(value);
       },
     },
@@ -250,36 +238,36 @@ export default Vue.extend({
 
       fetchSegmentDeliveries: FETCH_ALL_SEGMENT_DELIVERIES,
     }),
-    async handleReloadMailDeliveryList(): Promise<void> {
+    async handleReloadMailDeliveryList() {
       await this.fetchMailDeliveryList().then(() => {
         emitSnackbar(this.$snackbar, "メール配信データを更新しました。");
       })
     },
-    async handleReloadTalkDeliveryList(): Promise<void> {
+    async handleReloadTalkDeliveryList() {
       await this.fetchTalkDeliveryList().then(() => {
         emitSnackbar(this.$snackbar, "トーク配信データを更新しました。");
       })
     },
-    getEnvironmentDisplay(env: any): any {
+    getEnvironmentDisplay(env) {
       return TALK_DELIVERY_ENVIRONMENT_DISPLAY_TEXT[env] ? TALK_DELIVERY_ENVIRONMENT_DISPLAY_TEXT[env] : "不明";
     },
-    openDataModal(item: any): void {
+    openDataModal(item) {
       item ? (this.selectedItem = item) : null;
       this.showDataModal = true;
     },
-    openTalkModal(item: any): void {
+    openTalkModal(item) {
       item ? (this.selectedItem = item) : null;
       this.showTalkModal = true;
     },
-    closeTalkModal(): void {
+    closeTalkModal() {
       this.selectedItem = null;
       this.showTalkModal = false;
     },
-    closeDataModal(): void {
+    closeDataModal() {
       this.selectedItem = null;
       this.showDataModal = false;
     },
-    onConditionDetail(item: any): any {
+    onConditionDetail(item) {
       return {
         name: "ConditionDetail",
         params: {

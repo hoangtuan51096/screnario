@@ -147,29 +147,6 @@ under the License.
 import Vue from "vue";
 import { cloneDeep } from "lodash";
 
-interface LocalState {
-  fileModels: Array<any>;
-  allowedContentType: Array<any>;
-  contentOptions: Array<any>;
-  sizeLimitOriginal: number;
-  allowedContentTypePreview: Array<string>;
-  sizeLimitPreview: number;
-  editOriginalFiles: boolean;
-  editPreviewFiles: boolean;
-  tempOriginalUrl: any;
-  tempOriginalFile: any;
-  validTempOriginalUrl: boolean;
-  validTempOriginalFile: boolean;
-  tempPreviewUrl: any;
-  tempPreviewFile: any;
-  validTempPreviewUrl: boolean;
-  validTempPreviewFile: boolean;
-  rules: any;
-  isValidSize: Array<boolean>;
-  isValidType: Array<boolean>;
-  originalContentUrlBackUp: any;
-}
-
 export default Vue.extend({
   name: "ItemVideo",
   props: {
@@ -234,7 +211,7 @@ export default Vue.extend({
       }
     },
   },
-  data(): LocalState {
+  data() {
     return {
       fileModels: [undefined, undefined],
       allowedContentType: ["video/mp4"],
@@ -269,11 +246,11 @@ export default Vue.extend({
       },
       isValidSize: [true, true],
       isValidType: [true, true],
-      originalContentUrlBackUp: cloneDeep((this as any).params.originalContentUrl) || {},
+      originalContentUrlBackUp: cloneDeep((this).params.originalContentUrl) || {},
     };
   },
   methods: {
-    onChangeValue(event: any, keyValue: any): void {
+    onChangeValue(event , keyValue) {
       if (keyValue == "originalContentUrl") {
         if (event !== "") {
           const response = fetch(event, {
@@ -364,7 +341,7 @@ export default Vue.extend({
         this.$emit("updateParams", { key: keyValue, value: event });
       }
     },
-    fileDataChanged(event: any, index: any): void {
+    fileDataChanged(event , index) {
       if (index - 1 === 0) {
         this.isValidSize[index - 1] = !(event !== undefined && event.size > 200000000);
         this.isValidType[index - 1] = !(event !== undefined && event.type !== "video/mp4");
@@ -409,7 +386,7 @@ export default Vue.extend({
       this.fileModels[index - 1] = event;
       this.$emit("fileVideoDataUpdate", this.fileModels);
     },
-    reportValidation(): void {
+    reportValidation() {
       for (const item of this.isValidSize) {
         if (!item) {
           this.$emit("updateSaveStatus", { key: `ItemVideo`, value: false });

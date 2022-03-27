@@ -105,29 +105,8 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 
-import ActionProperty from "@/components/BotDesigner/CommonProperties/ActionProperty.vue";
+import ActionProperty from "./CommonProperties/ActionProperty.vue";
 import { cloneDeep } from "lodash";
-
-interface LocalState {
-  editFiles: boolean;
-  fileModels: Array<any>;
-  fileDisplay: Array<any>;
-  imageOptions: Array<any>;
-  allowedContentType: Array<string>;
-  urlForImages: any;
-  validTempOriginalUrl: boolean;
-  tempOriginalUrl: any;
-  fileSizes: Array<number>;
-  baseWidthSizes: Array<number>;
-  baseWidthOptions: Array<any>;
-  rules: any;
-  isValidActionList: any;
-  fileSizeLimit: number;
-  isValidFileSize: Array<boolean>;
-  isValidFileType: Array<boolean>;
-  imageIndex: number;
-  baseUrlOriginal: any;
-}
 
 export default Vue.extend({
   name: "ItemImageMapMessage",
@@ -177,9 +156,9 @@ export default Vue.extend({
       this.scrollToAction(val);
     },
   },
-  data(): LocalState {
+  data() {
     var temp = [];
-    for (var i = 0; i < (this as any).params.actionCount; i++) {
+    for (var i = 0; i < (this).params.actionCount; i++) {
       temp.push(true);
     }
     return {
@@ -191,7 +170,7 @@ export default Vue.extend({
         { text: "ローカルファイル", value: true },
       ],
       allowedContentType: ["image/jpg", "image/jpeg", "image/png"],
-      urlForImages: (this as any).params.baseUrl,
+      urlForImages: (this).params.baseUrl,
       validTempOriginalUrl: false,
       tempOriginalUrl: null,
       fileSizes: [240, 300, 460, 700, 1040],
@@ -218,7 +197,7 @@ export default Vue.extend({
       isValidFileType: [true, true, true, true, true],
       imageIndex: -1,
 
-      baseUrlOriginal: cloneDeep((this as any).params.baseUrl) || {},
+      baseUrlOriginal: cloneDeep((this).params.baseUrl) || {},
     };
   },
   components: { ActionProperty },
@@ -235,7 +214,7 @@ export default Vue.extend({
     this.$emit("updateSaveStatus", { key: `ItemImageMapMessage`, value: true });
   },
   methods: {
-    scrollToAction(branchIndex: any): void {
+    scrollToAction(branchIndex) {
       if (!Number.isInteger(branchIndex)) {
         return;
       }
@@ -251,10 +230,10 @@ export default Vue.extend({
         );
       }
     },
-    onChangeText(value: any): void {
+    onChangeText(value) {
       this.$emit("updateParams", { key: "text", value: value });
     },
-    updateImageUrl(update: any): void {
+    updateImageUrl(update) {
       var correctCounter = 0;
       if (update !== "") {
         for (var x = 0; x < this.fileSizes.length; x++) {
@@ -310,11 +289,11 @@ export default Vue.extend({
         this.reportValidation();
       }
     },
-    getActionByNumber(number: any): void {
+    getActionByNumber(number) {
       let actionObj = this.params[`action.${number}`];
       return actionObj;
     },
-    fileDataChanged(event: any, index: any): void {
+    fileDataChanged(event, index) {
       this.validateImage(event, index);
       this.isValidFileSize[index - 1] = !(event !== undefined && event.size > 10000000);
       this.isValidFileType[index - 1] = !(
@@ -324,11 +303,11 @@ export default Vue.extend({
       );
       this.reportValidation();
     },
-    validateAction(value: any, index: any): void {
+    validateAction(value, index) {
       this.isValidActionList[index] = value;
       this.reportValidation();
     },
-    validateImage(value: any, index: any): void {
+    validateImage(value, index) {
       if (value === undefined) {
         this.params.baseUrl = this.baseUrlOriginal;
 
@@ -342,7 +321,7 @@ export default Vue.extend({
       reader.readAsDataURL(value);
 
       reader.onload = (evt) => {
-        var img: any = new Image();
+        var img = new Image();
         img.onload = (val) => {
           if (img.width !== this.baseWidthOptions[index - 1].value) {
             this.$snackbar.show({
@@ -375,7 +354,7 @@ export default Vue.extend({
         this.reportValidation();
       };
     },
-    nullValueInFiles(): boolean {
+    nullValueInFiles() {
       return (
         this.fileModels[0] == undefined ||
         this.fileModels[1] == undefined ||
@@ -384,7 +363,7 @@ export default Vue.extend({
         this.fileModels[4] == undefined
       );
     },
-    reportValidation(): void {
+    reportValidation() {
       for (let i = 0; i < this.params.actionCount; i++) {
         if (!this.isValidActionList[i]) {
           this.$emit("updateSaveStatus", { key: `ItemImageMapMessage`, value: false });

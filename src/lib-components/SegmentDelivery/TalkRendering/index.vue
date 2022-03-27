@@ -92,11 +92,11 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      userStore: (state: any) => state.auth.user,
+      userStore: (state) => state.auth.user,
     }),
   },
   methods: {
-    hasContents(value: any): boolean {
+    hasContents(value) {
       switch (value.type) {
         case "text":
           return value.text.length !== 0 && value.text.trim().length !== 0;
@@ -108,7 +108,7 @@ export default Vue.extend({
           return value.flexPayload.validateResult && value.flexPayload.payload;
       }
     },
-    imagemapUrl(baseUrl): string {
+    imagemapUrl(baseUrl) {
       return baseUrl.startsWith("data:") ? baseUrl : baseUrl + '/1040'
     }
   },
@@ -120,55 +120,4 @@ export default Vue.extend({
 </script>
 
 <style>
-.balloon-left {
-  margin: 10px 10px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-
-.balloon-left {
-  margin-right: 20px;
-}
-
-.avatar {
-  margin: 10px 20px 0 0;
-}
-
-.username {
-  color: white;
-  margin: 0 !important;
-}
-
-.text-preview {
-  margin: 0 !important;
-  font-size: small;
-  max-width: 210px;
-  display: inline-block;
-  flex-wrap: wrap;
-  position: relative;
-  word-wrap: break-word;
-  padding: 10px 15px 10px 15px;
-  border-radius: 12px;
-  background: white;
-  box-sizing: border-box;
-  line-height: 1.5;
-  white-space: pre-line;
-}
-
-.image-preview {
-  border-radius: 12px;
-}
-
-.text-preview:after {
-  content: "";
-  position: absolute;
-  top: 10px;
-  border: 10px solid transparent;
-}
-
-.balloon-left .text-preview:after {
-  left: -20px;
-  border-right: 22px solid white;
-}
 </style>

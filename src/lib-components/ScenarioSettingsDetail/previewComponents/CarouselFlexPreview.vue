@@ -72,7 +72,7 @@ under the License.
 </style>
 
 <template>
-  <v-container class="bubble-flex-preview-container">
+  <v-container class="bubble-flex-preview-container carousel-flex-preview">
     <div class="bubble-flex-individual-container" v-for="(bubble, index) in renderBubbles" :key="index">
       <div class="bubble-flex-container" v-html="bubble"></div>
     </div>
@@ -84,16 +84,12 @@ import Vue from "vue";
 import { mapState, mapActions, mapGetters } from "vuex";
 import { render } from "@/services/flexRender.ts";
 
-interface LocalState {
-  renderBubbles: Array<any>;
-}
-
 export default Vue.extend({
   name: "ButtonTemplatePreview",
   props: {
     message: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       renderBubbles: [],
     };
@@ -106,11 +102,11 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      scenarioMessages: (state: any) => state.scenarios.scenarioMessages,
+      scenarioMessages: (state) => state.scenarios.scenarioMessages,
     }),
   },
   methods: {
-    instantiateBubbles(): void {
+    instantiateBubbles() {
       var bubbles = this.message.bubbleParam;
       var bubbleMessages = [];
       bubbles.forEach((bubble) => {

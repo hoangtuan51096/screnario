@@ -51,7 +51,7 @@ under the License.
 
 <script lang="ts">
 import Vue from "vue";
-import MultiLine from "@/components/common/MultiLine.vue";
+import MultiLine from "../../components/common/MultiLine.vue";
 
 export default Vue.extend({
   components: {MultiLine},
@@ -67,10 +67,10 @@ export default Vue.extend({
   },
   computed: {
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }

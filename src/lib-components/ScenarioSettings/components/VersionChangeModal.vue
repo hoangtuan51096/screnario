@@ -66,12 +66,6 @@ import { mapState, mapActions } from "vuex";
 import { FETCH_TALK_DELIVERY_LIST, FETCH_SCENARIO_SPECIFIC_TALKS } from "@/store/action-types";
 import { TEMPLATE_TALK_IDS, SCENARIO_ENV_TYPES } from "@/store/modules/scenarios/scenarios.constants";
 
-interface LocalState {
-  loadingTalkDistributions: boolean;
-  talkDistributionsThatBecomeInactive: Array<any>;
-  fetchingTalkDistributionError: any;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -80,7 +74,7 @@ export default Vue.extend({
     environment: String,
     scenarioId: String,
   },
-  data(): LocalState {
+  data() {
     return {
       loadingTalkDistributions: false,
       talkDistributionsThatBecomeInactive: [],
@@ -90,13 +84,13 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      activeScenario: (state: any) => state.scenarios.activeScenario,
+      activeScenario: (state) => state.scenarios.activeScenario,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.resetLocalData();
           this.$emit("close");
@@ -108,22 +102,22 @@ export default Vue.extend({
     ...mapActions({
       fetchTalksForScenario: FETCH_SCENARIO_SPECIFIC_TALKS,
     }),
-    getEnvironmentDisplayText(envName: any): any {
+    getEnvironmentDisplayText(envName) {
       return envName in SCENARIO_ENV_TYPES ? SCENARIO_ENV_TYPES[envName].text : "不明";
     },
-    resetLocalData(): void {
+    resetLocalData() {
       this.loadingTalkDistributions = false;
       this.talkDistributionsThatBecomeInactive = [];
       this.fetchingTalkDistributionError = null;
     },
-    confirmChange(): void {
+    confirmChange() {
       this.show = false;
       this.$emit("onChangeConfirm");
     },
-    cancelChange(): void {
+    cancelChange() {
       this.show = false;
     },
-    findValidDistributionsFromTalks(talkList: any, distributionList: any): Array<any> {
+    findValidDistributionsFromTalks(talkList , distributionList) {
       const validDistributions = [];
       for (const dist of distributionList) {
         if (!dist.enabled || dist.environment !== this.environment) {
@@ -145,7 +139,7 @@ export default Vue.extend({
       }
       return validDistributions;
     },
-    findDifferencesInValidDistributions(currentDistributions: any, newDistributions: any): void {
+    findDifferencesInValidDistributions(currentDistributions , newDistributions) {
       for (const dist of currentDistributions) {
         const distInNewDistributions = newDistributions.find(config => config.distributionConfigId === dist.distributionConfigId);
         if (!distInNewDistributions) {

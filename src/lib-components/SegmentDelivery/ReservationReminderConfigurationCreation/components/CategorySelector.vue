@@ -19,12 +19,12 @@ under the License.
       <label>分類</label>
     </v-col>
     <v-col cols="10">
-      <v-autocomplete 
-        v-model="selected" 
+      <v-autocomplete
+        v-model="selected"
         :items="categoryNames"
         :disabled="isLoadingCategories || !isSelectedSurveyId"
-        outlined 
-        dense 
+        outlined
+        dense
         hide-details>
       </v-autocomplete>
     </v-col>
@@ -46,23 +46,23 @@ import { SET_SELECTED_CATEGORY } from '@/store/mutation-types';
 export default Vue.extend({
   computed: {
     ...mapState({
-      allReminderCategories: (state: any) => state.segments.allReminderCategories,
-      isFetchingAllRemindCategories: (state: any) => state.segments.isFetchingAllRemindCategories,
-      selectedSurveyId: (state: any)  => state.segments.selectedSurveyId,
-      selectedCategoryId: (state: any) => state.segments.selectedCategoryId,
-      surveyConfigs: (state: any)  => state.segments.allSurveyConfigs,
+      allReminderCategories: (state) => state.segments.allReminderCategories,
+      isFetchingAllRemindCategories: (state) => state.segments.isFetchingAllRemindCategories,
+      selectedSurveyId: (state)  => state.segments.selectedSurveyId,
+      selectedCategoryId: (state) => state.segments.selectedCategoryId,
+      surveyConfigs: (state)  => state.segments.allSurveyConfigs,
     }),
-    isLoadingCategories(): boolean {
+    isLoadingCategories() {
       return this.isFetchingAllRemindCategories;
     },
-    isSelectedSurveyId(): boolean {
+    isSelectedSurveyId() {
       return this.selectedSurveyId !== null;
     },
     selected: {
-      get(): any {
+      get()  {
         return this.selectedCategoryId || null;
       },
-      async set(value: any): Promise<void> {
+      async set(value) {
         this.setSelectedCategory(value);
         await this.fetchReminderConfig({
           surveyId: this.selectedSurveyId,
@@ -70,7 +70,7 @@ export default Vue.extend({
         });
       },
     },
-    categoryNames(): any {
+    categoryNames()  {
       const options = [
         {
           value: null,

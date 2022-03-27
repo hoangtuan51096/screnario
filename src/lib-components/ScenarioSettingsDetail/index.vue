@@ -149,17 +149,6 @@ import {mapState} from "vuex";
 import {BOT_ITEM_TYPES} from "@/store/modules/scenarios/scenarios.constants";
 import {FETCH_ALL_SCENARIOS} from "@/store/action-types";
 
-interface LocalState {
-  showSearch: boolean;
-  searchCriteria: any;
-  messageTypes: Array<any>;
-  messageTypeValues: any;
-  messageName: string;
-  userInput: string;
-  text: string;
-  messageType: any;
-}
-
 const emptySelectValue = "－－－－－";
 const excludeMessageType = [
   "richmenu",
@@ -176,7 +165,7 @@ export default Vue.extend({
     ScenarioSettingsDetail,
     SubAppBar,
   },
-  data(): LocalState {
+  data() {
     return {
       showSearch: false,
       searchCriteria: {},
@@ -204,18 +193,18 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      isFetchingScenarioDetail: (state: any) => state.scenarios.isFetchingScenarioDetail,
-      isSavingActiveScenario: (state: any) => state.scenarios.isSavingActiveScenario,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
+      isFetchingScenarioDetail: (state) => state.scenarios.isFetchingScenarioDetail,
+      isSavingActiveScenario: (state) => state.scenarios.isSavingActiveScenario,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
+      activeScenario: (state) => state.scenarios.activeScenario,
     }),
-    getTalkNameFromId(): any {
+    getTalkNameFromId() {
       const talk = this.scenarioTalks.find(elem => elem.dataId == this.$route.params.talkId);
       return talk ? talk.params.name : "トーク名";
     },
   },
   methods: {
-    onMindMap(): void {
+    onMindMap() {
       const {
         scenarioId,
         versionId,
@@ -231,7 +220,7 @@ export default Vue.extend({
         },
       });
     },
-    toggleShowSearch(show: any): void {
+    toggleShowSearch(show) {
       this.showStartDateMenu = false;
       this.showEndDateMenu = false;
       if (show != null) {
@@ -240,14 +229,14 @@ export default Vue.extend({
         this.showSearch = !this.showSearch;
       }
     },
-    clearSearchCriteria(): void {
+    clearSearchCriteria() {
       this.messageName = "";
       this.userInput = "";
       this.text = "";
       this.messageType = emptySelectValue;
       this.onClickSearch();
     },
-    onClickSearch(): void {
+    onClickSearch() {
       const {
         messageName,
         userInput,

@@ -76,7 +76,9 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 import {
-  CREATE_SIMPLE_SPECIAL_SCENARIO, DELETE_SPECIAL_SCENARIO, DELETE_TALK,
+  CREATE_SIMPLE_SPECIAL_SCENARIO,
+  DELETE_SPECIAL_SCENARIO,
+  DELETE_TALK,
   FETCH_ALL_SCENARIOS,
   FETCH_SCENARIO_DETAIL_TALK,
   SAVE_ACTIVE_SCENARIO,
@@ -88,34 +90,18 @@ import {
 import { mapState, mapActions, mapMutations } from "vuex";
 import TalkTable from "../components/TalkTable.vue";
 import NewTalkModal from "../components/NewTalkModal.vue";
-import ContentLoadError from "@/components/common/ContentLoadError.vue";
+import ContentLoadError from "../../components/common/ContentLoadError.vue";
 import DeleteTalkModal from "../components/DeleteTalkModal.vue";
 import SpecialTalkModal from "../components/SpecialTalkModal.vue";
 import TrashCSVImportModal from "../components/TrashCSVImportModal.vue";
 import {cloneDeep} from "lodash";
 import {SPECIAL_TALK_TYPES_MAPPING} from "@/store/modules/scenarios/scenarios.constants";
 
-interface LocalState {
-  showScenarioVersion: boolean;
-  showSpecialTalkModal: boolean;
-  selectedSpecialTalk: number;
-  showImportTalkModal: boolean;
-  showCreateModal: boolean;
-  showDeleteModal: boolean;
-  basicPayload: any;
-  deletePayload: any;
-  showVisualizationModal: boolean;
-  previousSelection: Array<any>;
-  resetSelection: boolean;
-  headers: Array<any>;
-  searchCriteriaLocal: any;
-}
-
 export default Vue.extend({
   props: {
     searchCriteria: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       showScenarioVersion: false,
       showSpecialTalkModal: false,
@@ -124,8 +110,8 @@ export default Vue.extend({
       showCreateModal: false,
       showDeleteModal: false,
       basicPayload: {
-        scenarioId: (this as any).$route.params.scenarioId,
-        versionId: (this as any).$route.params.versionId,
+        scenarioId: this.$route.params.scenarioId,
+        versionId: this.$route.params.versionId,
         talkNames: null,
       },
       deletePayload: {},
@@ -140,7 +126,7 @@ export default Vue.extend({
           width: "30%",
         },
       ],
-      searchCriteriaLocal: (this as any).searchCriteria,
+      searchCriteriaLocal: this.searchCriteria,
     };
   },
   watch: {
@@ -172,11 +158,11 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      isFetchingScenarios: (state: any) => state.scenarios.isFetchingScenarios,
-      fetchScenariosError: (state: any) => state.scenarios.fetchScenariosError,
-      isFetchingScenarioDetail: (state: any) => state.scenarios.isFetchingScenarioDetail,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
+      isFetchingScenarios: (state) => state.scenarios.isFetchingScenarios,
+      fetchScenariosError: (state) => state.scenarios.fetchScenariosError,
+      isFetchingScenarioDetail: (state) => state.scenarios.isFetchingScenarioDetail,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
     }),
     scenarioTalkNames() {
       return this.scenarioTalks.map((talk) => talk.params ? talk.params.name || '' : '');
@@ -194,29 +180,29 @@ export default Vue.extend({
       deleteMessagesForSpecialScenario: DELETE_SPECIAL_SCENARIO,
       deleteTalk: DELETE_TALK,
     }),
-    onImportTrigger(): void {
+    onImportTrigger() {
       this.showImportModal = true;
       this.showScenarioVersion = false;
     },
-    onImportFinishSuccess(): void {
+    onImportFinishSuccess() {
       this.showImportModal = false;
       this.importFinishSuccess(false);
       this.$store.dispatch(FETCH_ALL_SCENARIOS);
     },
-    onCreateFinishSuccess(): void {
+    onCreateFinishSuccess() {
       this.showCreateModal = false;
       this.createFinishSuccess(false);
       this.$store.dispatch(FETCH_ALL_SCENARIOS);
     },
-    onCreateClick(): void {
+    onCreateClick() {
       this.resetSelection = true;
       this.showCreateModal = true;
     },
-    onTemplateClick(val: any): void {
+    onTemplateClick(val) {
       this.showSpecialTalkModal = true;
       this.selectedSpecialTalk = val;
     },
-    onDeleteTrigger(val: any): void {
+    onDeleteTrigger(val) {
       this.deletePayload = {
         ...this.basicPayload,
         talkNames: val.map((selected) => selected._name),
@@ -225,13 +211,13 @@ export default Vue.extend({
       this.showDeleteModal = true;
       this.showScenarioVersion = false;
     },
-    onDeleteFinishSuccess(): void {
+    onDeleteFinishSuccess() {
       this.showDeleteModal = false;
       this.showScenarioVersion = false;
       this.deleteFinishSuccess(false);
       this.$store.dispatch(FETCH_ALL_SCENARIOS);
     },
-    createSpecialScenarios(talk: any): void {
+    createSpecialScenarios(talk) {
       const payload = cloneDeep(this.basicPayload);
       payload.talkName = talk;
       switch (talk) {
@@ -244,11 +230,11 @@ export default Vue.extend({
           break;
       }
     },
-    toggleSpecialScenarios(talk: any): void {
+    toggleSpecialScenarios(talk) {
       const value = this.activeScenario["versions"][this.$route.params.versionId]["specialTalks"][SPECIAL_TALK_TYPES_MAPPING[talk.displayName]];
       this.setScenarioSpecialTalkData(talk.displayName, !value);
     },
-    deleteSpecialScenarios(template: any): void {
+    deleteSpecialScenarios(template) {
       const payload = cloneDeep(this.basicPayload);
       delete payload.talkName;
       payload["specialTalkName"] = template.displayName;
@@ -266,7 +252,7 @@ export default Vue.extend({
         },
       });
     },
-    setScenarioSpecialTalkData(talk: any, valueToSet: any): void {
+    setScenarioSpecialTalkData(talk , valueToSet) {
       const talkName = SPECIAL_TALK_TYPES_MAPPING[talk];
       if (talkName != null) {
         let param = {

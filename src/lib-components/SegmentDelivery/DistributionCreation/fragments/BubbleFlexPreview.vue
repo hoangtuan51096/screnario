@@ -74,16 +74,12 @@ import Vue from "vue";
 import { mapState, mapActions, mapGetters } from "vuex";
 import { render } from "@/services/flexRender.ts";
 
-interface LocalState {
-  renderedBubbleFlex: string;
-}
-
 export default Vue.extend({
   name: "BubbleFlexPreview",
   props: {
     message: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       renderedBubbleFlex: "<span>読み込み中</span>",
     };

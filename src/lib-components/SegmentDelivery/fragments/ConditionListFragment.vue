@@ -58,15 +58,6 @@ import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 
 import { cloneDeep } from "lodash";
 
-interface LocalState {
-  perOnPage: number;
-  page: number;
-  headers: Array<any>;
-  selection: Array<any>;
-  conditionSchema: Array<any>;
-  initialSchema: Array<any>;
-}
-
 export default {
   props: {
     visible: Boolean,
@@ -75,7 +66,7 @@ export default {
     loading: Boolean,
     distItem: Object
   },
-  data(): LocalState {
+  data() {
     return {
       perOnPage: 10,
       page: 1,
@@ -93,7 +84,7 @@ export default {
   },
   computed: {
     ...mapState({
-      surveySchema: (state: any) => state.segments.surveySchema,
+      surveySchema: (state) => state.segments.surveySchema,
     }),
   },
   watch: {
@@ -118,10 +109,10 @@ export default {
     },
   },
   methods: {
-    isSelection(item: any): boolean {
+    isSelection(item) {
       return item.blockType === "dropdown" || item.blockType === "radio" || item.blockType == "checkboxes";
     },
-    getConditionOptions(item: any): Array<any> {
+    getConditionOptions(item) {
       let options = [];
 
       this.surveySchema.find((obj) => {
@@ -140,7 +131,7 @@ export default {
 
       return options;
     },
-    setConditions(): void {
+    setConditions() {
       this.conditionSchema = JSON.parse(JSON.stringify(this.surveySchema));
       if (this.conditions && this.conditions.length !== 0) {
         this.conditions.forEach((element, index) => {
@@ -154,7 +145,7 @@ export default {
         this.selection[0] = null;
       }
     },
-    onChangeConditionOption(value: any, item: any): void {      
+    onChangeConditionOption(value , item) {
       this.conditionSchema.forEach((element, index) => {
         if (element.itemKey === item.itemKey) {
           element.conditionValues = value;
@@ -165,7 +156,7 @@ export default {
 
       this.$emit("onChangeCondition", this.conditionSchema);
     },
-    getIndex(itemKey: any): any {
+    getIndex(itemKey)  {
       return this.surveySchema.findIndex((obj) => obj.itemKey === itemKey);
     },
   },

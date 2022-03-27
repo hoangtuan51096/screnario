@@ -57,13 +57,6 @@ under the License.
 import Vue from "vue";
 import { BOT_ITEM_TYPES } from "@/store/modules/scenarios/scenarios.constants";
 import { mapState, mapActions, mapMutations } from "vuex";
-
-interface LocalState {
-  checkedMessages: any;
-  isPremadeMessage: any;
-  headers: Array<any>;
-}
-
 export default Vue.extend({
   name: "ItemCarouselFlex",
   props: {
@@ -85,10 +78,10 @@ export default Vue.extend({
       this.isPremadeMessage = this.isSpecialPremadeTalk();
     },
   },
-  data(): LocalState {
+  data() {
     return {
-      checkedMessages: (this as any).alreadySelectedMessages,
-      isPremadeMessage: (this as any).isSpecialPremadeTalk(),
+      checkedMessages: (this).alreadySelectedMessages,
+      isPremadeMessage: (this).isSpecialPremadeTalk(),
       headers: [
         {
           text: "メッセージID",
@@ -114,9 +107,9 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      scenarioMessages: (state) => (state as any).scenarios.scenarioMessages,
+      scenarioMessages: (state) => (state).scenarios.scenarioMessages,
     }),
-    alreadySelectedMessages(): Array<any> {
+    alreadySelectedMessages() {
       var result = [];
       if (this.params) {
         this.params.bubbleParam.forEach((messageId) => {
@@ -132,7 +125,7 @@ export default Vue.extend({
       }
       return result;
     },
-    filteredMessages(): any {
+    filteredMessages() {
       if (this.scenarioMessages) {
         return this.scenarioMessages.filter((message) => {
           return message.dataType == "bubbleFlex" && !("specialScenarioTalk" in message.params);
@@ -141,16 +134,16 @@ export default Vue.extend({
     },
   },
   methods: {
-    isSpecialPremadeTalk(): boolean {
+    isSpecialPremadeTalk() {
       return "params" in this.params && "specialScenarioTalk" in this.params.params;
     },
-    typeTitle(value: any): any {
+    typeTitle(value) {
       return BOT_ITEM_TYPES[value] ? BOT_ITEM_TYPES[value].text : "";
     },
-    runValidation(): void {
+    runValidation() {
       setTimeout(() => this.reportValidation(), 100);
     },
-    reportValidation(): void {
+    reportValidation() {
       this.$emit("updateSaveStatus", {
         key: `ItemCarouselFlex`,
         value: this.checkedMessages.length > 0 && this.checkedMessages.length < 11,

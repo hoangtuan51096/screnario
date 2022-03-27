@@ -40,10 +40,6 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 
-interface LocalState {
-  errorText: boolean;
-}
-
 export default Vue.extend({
   name: "ItemJsonTemplate",
   props: {
@@ -52,26 +48,26 @@ export default Vue.extend({
       required: true,
     },
   },
-  data(): LocalState {
+  data() {
     return {
       errorText: false,
     };
   },
   methods: {
-    onChangeText(value: any): void {
+    onChangeText(value) {
       if (this.validateJSON(value)) {
         this.$emit("updateModelParams", JSON.parse(value));
       }
       this.reportValidation(value);
     },
-    reportValidation(value: any): void {
+    reportValidation(value) {
       let target = value;
       if (target === "") {
         target = this.$refs.textarea.$el.value();
       }
       this.$emit("updateSaveStatus", { key: `ItemJsonTemplate`, value: this.validateJSON(target) });
     },
-    validateJSON(value: any): boolean {
+    validateJSON(value) {
       try {
         if (value) {
           JSON.parse(value);

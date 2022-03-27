@@ -23,7 +23,7 @@ under the License.
 </style>
 
 <template>
-  <v-container>
+  <v-container class="richmenu-preview">
     <img v-bind:src="message.imageS3URL" onclick="window.open(this.src)" class="preview-image-message" />
   </v-container>
 </template>

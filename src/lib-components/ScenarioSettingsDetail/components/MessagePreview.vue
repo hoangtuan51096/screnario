@@ -118,7 +118,7 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 import { mapState, mapActions, mapGetters } from "vuex";
-import VSwitchCase from "@/components/common/VSwitchCase.vue";
+import VSwitchCase from "../../components/common/VSwitchCase.vue";
 import ImagePreview from "../previewComponents/ImagePreview.vue";
 import ImageMapPreview from "../previewComponents/ImageMapPreview.vue";
 import VideoPreview from "../previewComponents/VideoPreview.vue";

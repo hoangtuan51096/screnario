@@ -221,7 +221,7 @@ under the License.
 </style>
 
 <template>
-  <v-container>
+  <v-container class="audio-preview">
     <div class="preview-text-message tri-right left-top">
       <div class="preview-text-content">
         <div class="button-wrap" @click="clickThePlayButton">
@@ -279,13 +279,6 @@ under the License.
 import Vue from "vue";
 import { mapState, mapActions, mapGetters } from "vuex";
 
-interface LocalState {
-  minuteInMilliseconds: number;
-  isPlaying: boolean;
-  originalSeconds: number;
-  originalMinutes: number;
-}
-
 export default Vue.extend({
   name: "AudioPreview",
   props: {
@@ -316,10 +309,10 @@ export default Vue.extend({
     ...mapState({}),
   },
   methods: {
-    audioEndedNaturally(event: any): void {
+    audioEndedNaturally(event) {
       this.isPlaying = !this.isPlaying;
     },
-    clickThePlayButton(event: any): void {
+    clickThePlayButton(event) {
       var playButton = this.$el.querySelector("#play");
       var pauseButton = this.$el.querySelector("#pause");
       var audio = this.$el.querySelector("#audio");

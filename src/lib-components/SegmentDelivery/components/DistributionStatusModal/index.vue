@@ -104,12 +104,6 @@ import { RESEND_DISTRIBUTION_ITEM } from "@/store/action-types";
 import { SET_IS_RESENDING_DISTRIBUTION_ITEM, SET_RESEND_DISTRIBUTION_ITEM_ERROR } from "@/store/mutation-types";
 import DatetimeFormatter from "@/mixins/DatetimeFormatter";
 
-interface LocalState {
-  objectName: any;
-  resendError: boolean;
-  resendFinished: boolean;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -117,7 +111,7 @@ export default Vue.extend({
     item: Object,
     refreshTable: Function,
   },
-  data(): LocalState {
+  data() {
     return {
       objectName: {
         id: "ID",
@@ -137,14 +131,14 @@ export default Vue.extend({
   mixins: [DatetimeFormatter],
   computed: {
     ...mapState({
-      isResendingDistributionItem: (state: any) => state.segments.isResendingDistributionItem,
-      resendDistributionItemError: (state: any) => state.segments.resendDistributionItemError,
+      isResendingDistributionItem: (state) => state.segments.isResendingDistributionItem,
+      resendDistributionItemError: (state) => state.segments.resendDistributionItemError,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -176,7 +170,7 @@ export default Vue.extend({
     ...mapMutations({
       setResendDistributionItemError: SET_RESEND_DISTRIBUTION_ITEM_ERROR,
     }),
-    statusColor(value: any): string {
+    statusColor(value) {
       switch (value) {
         case "FINISHED":
           return "primary--text";
@@ -186,10 +180,10 @@ export default Vue.extend({
           return "orange--text";
       }
     },
-    resendItem(): void {
+    resendItem() {
       this.resendDistributionItem(this.item);
     },
-    convertToJapanese(value: any): any {
+    convertToJapanese(value)  {
       if (value === "ALL") {
         return "全て";
       }

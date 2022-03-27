@@ -43,7 +43,7 @@ under the License.
                 dense
                 hide-details
                 outlined
-                v-model="selectedSurvey" 
+                v-model="selectedSurvey"
                 :disabled="isFetchingAllSurveyConfigs"
                 :items="surveyNames"
               ></v-autocomplete>
@@ -77,7 +77,7 @@ under the License.
                 dense
                 hide-details
                 outlined
-                v-model="selectedCategory" 
+                v-model="selectedCategory"
                 :disabled="isLoadingCategories"
                 :items="categoryNames"
               ></v-autocomplete>
@@ -230,26 +230,8 @@ import DatetimeFormatter from '@/mixins/DatetimeFormatter';
 
 import moment from 'moment';
 
-interface LocalState {
-  isShowSearchBox: boolean;
-  categoryNames: Array<any>;
-  itemNames: Array<any>;
-  selectedMonth: string | null;
-  isShowMonthMenu: boolean;
-  selectedReminderType: string;
-  selectedStatus: string;
-  selectedCategory: any;
-  selectedSurvey: string | null;
-  selectedItem: string | null;
-  statusList: any;
-  reminderTypeList: any;
-  items: Array<any>;
-  currentPage: number;
-  perOnPage: number;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       isShowSearchBox: true,
 
@@ -284,15 +266,15 @@ export default Vue.extend({
   mixins: [DatetimeFormatter],
   computed: {
     ...mapState({
-      allCategories: (state: any) => state.segments.allReminderCategories,
-      isFetchingAllRemindCategories: (state: any) => state.segments.isFetchingAllRemindCategories,
-      reminderExecutionHistories: (state: any) => state.segments.reminderExecutionHistories,
-      isFetchingReminderExecutionHistories: (state: any) => state.segments.isFetchingReminderExecutionHistories,
-      fetchReminderExecutionHistoriesError: (state: any) => state.segments.fetchReminderExecutionHistoriesError,
-      surveyConfigs: (state: any)  => state.segments.allSurveyConfigs,
-      isFetchingAllSurveyConfigs: (state: any)  => state.segments.isFetchingAllSurveyConfigs,
+      allCategories: (state) => state.segments.allReminderCategories,
+      isFetchingAllRemindCategories: (state) => state.segments.isFetchingAllRemindCategories,
+      reminderExecutionHistories: (state) => state.segments.reminderExecutionHistories,
+      isFetchingReminderExecutionHistories: (state) => state.segments.isFetchingReminderExecutionHistories,
+      fetchReminderExecutionHistoriesError: (state) => state.segments.fetchReminderExecutionHistoriesError,
+      surveyConfigs: (state)  => state.segments.allSurveyConfigs,
+      isFetchingAllSurveyConfigs: (state)  => state.segments.isFetchingAllSurveyConfigs,
     }),
-    headers(): any {
+    headers() {
       return [
         { text: '配信ID', value: 'sortKey' },
         { text: '帳票', value: 'surveyName' },
@@ -303,14 +285,14 @@ export default Vue.extend({
       ];
     },
     selectedMonthText: {
-      get(): string | null {
+      get() {
         return this.selectedMonth;
       },
-      set(value: any) :void {
+      set(value) :void {
         !value && (this.selectedMonth = null);
       }
     },
-    searchFilters(): any {
+    searchFilters() {
       return {
         surveyId: this.selectedSurvey,
         categoryId: this.selectedCategory,
@@ -320,10 +302,10 @@ export default Vue.extend({
         itemName: this.selectedItem
       };
     },
-    isLoadingCategories(): any {
+    isLoadingCategories() {
       return this.isFetchingAllRemindCategories;
     },
-    surveyNames(): any {
+    surveyNames() {
       // 「予約型帳票」or「非予約型帳票かつ日付アイテムを持つ帳票」のみにフィルタリング
       const filterdConfigs = this.surveyConfigs.filter(config => {
         const reservationItem = config.surveySchema.find(item => item.type === 'reservation');
@@ -365,7 +347,7 @@ export default Vue.extend({
       fetchReminderExecutionHistories: FETCH_REMINDER_EXECUTION_HISTORIES,
       fetchAllSurveyConfigs: FETCH_ALL_SURVEY_CONFIGS,
     }),
-    async searchReminderExecutionHistories(): Promise<void> {
+    async searchReminderExecutionHistories() {
       const {
         surveyId,
         categoryId,
@@ -373,7 +355,7 @@ export default Vue.extend({
         status,
         itemName,
       } = this.searchFilters;
-      
+
       const result = await this.handleFetchReminderExecutionHistories();
       if (!result) {
         return;
@@ -394,7 +376,7 @@ export default Vue.extend({
       this.items = filterdHistories;
       this.currentPage = 1;
     },
-    stateColor(value: any): string {
+    stateColor(value) {
       switch (value) {
         case 'FINISHED':
         case 'SUCCESS':
@@ -405,7 +387,7 @@ export default Vue.extend({
           return 'orange--text';
       }
     },
-    async clearSearchFilters(): Promise<void> {
+    async clearSearchFilters() {
       this.selectedSurvey = null;
       this.selectedCategory = null;
       this.selectedReminderType = 'ALL';
@@ -416,13 +398,13 @@ export default Vue.extend({
       this.items = this.reminderExecutionHistories;
       this.currentPage = 1;
     },
-    convertStateToJapanese(value: any): any {
+    convertStateToJapanese(value) {
       return this.statusList[value] || value;
     },
-    convertReminderTypeToJapanese(value: string): string {
+    convertReminderTypeToJapanese(value) {
       return this.reminderTypeList[value] || value;
     },
-    formatCategoryNames(categoryNames: string[]): string {
+    formatCategoryNames(categoryNames) {
       return categoryNames.length > 0 ? categoryNames.join(' > ') : 'ーー';
     },
     async handleFetchReminderExecutionHistories() {
@@ -438,7 +420,7 @@ export default Vue.extend({
         return true;
       }
     },
-    onClickReminderExecutionHistory(item: any): any {
+    onClickReminderExecutionHistory(item) {
       return {
         name: 'ReminderExecutionHistory',
         params: {
@@ -447,7 +429,7 @@ export default Vue.extend({
         },
       };
     },
-    setCategoryNames(selectedSurveyId): void {
+    setCategoryNames(selectedSurveyId) {
       const options = [{ value: null, text: 'ーー',}];
       let categories = [];
       const selectedSurveyConfig = this.surveyConfigs.find(config => config.surveyId === selectedSurveyId);
@@ -490,7 +472,7 @@ export default Vue.extend({
       );
       this.categoryNames = options;
     },
-    setItemNames(surveyId): void {
+    setItemNames(surveyId) {
       const options = [{ value: null, text: 'ーー',}];
       const selectedSurveyConfig = this.surveyConfigs.find(config => config.surveyId === surveyId);
       if (selectedSurveyConfig) {

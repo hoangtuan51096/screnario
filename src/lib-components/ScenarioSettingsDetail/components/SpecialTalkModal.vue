@@ -119,10 +119,6 @@ import { mapState, mapActions, mapGetters, mapMutations } from "vuex";
 import { SPECIAL_TALK_TYPES, SPECIAL_TALK_TYPES_MAPPING } from "@/store/modules/scenarios/scenarios.constants";
 import { cloneDeep } from "lodash";
 
-interface LocalState {
-  specialTalks: any;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -130,7 +126,7 @@ export default Vue.extend({
     versionName: String,
   },
   watch: {},
-  data(): LocalState {
+  data() {
     return {
       specialTalks: SPECIAL_TALK_TYPES,
     };
@@ -138,13 +134,13 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      activeScenario: (state: any) => state.scenarios.activeScenario,
+      activeScenario: (state) => state.scenarios.activeScenario,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -152,25 +148,25 @@ export default Vue.extend({
     },
   },
   methods: {
-    createSpecialTalk(tlk: any): void {
+    createSpecialTalk(tlk) {
       this.$emit("onCreateTalks", tlk);
       this.show = false;
     },
-    deleteSpecialTalk(tlk: any): void {
+    deleteSpecialTalk(tlk) {
       this.$emit("onDeleteTalks", tlk);
       this.show = false;
     },
-    cancelCreate(): void {
+    cancelCreate() {
       this.show = false;
     },
-    toggleActiveState(tlk: any): void {
+    toggleActiveState(tlk) {
       this.$emit("toggleTalkState", tlk);
       this.show = false;
     },
-    inActiveMap(tlk: any): boolean {
+    inActiveMap(tlk) {
       return Object.keys(SPECIAL_TALK_TYPES_MAPPING).includes(tlk);
     },
-    canSetAsActive(tlk: any): boolean {
+    canSetAsActive(tlk) {
       if ("versions" in this.activeScenario) {
         var versionData = this.activeScenario["versions"][this.versionName];
         var talkName = SPECIAL_TALK_TYPES_MAPPING[tlk];

@@ -250,33 +250,8 @@ import { UPDATE_DISTRIBUTION_LIST_FILTER } from "@/store/mutation-types";
 
 import DatetimeFormatter from "@/mixins/DatetimeFormatter";
 
-interface LocalState {
-  showSearchBox: boolean;
-  categoryList: Array<string>;
-  categoryClicked: boolean;
-  selectedCategoryToggleIndex: number;
-  selectedName: any;
-  selectedCreatedBy: any;
-  selectedFromDate: any;
-  selectedToDate: any;
-  selectedType: Array<any>;
-  selectedState: any;
-  stateList: {
-    ALL: Array<string>;
-    SCHEDULED: Array<string>;
-    RECURRING: Array<string>;
-    DRAFT: Array<any>;
-  };
-  fromDateMenu: boolean;
-  toDateMenu: boolean;
-  canClearSearch: boolean;
-  items: Array<any>;
-  currentPage: number;
-  perOnPage: number;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       showSearchBox: true,
 
@@ -309,18 +284,18 @@ export default Vue.extend({
   mixins: [DatetimeFormatter],
   computed: {
     ...mapState({
-      distributionList: (state: any) => state.segments.distributionList,
-      isFetchingDistributionList: (state: any) => state.segments.isFetchingDistributionList,
-      fetchDistributionListError: (state: any) => state.segments.fetchDistributionListError,
-      distributionListFilters: (state: any) => state.segments.distributionListFilters,
+      distributionList: (state) => state.segments.distributionList,
+      isFetchingDistributionList: (state) => state.segments.isFetchingDistributionList,
+      fetchDistributionListError: (state) => state.segments.fetchDistributionListError,
+      distributionListFilters: (state) => state.segments.distributionListFilters,
 
-      userStore: (state: any) => state.auth.user,
+      userStore: (state) => state.auth.user,
     }),
     ...mapGetters({
       filteredDistributionList: "filteredDistributionList",
       initialDistributionListPerCategory: "initialDistributionListPerCategory",
     }),
-    headers(): any {
+    headers() {
       return [
         { text: "配信ID", value: "id" },
         { text: "配信名", value: "name" },
@@ -332,10 +307,10 @@ export default Vue.extend({
       ];
     },
     selectedCategory: {
-      get(): any {
+      get() {
         return this.categoryList[this.selectedCategoryToggleIndex];
       },
-      set(value: any): void {
+      set(value) {
         if (value && this.categoryList.indexOf(value) !== -1) {
           this.selectedCategoryToggleIndex = this.categoryList.indexOf(value);
         } else {
@@ -344,26 +319,26 @@ export default Vue.extend({
       },
     },
     fromDateText: {
-      get(): any {
+      get() {
         return this.selectedFromDate;
       },
-      set(value: any): void {
+      set(value) {
         if (!value) {
           this.selectedFromDate = null;
         }
       },
     },
     toDateText: {
-      get(): any {
+      get() {
         return this.selectedToDate;
       },
-      set(value: any): void {
+      set(value) {
         if (!value) {
           this.selectedToDate = null;
         }
       },
     },
-    searchFilters(): any {
+    searchFilters() {
       return {
         category: this.selectedCategory,
         name: this.selectedName,
@@ -375,7 +350,7 @@ export default Vue.extend({
       };
     },
     validSearchForm: {
-      get(): boolean {
+      get() {
         return true;
         /*
         if(this.selectedName || this.selectedCreatedBy || this.selectedFromDate || this.selectedToDate) {
@@ -390,9 +365,9 @@ export default Vue.extend({
         return false;
         */
       },
-      set(value: any): void {},
+      set(value) {},
     },
-    canIncludeCreatedBy(): boolean {
+    canIncludeCreatedBy() {
       return !(this.selectedType.length === 1 && this.selectedType[0] === "EXTERNAL");
     },
   },
@@ -428,12 +403,12 @@ export default Vue.extend({
     ...mapMutations({
       updateDistributionListFilter: UPDATE_DISTRIBUTION_LIST_FILTER,
     }),
-    doSearch(): void {
+    doSearch() {
       this.canClearSearch = true;
       this.updateDistributionListFilter(this.searchFilters);
       this.currentPage = 1;
     },
-    stateColor(value: any): string {
+    stateColor(value) {
       switch (value) {
         case "FINISHED":
           return "primary--text";
@@ -445,7 +420,7 @@ export default Vue.extend({
           return "orange--text";
       }
     },
-    clearSearch(): void {
+    clearSearch() {
       this.selectedName = null;
       this.selectedCreatedBy = null;
       this.selectedFromDate = null;
@@ -462,10 +437,10 @@ export default Vue.extend({
       // this.canClearSearch = false;
       this.currentPage = 1;
     },
-    async onFetchList(): Promise<void> {
+    async onFetchList() {
       await this.fetchDistributionList();
     },
-    onDistributionDetail(item: any): any {
+    onDistributionDetail(item) {
       return {
         name: "DistributionDetail",
         params: {
@@ -473,11 +448,11 @@ export default Vue.extend({
         },
       };
     },
-    getTodayDate(): string {
+    getTodayDate() {
       var today = new Date();
       return today.toISOString().substr(0, 10);
     },
-    allowedFromDates(value: any): boolean {
+    allowedFromDates(value) {
       var allowed = true;
       if (this.selectedCategory === "DRAFT") {
         allowed = allowed && value <= this.getTodayDate();
@@ -487,7 +462,7 @@ export default Vue.extend({
       }
       return allowed;
     },
-    allowedToDates(value: any): boolean {
+    allowedToDates(value) {
       var allowed = true;
       if (this.selectedCategory === "DRAFT") {
         allowed = allowed && value <= this.getTodayDate();
@@ -497,7 +472,7 @@ export default Vue.extend({
       }
       return allowed;
     },
-    convertStateToJapanese(value: any): any {
+    convertStateToJapanese(value) {
       if (value === "ALL") {
         return "すべて";
       }
@@ -526,7 +501,7 @@ export default Vue.extend({
       //
       return value;
     },
-    convertCategoryToJapanese(value: any): any {
+    convertCategoryToJapanese(value) {
       if (value === "ALL") {
         return "すべて";
       }
@@ -541,7 +516,7 @@ export default Vue.extend({
       }
       return value;
     },
-    convertTypeToJapanese(value: any): any {
+    convertTypeToJapanese(value) {
       if (value === "MANUAL") {
         return "手動配信";
       }

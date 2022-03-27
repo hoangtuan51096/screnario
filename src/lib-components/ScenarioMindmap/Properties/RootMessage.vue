@@ -44,14 +44,16 @@ under the License.
               <v-col>
                 <label>開始メッセージ</label>
 
-                <v-text-field
+                <InputText
                   v-model="modelLocal.value"
                   outlined
                   dense
                   @input="onChangeName($event)"
-                  :rules="[rules.validTextLength, rules.checkDuplicate]"
+                  @change="(value) => { this.modelLocal.value = value }"
+                  :rules="[rules.validTextLength, rules.checkDuplicate, rules.notStartsWhiteSpace, rules.notEndsWhiteSpace]"
+                  :maxlength="120"
                 >
-                </v-text-field>
+                </InputText>
               </v-col>
             </v-row>
           </v-card>
@@ -65,15 +67,9 @@ under the License.
 import Vue from "vue";
 import { SET_SCENARIO_MINDMAP_MESSAGES } from "@/store/mutation-types";
 import { mapState, mapActions, mapGetters, mapMutations } from "vuex";
-import OriginActionProperty from "@/components/BotDesigner/CommonProperties/ActionProperty.vue";
+import OriginActionProperty from "../../components/BotDesigner/CommonProperties/ActionProperty.vue";
 import { cloneDeep } from "lodash";
-
-interface LocalState {
-  modelLocal: any;
-  originalModel: any;
-  canSave: boolean;
-  rules: any;
-}
+import InputText from "../../components/BotDesigner/InputText.vue";
 
 export default Vue.extend({
   props: {
@@ -83,7 +79,7 @@ export default Vue.extend({
     editProperties: Boolean,
     onClickToggleButton: Function,
   },
-  data(): any {
+  data() {
     return {
       modelLocal: null,
       originalModel: null,
@@ -98,12 +94,12 @@ export default Vue.extend({
       this.originalModel = cloneDeep(this.modelLocal);
     },
   },
-  components: {},
+  components: {InputText},
   computed: {
     ...mapState({
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
-      scenarioMessages: (state: any) => state.scenarios.scenarioMessages,
-      scenarioMindmap: (state: any) => state.scenarios.scenarioMindmap,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
+      scenarioMessages: (state) => state.scenarios.scenarioMessages,
+      scenarioMindmap: (state) => state.scenarios.scenarioMindmap,
     }),
     maxWidthDialog() {
       return 800;
@@ -114,19 +110,19 @@ export default Vue.extend({
     ...mapMutations({
       updateMindMapMessages: SET_SCENARIO_MINDMAP_MESSAGES,
     }),
-    updateSaveStatus(value: any): void {
+    updateSaveStatus(value) {
       this.$emit("updateEditState", value);
       this.canSave = value;
     },
-    onChangeName(event: any): void {
-      this.updateSaveStatus(event.length <= 400);
+    onChangeName(event) {
+      this.updateSaveStatus(event.length <= 120);
     },
-    closeModal(): void {
+    closeModal() {
       this.modelLocal = this.originalModel;
       this.updateSaveStatus(false);
       this.$emit("stopProperties", false);
     },
-    async onUpdateItemProperties(): Promise<void> {
+    async onUpdateItemProperties() {
       let oldState = this.scenarioMindmap[this.versionId]["textMapping"];
       let old_key = Object.keys(oldState).find((key) => oldState[key] === this.modelLocal.rootId);
       let new_key = this.modelLocal.value;
@@ -153,10 +149,10 @@ export default Vue.extend({
       validTextLength: (value) => {
         if (!value || value.trim().length === 0) {
           this.canSave = false;
-          return "必須";
+          return "開始メッセージは必須入力です。";
         }
-        if (value && value.length > 400) {
-          return "400文字の制限";
+        if (value && value.length > 120) {
+          return "開始メッセージは120文字以内にしてください。";
         } else {
           return true;
         }
@@ -168,13 +164,27 @@ export default Vue.extend({
         }
         if (value && this.scenarioTextMap.textMapping[value]) {
           this.canSave = false;
-          return "別のトークのメッセージアクションと重複しています";
+          return "トーク名を既存のユーザーテキストマッピングと同じにすることはできません。";
         }
         if (value && !this.scenarioTextMap.textMapping[value]) {
           return true;
         }
       },
-      };
+      notStartsWhiteSpace: (value) => {
+        if (!value.match(/^\s+.*$/)) {
+          return true
+        }
+        this.canSave = false;
+        return "先頭に空白を指定することはできません。";
+      },
+      notEndsWhiteSpace: (value) => {
+        if (!value.match(/^.*?\s+$/)) {
+          return true
+        }
+        this.canSave = false;
+        return "末尾に空白を指定することはできません。";
+      },
+    };
   }
 });
 </script>

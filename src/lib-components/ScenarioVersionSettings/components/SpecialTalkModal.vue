@@ -113,11 +113,6 @@ import Vue from "vue";
 import { mapState } from "vuex";
 import { TEMPLATE_TALKS, SPECIAL_TALK_TYPES_MAPPING } from "@/store/modules/scenarios/scenarios.constants";
 
-interface LocalState {
-  specialTalks: any;
-  prefix: Array<string>;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -126,7 +121,7 @@ export default Vue.extend({
     selected: Number,
   },
   watch: {},
-  data(): LocalState {
+  data() {
     return {
       specialTalks: TEMPLATE_TALKS,
       prefix: [
@@ -142,13 +137,13 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      activeScenario: (state: any) => state.scenarios.activeScenario,
+      activeScenario: (state) => state.scenarios.activeScenario,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -156,24 +151,24 @@ export default Vue.extend({
     },
   },
   methods: {
-    createSpecialTalk(tlk: any): void {
+    createSpecialTalk(tlk) {
       this.$emit("onCreateTalks", tlk);
       this.show = false;
     },
-    deleteSpecialTalk(template: any): void {
+    deleteSpecialTalk(template) {
       this.$emit("onDeleteTalks", template);
     },
-    cancelCreate(): void {
+    cancelCreate() {
       this.show = false;
     },
-    toggleActiveState(tlk: any): void {
+    toggleActiveState(tlk) {
       this.$emit("toggleTalkState", tlk);
       this.show = false;
     },
-    inActiveMap(tlk: any): boolean {
+    inActiveMap(tlk) {
       return Object.keys(SPECIAL_TALK_TYPES_MAPPING).includes(tlk);
     },
-    canSetAsActive(tlk: any): boolean {
+    canSetAsActive(tlk) {
       if ("versions" in this.activeScenario) {
         const versionData = this.activeScenario["versions"][this.versionName];
         const talkName = SPECIAL_TALK_TYPES_MAPPING[tlk];
@@ -184,7 +179,7 @@ export default Vue.extend({
         return false;
       }
     },
-    templateExists(templateId: any): boolean {
+    templateExists(templateId) {
       return !!this.existingTalks.find(talk => talk.dataId === templateId);
     }
   },

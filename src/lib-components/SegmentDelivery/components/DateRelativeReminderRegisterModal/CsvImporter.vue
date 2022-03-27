@@ -42,15 +42,10 @@ import { isEqual } from 'lodash';
 import { CsvContent, DateRelativeReminderSettings } from '@/store/modules/segments/segments.types';
 import { SettingItemInDateRelativeReminderSetting } from '@/store/modules/segments/segments.model';
 
-interface LocalState {
-  csvFileImportError: string;
-  isLoadingCsv: boolean;
-}
-
 type ValidateResult = string | null;
 
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       csvFileImportError: '',
       isLoadingCsv: false,
@@ -70,12 +65,12 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      dateRelativeReminderSettingsList: (state) => (state as any).segments.dateRelativeReminderSettingsList as DateRelativeReminderSettings[],
+      dateRelativeReminderSettingsList: (state) => (state).segments.dateRelativeReminderSettingsList as DateRelativeReminderSettings[],
     }),
-    placeholder(): string {
+    placeholder() {
       return this.canSelectFileProp ? 'ファイルを選択' : '帳票と質問項目を選択してください'
     },
-    settingsListBySelectedSurvey(): any[] {
+    settingsListBySelectedSurvey()[] {
       if (!this.selectedSurveyIdProp) {
         return [];
       }
@@ -83,7 +78,7 @@ export default Vue.extend({
     }
    },
   methods: {
-    detectEncodingAndReadCsv(file: File): Promise<any> {
+    detectEncodingAndReadCsv(file: File) {
       const reader = new FileReader();
 
       return new Promise((resolve, reject) => {
@@ -92,7 +87,7 @@ export default Vue.extend({
           reject('ファイルの読み取りエラーが発生しました。');
         };
 
-        reader.onload = (e: any) => {
+        reader.onload = (e) => {
           const codes = new Uint8Array(e.target.result);
           const csvEncoding = Encoding.detect(codes);
           resolve(csvEncoding);
@@ -101,7 +96,7 @@ export default Vue.extend({
         reader.readAsArrayBuffer(file);
       });
     },
-    formatCsvContentToObj(content: string[]): CsvContent {
+    formatCsvContentToObj(content[]): CsvContent {
       const [yearsAfter, daysAfter, message1, message2] = content;
       return {
         yearsAfter,
@@ -110,7 +105,7 @@ export default Vue.extend({
         message2,
       };
     },
-    formatAndValidationCsvContents(csvData: string[]): SettingItemInDateRelativeReminderSetting[] {
+    formatAndValidationCsvContents(csvData): SettingItemInDateRelativeReminderSetting[] {
       const [header, ...contents] = csvData;
       // フォーマット
       const formatContents: CsvContent[] = contents.map(content => this.formatCsvContentToObj(content));
@@ -149,9 +144,9 @@ export default Vue.extend({
     getSameYearsAndDaysLineNumbers(
       contents1: CsvContent[],
       contents2: CsvContent[] | DateRelativeReminderSettings[]
-    ): number[] {
-      const isSameContents: boolean = isEqual(contents1, contents2);
-      const duplicateLineNumbers: number[] = contents1.reduce((numbers: number[], content1, index1) => {
+    )[] {
+      const isSameContents = isEqual(contents1, contents2);
+      const duplicateLineNumbers = contents1.reduce((numbers, content1, index1) => {
         const { yearsAfter: yearsAfter1, daysAfter: daysAfter1 } = content1;
         const isDuplicate = contents2.some((content2, index2) => {
           const { yearsAfter: yearsAfter2, daysAfter: daysAfter2 } = content2;
@@ -161,7 +156,7 @@ export default Vue.extend({
           }
           return Number(yearsAfter1) === Number(yearsAfter2) && Number(daysAfter1) === Number(daysAfter2);
         });
-        
+
         if (isDuplicate) {
           // index1が0から始まるのとヘッダーの行数はカウントしないのでindex1に2加算した値を行数とする
           const lineNumber = index1 + 2;
@@ -173,7 +168,7 @@ export default Vue.extend({
 
       return duplicateLineNumbers;
     },
-    async onChangeFile(file: File | null): Promise<void> {
+    async onChangeFile(file: File | null) {
       this.$emit('setFileData', file);
       this.csvFileImportError = '';
       if (file) {
@@ -191,7 +186,7 @@ export default Vue.extend({
         this.$emit('setDateRelativeReminderSettingsList', []);
       }
     },
-    async readCsv(file: File): Promise<any> {
+    async readCsv(file: File) {
       const validateExtentionResult: ValidateResult = this.validateExtention(file);
       if (validateExtentionResult !== null) {
         throw validateExtentionResult;
@@ -213,7 +208,7 @@ export default Vue.extend({
         });
       });
     },
-    validateContentsLength(contentsLength: number): ValidateResult {
+    validateContentsLength(contentsLength): ValidateResult {
       if (contentsLength === 0) {
         return '最低でも1行以上は設定データを入力してください。';
       }
@@ -234,7 +229,7 @@ export default Vue.extend({
 
       return null;
     },
-    validateCsvHeader(csvHeader: string[]): ValidateResult {
+    validateCsvHeader(csvHeader): ValidateResult {
       const header = ['経過年数', '経過日数', 'メッセージ1', 'メッセージ2'];
       const isValid = isEqual(header, csvHeader);
       return isValid ? null : 'CSVファイルの1行目は「経過年数」「経過日数」「メッセージ1」「メッセージ2」を入力してください。';

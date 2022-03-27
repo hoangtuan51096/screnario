@@ -14,53 +14,10 @@ License for the specific language governing permissions and limitations
 under the License.
 -->
 <style scoped>
-.rich-menu-properties-col {
-  height: calc(100vh - 150px);
-  padding-top: 0px;
-  overflow: scroll;
-  background-color: #f2f2f2;
-}
-
-.image-select-area {
-  padding-top: 0px;
-  background-color: #688bbc;
-}
-
-.active-rich-menu-action {
-  border-left: medium solid #00b900 !important;
-}
-
-.rich-menu-action-col {
-  padding-top: 0.1em;
-  padding-bottom: 0.1em;
-}
-
-.title-row {
-  background-color: lightgray;
-  padding-left: 1em;
-}
-
-.image-select-area {
-  overflow: hidden;
-}
-
-.selected-image-area {
-  margin: 1.5em;
-}
-
-.caption {
-  margin-bottom: 0em;
-  margin-left: 0.5em;
-  padding-left: 0.5em;
-}
-
-.image-instructions {
-  margin-bottom: 1em;
-}
 </style>
 
 <template>
-  <div>
+  <div class="image-map-message">
     <v-btn :color="usePrimaryButtonColor ? 'primary' : 'secondary'" width="100%" @click="visible = true">イメージマップエディタを開く</v-btn>
     <v-dialog v-model="visible" fullscreen persistent transition="dialog-bottom-transition">
       <v-card>
@@ -218,32 +175,36 @@ under the License.
                       </v-row>
                       <v-row class="rich-menu-action-row">
                         <v-col class="rich-menu-action-col" offset="1">
-                          <v-text-field
+                          <InputText
                             v-if="area.action.type === 'message'"
                             v-model="area.action.text"
                             :error="!area.action.text && area.action.type === 'message'"
-                            :error-messages="!area.action.text && area.action.type === 'message' ? '必須' : ''"
+                            :rules="[rules.validAction]"
                             label="テキスト"
+                            placeholder="テキスト"
+                            maxlength="1000"
+                            @change="(value) => { this.area.action.text = value }"
                             @focus="focusArea(area.id)"
                             @focusin="focusIn"
                             @focusout="focusOut"
-                          ></v-text-field>
+                          ></InputText>
                         </v-col>
                       </v-row>
                       <v-row class="rich-menu-action-row">
                         <v-col class="rich-menu-action-col" offset="1">
-                          <v-text-field
+                          <InputText
                             v-if="area.action.type === 'uri'"
                             v-model="area.action.uri"
                             :error="!area.action.uri || !checkValidUrl(area.action.uri)"
-                            :error-messages="
-                              !area.action.uri ? '必須' : !checkValidUrl(area.action.uri) ? 'URLが無効です' : ''
-                            "
+                            :rules="[rules.validURL]"
+                            maxlength="1000"
                             label="URL"
+                            placeholder="URL"
+                            @change="(value) => { this.area.action.uri = value }"
                             @focus="focusArea(area.id)"
                             @focusin="focusIn"
                             @focusout="focusOut"
-                          ></v-text-field>
+                          ></InputText>
                         </v-col>
                       </v-row>
                     </v-container>
@@ -303,34 +264,13 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 import { mapActions, mapState } from "vuex";
-import MultiSelectAreasImage from "@/pages/admin/ScenarioSettings/ImageMultiSelector/MultiSelectAreasImage.vue";
+import MultiSelectAreasImage from "../../ScenarioSettings/ImageMultiSelector/MultiSelectAreasImage.vue";
 import { CREATE_RICH_MENU, DELETE_RICH_MENU } from "@/store/action-types";
 import { cloneDeep, isNumber } from "lodash";
 import CryptoJS from "crypto-js";
+import InputText from "./InputText.vue";
 
 const areaMaxBound = 2147483647;
-
-interface LocalState {
-  hidePreviewDisplay: Array<string>;
-  originalParams: any;
-  imageMapFiles: Array<any>;
-  visible: boolean;
-  lastDeletedId: any;
-  editFiles: boolean;
-  editFocus: boolean;
-  isEditing: boolean;
-  displayAreas: Array<any>;
-  imageMap: any;
-  hasError: boolean;
-  errorMessage: string;
-  imageMapImageFile: any;
-  imageMapImageUrl: any;
-  imageMapImageHeight: any;
-  fileModels: any;
-  actionTypes: Array<any>;
-  urlRegex: any;
-  onSave: boolean;
-}
 
 export default Vue.extend({
   name: "ItemImageMapMessage",
@@ -343,11 +283,11 @@ export default Vue.extend({
     branchIndex: Number,
     usePrimaryButtonColor: Boolean
   },
-  data(): LocalState {
-    const params = cloneDeep((this as any).params) || {};
+  data() {
+    const params = cloneDeep((this).params) || {};
     return {
       hidePreviewDisplay: ["jsonTemplate", "compositeMessage"],
-      originalParams: cloneDeep((this as any).params) || {},
+      originalParams: cloneDeep((this).params) || {},
       imageMapFiles: [],
       visible: false,
       lastDeletedId: null,
@@ -369,10 +309,11 @@ export default Vue.extend({
       // eslint-disable-next-line
       urlRegex: /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
       onSave: false,
+      rules: {}
     };
   },
   components: {
-    MultiSelectAreasImage,
+    MultiSelectAreasImage, InputText
   },
   watch: {
     visible(value) {
@@ -434,13 +375,13 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      isCreatingRichMenu: (state) => (state as any).scenarios.isCreatingRichMenu,
-      isCreatingRichMenuError: (state) => (state as any).scenarios.isCreatingRichMenuError,
+      isCreatingRichMenu: (state) => (state).scenarios.isCreatingRichMenu,
+      isCreatingRichMenuError: (state) => (state).scenarios.isCreatingRichMenuError,
     }),
-    imageMapPreviewImageHeight(): number {
+    imageMapPreviewImageHeight() {
       return (700 / 1040) * this.imageMapImageHeight;
     },
-    isValidImageMap(): boolean {
+    isValidImageMap() {
       var invalidAreas = false;
       if (this.imageMap && this.imageMap.areas){
         this.imageMap.areas.forEach((area) => {
@@ -484,7 +425,7 @@ export default Vue.extend({
       createRichMenu: CREATE_RICH_MENU,
       deleteRichMenu: DELETE_RICH_MENU,
     }),
-    resetFields(): void {
+    resetFields() {
       this.richMenu = {
         size: {
           width: 1040,
@@ -508,7 +449,7 @@ export default Vue.extend({
       this.editFocus = false;
       this.richMenuImageHeight = 0;
     },
-    toRichMenuEmulateObject(params: any): any {
+    toRichMenuEmulateObject(params) {
       console.log("toRichMenuEmulateObject", "params:", params);
       const richMenuEmulateObject = {
         size: {
@@ -545,7 +486,7 @@ export default Vue.extend({
       console.log("toRichMenuEmulateObject", "richMenuEmulateObject:", cloneDeep(richMenuEmulateObject));
       return richMenuEmulateObject;
     },
-    toImageMapImageUrl(params: any): any {
+    toImageMapImageUrl(params) {
       if (params.baseUrl && params.baseUrl.startsWith("data:")) {
         return params.baseUrl;
       }
@@ -554,11 +495,11 @@ export default Vue.extend({
       }
       return null;
     },
-    checkValidUrl(url: any): any {
+    checkValidUrl(url) {
       var regex = new RegExp(this.urlRegex);
       return url.match(regex);
     },
-    getListAreas(valueBounds: any): void {
+    getListAreas(valueBounds) {
       var value = cloneDeep(valueBounds);
 
       this.displayAreas = valueBounds;
@@ -586,7 +527,7 @@ export default Vue.extend({
           return obj.id === elem.id;
         });
 
-        var mappedValue: any = {};
+        var mappedValue = {};
         if (existingAction.length > 0) {
           //matching element was found, save the existing data and new bounds
           mappedValue = {
@@ -633,13 +574,13 @@ export default Vue.extend({
           if (indexToReplace >= 0) {
             this.imageMap.areas[indexToReplace].selected = mappedValue.selected;
 
-            this.imageMap.areas[indexToReplace].bounds.x = mappedValue.bounds.x < 0 ? 0 : 
+            this.imageMap.areas[indexToReplace].bounds.x = mappedValue.bounds.x < 0 ? 0 :
               mappedValue.bounds.x > areaMaxBound ? areaMaxBound : mappedValue.bounds.x;
-            this.imageMap.areas[indexToReplace].bounds.y = mappedValue.bounds.y < 0 ? 0 : 
+            this.imageMap.areas[indexToReplace].bounds.y = mappedValue.bounds.y < 0 ? 0 :
               mappedValue.bounds.y > areaMaxBound ? areaMaxBound : mappedValue.bounds.y;
-            this.imageMap.areas[indexToReplace].bounds.height = mappedValue.bounds.height < 0 ? 0 : 
+            this.imageMap.areas[indexToReplace].bounds.height = mappedValue.bounds.height < 0 ? 0 :
               mappedValue.bounds.height > areaMaxBound ? areaMaxBound : mappedValue.bounds.height;
-            this.imageMap.areas[indexToReplace].bounds.width = mappedValue.bounds.width < 0 ? 0 : 
+            this.imageMap.areas[indexToReplace].bounds.width = mappedValue.bounds.width < 0 ? 0 :
               mappedValue.bounds.width > areaMaxBound ? areaMaxBound : mappedValue.bounds.width;
 
             this.imageMap.areas[indexToReplace].action = mappedValue.action;
@@ -649,14 +590,14 @@ export default Vue.extend({
         }
       });
     },
-    fileDataChanged(event: any): void {
+    fileDataChanged(event) {
       if (event) {
         if (event.type === "image/jpg" || event.type === "image/jpeg" || event.type === "image/png") {
           this.errorMessage = "";
           this.hasError = false;
           var reader = new FileReader();
-          reader.onload = (e: any) => {
-            let img: any = new Image();
+          reader.onload = (e) => {
+            let img = new Image();
             img.onload = async () => {
               //run validation here
               if (event.size > 10000000) {
@@ -686,10 +627,10 @@ export default Vue.extend({
         this.imageMapImageUrl = null;
       }
     },
-    setImgSize(imgSize: any): void {
+    setImgSize(imgSize) {
       console.log("setImgSize:", imgSize);
     },
-    checkError(errorMessage: any, successMessage: any): void {
+    checkError(errorMessage, successMessage) {
       if (!errorMessage) {
         this.hasError = false;
         this.$snackbar.show({
@@ -697,7 +638,7 @@ export default Vue.extend({
         });
       }
     },
-    saveImageMap(): void {
+    saveImageMap() {
       console.log("saveImageMap", "this.hasError:", this.hasError);
       if (!this.hasError) {
         const payload = {
@@ -757,7 +698,7 @@ export default Vue.extend({
         this.visible = false;
       }
     },
-    focusArea(areaId: any): void {
+    focusArea(areaId) {
       var indexToReplace = this.displayAreas.findIndex((x) => x.id === areaId);
       for (var index = 0; index < this.displayAreas.length; index++) {
         if (index == indexToReplace) {
@@ -771,7 +712,7 @@ export default Vue.extend({
         }
       }
     },
-    deleteArea(areaId: any): void {
+    deleteArea(areaId) {
       //this.lastDeletedId = areaId;
       var indexToReplace = this.displayAreas.findIndex((x) => x.id == areaId);
       if (indexToReplace >= 0) {
@@ -779,7 +720,7 @@ export default Vue.extend({
         this.getListAreas(this.displayAreas);
       }
     },
-    deleteSelectedArea(event: any): void {
+    deleteSelectedArea(event) {
       if (event.keyCode == 8 && !this.editFocus) {
         var indexToReplace = this.displayAreas.findIndex((x) => x.selected);
         if (indexToReplace >= 0) {
@@ -788,7 +729,7 @@ export default Vue.extend({
         }
       }
     },
-    changingXCoordinate(area: any): void {
+    changingXCoordinate(area) {
       if (!Number.isInteger(area.bounds.x)) {
         area.bounds.x = parseInt(area.bounds.x, 10);
       }
@@ -804,7 +745,7 @@ export default Vue.extend({
       var indexToUpdate = this.displayAreas.findIndex((item) => item.id === area.id);
       this.displayAreas[indexToUpdate].x = mappedX;
     },
-    changingYCoordinate(area: any): void {
+    changingYCoordinate(area) {
       if (!Number.isInteger(area.bounds.y)) {
         area.bounds.y = parseInt(area.bounds.y, 10);
       }
@@ -820,7 +761,7 @@ export default Vue.extend({
       var indexToUpdate = this.displayAreas.findIndex((item) => item.id === area.id);
       this.displayAreas[indexToUpdate].y = mappedY;
     },
-    changingWidthCoordinate(area: any): void {
+    changingWidthCoordinate(area) {
       if (!Number.isInteger(area.bounds.width)) {
         area.bounds.width = parseInt(area.bounds.width, 10);
       }
@@ -837,7 +778,7 @@ export default Vue.extend({
       var indexToUpdate = this.displayAreas.findIndex((item) => item.id === area.id);
       this.displayAreas[indexToUpdate].width = mappedWidth;
     },
-    changingHeightCoordinate(area: any): void {
+    changingHeightCoordinate(area) {
       if (!Number.isInteger(area.bounds.height)) {
         area.bounds.height = parseInt(area.bounds.height, 10);
       }
@@ -854,21 +795,38 @@ export default Vue.extend({
       var indexToUpdate = this.displayAreas.findIndex((item) => item.id === area.id);
       this.displayAreas[indexToUpdate].height = mappedHeight;
     },
-    cancelRichMenuCreate(): void {
+    cancelRichMenuCreate() {
       this.visible = false;
     },
-    focusIn(): void {
+    focusIn() {
       this.editFocus = true;
     },
-    focusOut(): void {
+    focusOut() {
       this.editFocus = false;
     },
     clickingOnSelectArea() {
-      (document as any).activeElement.blur();
+      (document).activeElement.blur();
     },
   },
   created() {
     window.addEventListener("keyup", this.deleteSelectedArea);
+    this.rules = {
+      validAction: (value) => {
+        if (value.length <= 0) {
+          return "テキストは空白のみは使用できません。";
+        }
+        if (value.length >= 1000) {
+          return "テキストは1000文字以内にしてください。";
+        }
+        return true;
+      },
+      validURL: (value) => {
+        if (value.length <= 0) {
+          return "URLは空白のみは使用できません。";
+        }
+        return true;
+      }
+    };
   },
   mounted() {
     this.imageMap = this.toRichMenuEmulateObject(this.params);

@@ -80,12 +80,6 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 
-interface LocalState {
-  rules: any;
-  textSections: Array<string>;
-  isValidText: any;
-}
-
 export default Vue.extend({
   name: "ItemLocation",
   props: {
@@ -104,7 +98,7 @@ export default Vue.extend({
       }
     },
   },
-  data(): LocalState {
+  data() {
     return {
       rules: {
         validTextLength: (value) => value.length > 0 || "必須",
@@ -131,14 +125,14 @@ export default Vue.extend({
     this.$emit("updateSaveStatus", { key: `ItemLocation`, value: true });
   },
   methods: {
-    onChangeValue(event: any, keyValue: any): void {
+    onChangeValue(event , keyValue) {
       if (this.textSections.includes(keyValue)) {
         this.validateText(event, keyValue);
       }
       this.reportValidation();
       this.$emit("updateParams", { key: keyValue, value: event });
     },
-    validateText(event: any, keyValue: any): void {
+    validateText(event , keyValue) {
       if (typeof event !== "undefined" && event.length > 0) {
         for (var ch of event) {
           if (ch !== "\n" && ch !== " " && ch !== "　") {
@@ -149,7 +143,7 @@ export default Vue.extend({
       }
       this.isValidText[keyValue] = false;
     },
-    reportValidation(): void {
+    reportValidation() {
       for (const section of this.textSections) {
         if (!this.isValidText[section]) {
           this.$emit("updateSaveStatus", { key: `ItemLocation`, value: false });

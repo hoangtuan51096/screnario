@@ -84,7 +84,7 @@
             outlined
             dense
             clearable
-            placeholder="シナリオバージョン"
+            placeholder="キーワード"
             :disabled="!searchAttribute"
         ></v-text-field>
         <v-text-field
@@ -222,30 +222,7 @@ import moment from 'moment';
 import { get } from 'lodash';
 import cloneDeep from "lodash/cloneDeep";
 import {FETCH_SCENARIOS_LIST, FETCH_SCENARIOS_SETTING} from "@/store/modules/scenarios/mutations-types";
-import {trim} from "../../../../../src/utils/stringUtils";
-
-interface LocalState {
-  versionList: Array<any>;
-  environmentInfo: any;
-  scenarioInfo: any;
-  selectedVersion: any;
-  selectedId: any;
-  selectedEnv: any;
-  activeScenarioExists: any;
-  showLoadingExport: boolean;
-  showVersionChange: boolean;
-  sortBy: string;
-  localSearchAttribute: string;
-  localSearchKeyword: string;
-  sortDesc: any;
-  tableHeaders: Array<any>;
-  searchOptions: Array<any>;
-  tableItems: Array<any>;
-  tableItemsPerPage: number;
-  filteredTableItems: Array<any>;
-  tableSelected: Array<any>;
-  searchCriteriaLocal: any;
-}
+import {trim} from "../../../utils/stringUtils";
 
 export default Vue.extend({
   props: {
@@ -253,7 +230,7 @@ export default Vue.extend({
     fetchDataList: Boolean,
     searchCriteria: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       versionList: [],
       environmentInfo: {},
@@ -383,29 +360,29 @@ export default Vue.extend({
   components: { VersionChangeModal, Pagination },
   computed: {
     ...mapState({
-      settings: (state: any) => state.scenarios.settings,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
-      scenariosListPaginate: (state: any) => state.scenarios.scenariosListPaginate,
-      isExportingScenarioData: (state: any) => state.scenarios.isExportingScenarioData,
-      selectedEditScenario: (state: any) => state.scenarios.selectedEditScenario,
-      exportingScenarioDataError: (state: any) => state.scenarios.exportingScenarioDataError,
-      fetchScenarioDetailError: (state: any) => state.scenarios.fetchScenarioDetailError,
-      deleteFinishSuccess: (state: any) => state.scenarios.deleteFinishSuccess,
-      dataTableOptions: (state: any) => state.scenarios.dataTableOptions,
+      settings: (state) => state.scenarios.settings,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
+      scenariosListPaginate: (state) => state.scenarios.scenariosListPaginate,
+      isExportingScenarioData: (state) => state.scenarios.isExportingScenarioData,
+      selectedEditScenario: (state) => state.scenarios.selectedEditScenario,
+      exportingScenarioDataError: (state) => state.scenarios.exportingScenarioDataError,
+      fetchScenarioDetailError: (state) => state.scenarios.fetchScenarioDetailError,
+      deleteFinishSuccess: (state) => state.scenarios.deleteFinishSuccess,
+      dataTableOptions: (state) => state.scenarios.dataTableOptions,
     }),
     options: {
-      get(): any {
+      get() {
         return this.dataTableOptions;
       },
-      async set(value: any): Promise<void> {
+      async set(value) {
         if (value) {
           await this.setUserListDataTableOptions(value);
           await this.fetchData();
         }
       },
     },
-    onDetail(): any {
+    onDetail() {
       return {
         name: "ScenarioVersionSettingsPage",
         params: {
@@ -415,7 +392,7 @@ export default Vue.extend({
         },
       };
     },
-    disableDeleteButton(): any {
+    disableDeleteButton() {
       if (this.tableSelected.length === 0) {
         return true;
       }
@@ -438,7 +415,7 @@ export default Vue.extend({
     sandboxStatus() {
       return SCENARIO_SEARCH_SANDBOX_OPTIONS;
     },
-    isClearDisabled(): void {
+    isClearDisabled() {
       return (!this.searchAttribute && !this.searchKeyword) || this.isFetchingUserList;
     }
   },
@@ -447,7 +424,7 @@ export default Vue.extend({
       changeActiveScenario: CHANGE_ACTIVE_SCENARIO,
       downloadExportFile: DOWNLOAD_EXPORT_FILE,
     }),
-    getScenarioInfo(): any {
+    getScenarioInfo() {
       const value =
         "envMapping" in this.activeScenarioData ? this.activeScenarioData.envMapping[this.environment] : null;
       if (value) {
@@ -460,14 +437,14 @@ export default Vue.extend({
         return null;
       }
     },
-    getDefaultSelectedVersion(): any {
+    getDefaultSelectedVersion() {
       if (this.activeScenarioData && "envMapping" in this.activeScenarioData) {
         return this.activeScenarioData.envMapping[this.environment];
       } else {
         return null;
       }
     },
-    populateTableItems(): Array<any> {
+    populateTableItems() {
       if (this.activeScenario && this.activeScenario.versions) {
         const items = Object.keys(this.activeScenario.versions).map((version) => {
           const item = this.activeScenario.versions[version];
@@ -487,7 +464,7 @@ export default Vue.extend({
         return [];
       }
     },
-    customSort(items: any, index: any, isDesc: any): any {
+    customSort(items , index , isDesc) {
       items.sort((a, b) => {
         if (index[0] === "_productionButton" || index[0] === "_sandboxButton") {
           if (!isDesc[0]) {
@@ -505,31 +482,31 @@ export default Vue.extend({
       });
       return items;
     },
-    checkActiveScenario(): any {
+    checkActiveScenario() {
       if (this.activeScenarioData) {
         return this.activeScenarioData.activeScenarioId;
       }
       return false;
     },
-    onChangeVersion(): void {
+    onChangeVersion() {
       this.$emit("onChangeVersion", this.type);
     },
-    convToJapanese(value: any): any {
+    convToJapanese(value) {
       return SCENARIO_LANG_TYPES[value.substring(0, 2)] ? SCENARIO_LANG_TYPES[value.substring(0, 2)].text : value;
     },
-    onImportClick(): void {
+    onImportClick() {
       this.$emit("onImportTrigger", this.versionList);
     },
-    onCreateClick(): void {
+    onCreateClick() {
       this.$emit("onCreateClick", this.versionList);
     },
-    onDeleteClick(): void {
+    onDeleteClick() {
       if (this.disableDeleteButton) {
         return;
       }
       this.$emit("onDeleteTrigger", { name: this.tableSelected.map((selected) => selected.displayVersionName), id: this.tableSelected.map((selected) => selected.id)});
     },
-    onActivate(item: any, env: any): void {
+    onActivate(item , env) {
       this.selectedVersion = item.id;
       this.selectedId = item.id;
       this.selectedEnv = env;
@@ -539,7 +516,7 @@ export default Vue.extend({
         this.showActionPermissionError();
       }
     },
-    async clickChange(): void {
+    async clickChange() {
       const payload = {
         activeScenarioData: this.activeScenarioData,
         scenarioName: this.activeScenarioData.activeScenarioId,
@@ -551,7 +528,7 @@ export default Vue.extend({
       await this.$store.dispatch(FETCH_SCENARIOS_SETTING)
       this.handleSearch()
     },
-    onExportClick(): void {
+    onExportClick() {
       this.showLoadingExport = true;
       const payload = {
         scenario: this.activeScenarioData.activeScenarioId + "#" + this.tableSelected[0]._version,
@@ -560,7 +537,7 @@ export default Vue.extend({
       this.downloadExportFile(payload);
       this.$emit("onExportFinishSuccess");
     },
-    toEdit(item: any): void {
+    toEdit(item) {
       this.$router.push({
         name: "ScenarioVersionSettingsPage",
         params: {
@@ -570,10 +547,10 @@ export default Vue.extend({
         },
       });
     },
-    filterTableItems(): void {
+    filterTableItems() {
       this.filteredTableItems = this.scenariosListPaginate.data;
     },
-    handleClearAllSearchCriteria(): void {
+    handleClearAllSearchCriteria() {
       this.localSearchAttribute = ""
       this.localSearchKeyword = ""
       this.handleSearch()

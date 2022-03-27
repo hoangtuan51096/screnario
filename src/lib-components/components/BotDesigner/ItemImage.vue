@@ -128,28 +128,6 @@ under the License.
 import Vue from "vue";
 import { cloneDeep } from "lodash";
 
-interface LocalState {
-  fileModels: Array<any>;
-  imageOptions: Array<any>;
-  allowedContentType: Array<string>;
-  sizeLimitOriginal:  number;
-  sizeLimitPreview: number;
-  editOriginalFiles: boolean;
-  editPreviewFiles: boolean;
-  tempOriginalUrl: any;
-  tempOriginalFile: any;
-  validTempOriginalUrl: any;
-  validTempOriginalFile: any;
-  tempPreviewUrl: any;
-  tempPreviewFile: any;
-  validTempPreviewUrl: boolean;
-  validTempPreviewFile: boolean;
-  rules: any;
-  isValidSize: Array<boolean>;
-  isValidType: Array<boolean>;
-  previewImageUrlOriginal: any;
-}
-
 export default Vue.extend({
   name: "ItemImage",
   props: {
@@ -224,7 +202,7 @@ export default Vue.extend({
       }
     },
   },
-  data(): LocalState {
+  data() {
     return {
       fileModels: [undefined, undefined],
       imageOptions: [
@@ -257,7 +235,7 @@ export default Vue.extend({
       },
       isValidSize: [true, true],
       isValidType: [true, true],
-      previewImageUrlOriginal: cloneDeep((this as any).params.previewImageUrl) || {},
+      previewImageUrlOriginal: cloneDeep((this).params.previewImageUrl) || {},
     };
   },
   mounted() {
@@ -267,7 +245,7 @@ export default Vue.extend({
     this.$emit("updateSaveStatus", { key: `ItemImage`, value: true });
   },
   methods: {
-    onChangeValue(event: any, keyValue: any): void {
+    onChangeValue(event , keyValue) {
       if (keyValue == "originalContentUrl" || keyValue == "previewImageUrl") {
         if (event !== "") {
           const response = fetch(event, {
@@ -344,7 +322,7 @@ export default Vue.extend({
         this.$emit("updateParams", { key: keyValue, value: event });
       }
     },
-    fileDataChanged(event: any, index: any): void {
+    fileDataChanged(event , index) {
       if (index - 1 === 0) {
         if (event) {
           let reader = new FileReader();
@@ -385,7 +363,7 @@ export default Vue.extend({
       this.fileModels[index - 1] = event;
       this.$emit("fileImageDataUpdate", this.fileModels);
     },
-    reportValidation(): void {
+    reportValidation() {
       for (const item of this.isValidSize) {
         if (!item) {
           this.$emit("updateSaveStatus", { key: `ItemImage`, value: false });

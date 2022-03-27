@@ -147,7 +147,7 @@ under the License.
 import Vue from "vue";
 import axios from "axios";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
-import ImageDisplayModal from "@/components/common/ImageDisplayModal.vue";
+import ImageDisplayModal from "../../components/common/ImageDisplayModal.vue";
 import RichMenuDesigner from "../components/RichMenuDesigner.vue";
 import {
   SET_DEFAULT_PRODUCTION_RICHMENU,
@@ -170,22 +170,6 @@ import cloneDeep from "lodash/cloneDeep";
 import { generateUUID } from "@/utils/uuidUtils";
 import { isNullOrEmpty } from "@/utils/stringUtils";
 
-interface LocalState {
-  headers: Array<any>;
-  displayItems: Array<any>;
-  searchText: string;
-  showImageDisplay: boolean;
-  showRichMenuDesigner: boolean;
-  imageSource: string;
-  editableItem: any;
-  richMenuImageFile: string;
-  richMenuImageUrl: string;
-  rich_menu_image_url: string;
-  itemsRichMenu: Array<any>;
-  itemsPerPage: Array<number>;
-  selectedMenus: Array<any>;
-}
-
 export default Vue.extend({
   name: "RichMenuManageTable",
   props: {
@@ -200,7 +184,7 @@ export default Vue.extend({
     oppositeEnvironmentMenus: Array,
     searchCriteria: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       displayItems: [],
       headers: [
@@ -269,9 +253,9 @@ export default Vue.extend({
   components: { ImageDisplayModal, RichMenuDesigner },
   computed: {
     ...mapState({
-      isFetchingAllRichMenus: (state: any) => state.scenarios.isFetchingAllRichMenus,
-      errorFetchingAllRichMenus: (state: any) => state.scenarios.errorFetchingAllRichMenus,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
+      isFetchingAllRichMenus: (state) => state.scenarios.isFetchingAllRichMenus,
+      errorFetchingAllRichMenus: (state) => state.scenarios.errorFetchingAllRichMenus,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
     }),
   },
   methods: {
@@ -284,7 +268,7 @@ export default Vue.extend({
       fetchDefaultRichMenu: FETCH_DEFAULT_RICHMENUS,
       fetchAllRichMenuAliasList: FETCH_ALL_RICHMENUS_ALIAS_LIST
     }),
-    setUpDisplayItems(): void {
+    setUpDisplayItems() {
       this.displayItems = cloneDeep(this.richMenuList);
       if (this.searchCriteria && !isNullOrEmpty(this.searchCriteria.richMenuName)) {
         this.displayItems = this.displayItems.filter((elem) =>
@@ -318,7 +302,7 @@ export default Vue.extend({
         }
       }
     },
-    paginationText(pagination: any): string {
+    paginationText(pagination) {
       const { page, itemsPerPage } = pagination;
       let start = 0;
       let end = 0;
@@ -334,11 +318,11 @@ export default Vue.extend({
       }
       return start + "-" + end + " 件 / " + this.displayItems.length + "件";
     },
-    openImageDialog(src: any): void {
+    openImageDialog(src) {
       this.imageSource = src;
       this.showImageDisplay = true;
     },
-    setDefaultDisplayMenu(menu: any): void {
+    setDefaultDisplayMenu(menu) {
       this.$dialog.show({
         title: "リッチメニュー通常設定確認",
         text: "このリッチメニューを通常に設定してもよろしいですか？",
@@ -384,7 +368,7 @@ export default Vue.extend({
         },
       });
     },
-    setBosaiMenu(menu: any): void {
+    setBosaiMenu(menu) {
       this.$dialog.show({
         title: "リッチメニュー災害時モード設定確認",
         text: "このリッチメニューを災害時モード用に設定してもよろしいですか？",
@@ -419,7 +403,7 @@ export default Vue.extend({
         },
       });
     },
-    customSort(items: any, sortBy: any, sortOrder: any): any {
+    customSort(items , sortBy , sortOrder) {
       if (sortBy.length > 0 && sortOrder.length > 0) {
         var categoryToSortBy = sortBy[0];
         var isDesc = sortOrder[0];
@@ -466,7 +450,7 @@ export default Vue.extend({
       }
       return items;
     },
-    async editableItemFunction(item: any): Promise<void> {
+    async editableItemFunction(item) {
       let params = {
         richMenuId: item.richMenuId,
         environment: this.environment,

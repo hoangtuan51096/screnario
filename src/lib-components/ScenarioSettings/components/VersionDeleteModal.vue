@@ -88,7 +88,7 @@ import Vue from "vue";
 import { mapState, mapActions, mapMutations } from "vuex";
 import { DELETE_SCENARIO_VERSION } from "@/store/action-types";
 import { SET_DELETING_SCENARIO_VERSION_ERROR } from "@/store/mutation-types";
-import MultiLine from "@/components/common/MultiLine.vue";
+import MultiLine from "../../components/common/MultiLine.vue";
 import {ROLE_MEMBER, USER_TYPE_STORE} from "@/constants/permission.constants";
 
 export default Vue.extend({
@@ -116,18 +116,18 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      userData: (state) => (state as any).auth.user,
-      isDeletingScenarioVersion: (state: any) => state.scenarios.isDeletingScenarioVersion,
-      deletingScenarioVersionError: (state: any) => state.scenarios.deletingScenarioVersionError,
-      deleteFinishSuccess: (state: any) => state.scenarios.deleteFinishSuccess,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
+      userData: (state) => (state).auth.user,
+      isDeletingScenarioVersion: (state) => state.scenarios.isDeletingScenarioVersion,
+      deletingScenarioVersionError: (state) => state.scenarios.deletingScenarioVersionError,
+      deleteFinishSuccess: (state) => state.scenarios.deleteFinishSuccess,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -144,14 +144,14 @@ export default Vue.extend({
     ...mapMutations({
       setDeletingScenarioVersionError: SET_DELETING_SCENARIO_VERSION_ERROR,
     }),
-    cancelDelete(): void {
+    cancelDelete() {
       this.show = false;
     },
-    deleteItem(): void {
+    deleteItem() {
       const payload = this.scenario.versionIds.join(',');
       this.deleteScenarioVersion(payload);
     },
-    backToSelect(): void {
+    backToSelect() {
       this.$emit("backToSelect");
     },
   },

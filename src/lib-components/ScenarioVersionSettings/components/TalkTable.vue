@@ -16,7 +16,7 @@ under the License.
 <template>
   <div>
     <v-alert
-        v-if="this.activeScenarioData.envMapping && $route.params.versionId === this.activeScenarioData.envMapping.production"
+        v-if="stateProduction"
         class="red--text text--darken-4"
         color="red darken-4"
         icon="mdi-alert"
@@ -31,8 +31,8 @@ under the License.
       <v-col cols="auto" md="auto">
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
-            <h2 v-bind="attrs" v-on="on" class="active-talk-name clickable" style=" white-space: nowrap;
-    text-overflow: ellipsis; overflow: hidden; max-width: 400px;  font-size: 20px;font-weight: bold;" @click="showVersionNameChangeModal = true">
+            <h2 v-bind="attrs" v-on="on" class="clickable" style=" white-space: nowrap;
+    text-overflow: ellipsis; overflow: hidden; max-width: 400px;  font-size: 20px;font-weight: bold; cursor: pointer;" @click="showVersionNameChangeModal = true">
               <v-icon>mdi-pencil</v-icon>
               {{ getDisplayVersionName }}
             </h2>
@@ -43,11 +43,10 @@ under the License.
       <v-col cols="auto">
         <v-btn
             color="error"
-            outlined
             :disabled="hasActionPermission('disableButton', 'ScenarioSettings_DeleteTalk_Click') || disableDeleteButton"
             @click="onDeleteClick"
         >
-          選択項目を削除
+          <v-icon left>mdi-trash-can</v-icon>選択項目を削除
         </v-btn>
         <v-btn class="ml-2" color="primary" outlined @click="onTemplateClick()">
           テンプレートを利用
@@ -58,7 +57,7 @@ under the License.
             :disabled="hasActionPermission('disableButton', 'ScenarioSettings_CreateTalk_Click')"
             @click="onCreateClick"
         >
-          新規作成
+          <v-icon left>mdi-plus</v-icon>新規作成
         </v-btn>
       </v-col>
     </v-row>
@@ -172,6 +171,7 @@ under the License.
       最終更新日の開始日と終了日が逆です
     </v-alert>
     <v-divider class="my-4"></v-divider>
+    <Pagination @change="handleSearch"/>
     <v-data-table
         class="scenario-table"
         :headers="tableHeaders"
@@ -180,8 +180,8 @@ under the License.
         :show-select="true"
         :single-select="false"
         :loading="isFetchingScenarioDetail"
-        :footer-props="{ 'items-per-page-options': [10, 20, 50, 100, -1] }"
         :server-items-length="totalTalks"
+        hide-default-footer
         :options.sync="optionTalks"
         v-model="tableSelected"
     >
@@ -222,7 +222,7 @@ under the License.
         >{{ suffix[item.dataId] }}</span>
       </template>
       <template v-slot:item.startMessage="{ item }" style="vertical-align: inherit">
-        <v-tooltip top>
+        <v-tooltip v-if="item.startMessage" top>
           <template v-slot:activator="{ on, attrs }">
             <div class="item_user_name"
                  v-bind="attrs"
@@ -232,6 +232,10 @@ under the License.
           </template>
           <span>{{ item.startMessage }}</span>
         </v-tooltip>
+        <span v-else>{{ item._startMessage }}</span>
+      </template>
+      <template v-slot:item.updated_at="{ item }" style="vertical-align: inherit">
+        <span>{{ formatToYYYYMMDHHmmss(item.updated_at) }}</span>
       </template>
       <template v-slot:item._editButton="{ item }">
         <v-btn color="primary" @click="toEdit(item)">
@@ -239,6 +243,7 @@ under the License.
         </v-btn>
       </template>
     </v-data-table>
+    <Pagination @change="handleSearch"/>
     <VersionNameChangeModal
       :visible="showVersionNameChangeModal"
       :versionId="$route.params.versionId"
@@ -271,28 +276,8 @@ import {TEMPLATE_TALK_IDS} from '@/store/modules/scenarios/scenarios.constants';
 import VersionNameChangeModal from "../../ScenarioSettingsDetail/components/VersionNameChangeModal.vue";
 import cloneDeep from "lodash/cloneDeep";
 import moment from "moment";
-
-interface LocalState {
-  versionList: Array<any>;
-  environmentInfo: any;
-  scenarioInfo: any;
-  selectedVersion: any;
-  selectedEnv: any;
-  activeScenarioExists: any;
-  tableHeaders: Array<any>;
-  tableItems: Array<any>;
-  tableItemsPerPage: number;
-  filteredTableItems: Array<any>;
-  tableSelected: Array<any>;
-  showNewTalkModal: boolean;
-  specialTalkTypes: any;
-  suffix: any;
-  showVersionNameChangeModal: boolean;
-  isSearching: boolean;
-  searchAttributeOptions: Array<any>;
-  showStartDateMenu: boolean;
-  showEndDateMenu: boolean;
-}
+import {FETCH_SCENARIOS_SETTING} from "../../../../../src/store/modules/scenarios/mutations-types";
+import Pagination from "./Pagination.vue";
 
 const suffixNumbers = [
   "①",
@@ -307,7 +292,7 @@ export default Vue.extend({
   props: {
     environment: String,
   },
-  data(): LocalState {
+  data() {
     return {
       showStartDateMenu: false,
       showEndDateMenu: false,
@@ -317,7 +302,7 @@ export default Vue.extend({
       scenarioInfo: null,
       selectedVersion: null,
       selectedEnv: null,
-      activeScenarioExists: (this as any).checkActiveScenario,
+      activeScenarioExists: (this).checkActiveScenario,
       tableHeaders: [
         {
           text: "トーク名",
@@ -366,6 +351,7 @@ export default Vue.extend({
         { text: "開始メッセージ", value: "startMessage" },
         { text: "最終更新日", value: "updated_at" },
       ],
+      stateProduction: false
     };
   },
   watch: {
@@ -438,36 +424,43 @@ export default Vue.extend({
         this.$snackbar.show({ text: val, type: "error" });
       }
     },
+    'activeScenarioData.envMapping': {
+      handler(val) {
+        this.stateProduction = (this.$route.params.versionId === val.production)
+      },
+      deep: true
+    }
   },
   mixins: [DatetimeFormatter],
   components: {
     VersionNameChangeModal,
+    Pagination
   },
   computed: {
     ...mapState({
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
-      isExportingScenarioData: (state: any) => state.scenarios.isExportingScenarioData,
-      selectedEditScenario: (state: any) => state.scenarios.selectedEditScenario,
-      exportingScenarioDataError: (state: any) => state.scenarios.exportingScenarioDataError,
-      fetchScenarioDetailError: (state: any) => state.scenarios.fetchScenarioDetailError,
-      isFetchingScenarioDetail: (state: any) => state.scenarios.isFetchingScenarioDetail,
-      totalTalks: (state: any) => state.scenarios.totalTalks,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
-      scenarioMessages: (state: any) => state.scenarios.scenarioMessages,
-      isSavingActiveScenario: (state: any) => state.scenarios.isSavingActiveScenario,
-      changingVersionNameError: (state: any) => state.scenarios.changingVersionNameError,
-      dataTableOptions: (state: any) => state.scenarios.talkDataTableOptions,
-      searchAttribute: (state: any) => state.scenarios.searchTalkAttribute,
-      searchKeyword: (state: any) => state.scenarios.searchTalkKeyword,
-      startDate: (state: any) => state.scenarios.searchTalkStartDate,
-      endDate: (state: any) => state.scenarios.searchTalkEndDate,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
+      isExportingScenarioData: (state) => state.scenarios.isExportingScenarioData,
+      selectedEditScenario: (state) => state.scenarios.selectedEditScenario,
+      exportingScenarioDataError: (state) => state.scenarios.exportingScenarioDataError,
+      fetchScenarioDetailError: (state) => state.scenarios.fetchScenarioDetailError,
+      isFetchingScenarioDetail: (state) => state.scenarios.isFetchingScenarioDetail,
+      totalTalks: (state) => state.scenarios.totalTalks,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
+      scenarioMessages: (state) => state.scenarios.scenarioMessages,
+      isSavingActiveScenario: (state) => state.scenarios.isSavingActiveScenario,
+      changingVersionNameError: (state) => state.scenarios.changingVersionNameError,
+      dataTableOptions: (state) => state.scenarios.talkDataTableOptions,
+      searchAttribute: (state) => state.scenarios.searchTalkAttribute,
+      searchKeyword: (state) => state.scenarios.searchTalkKeyword,
+      startDate: (state) => state.scenarios.searchTalkStartDate,
+      endDate: (state) => state.scenarios.searchTalkEndDate,
     }),
-    errorDatePicker(): boolean {
+    errorDatePicker() {
       return moment(this.startDate).unix() > moment(this.endDate).unix();
     },
-    isSearchDisabled(): void {
+    isSearchDisabled() {
       return this.isFetchingScenarioDetail || this.errorDatePicker;
     },
     localSearchAttribute: {
@@ -502,26 +495,26 @@ export default Vue.extend({
         this.updateSearchEndDate(value);
       },
     },
-    isClearDisabled(): boolean {
+    isClearDisabled() {
       return (!this.searchAttribute && !this.searchKeyword) || this.isFetchingScenarioDetail;
     },
-    disableDeleteButton(): boolean {
+    disableDeleteButton() {
       return this.tableSelected.length === 0;
     },
-    isApplyingVersion(): boolean {
+    isApplyingVersion() {
       return this.selectedVersion === this.$route.params.versionId;
     },
-    getDisplayVersionName(): any {
+    getDisplayVersionName() {
       const version = this.activeScenario.versions[this.$route.params.versionId];
       return (version && version.displayVersionName)
         ? version.displayVersionName
         : this.$route.params.versionId;
     },
     optionTalks: {
-      get(): any {
+      get() {
         return this.dataTableOptions;
       },
-      async set(value: any): Promise<void> {
+      async set(value) {
         if (value) {
           await this.updateDatatableOptions(value);
           await this.fetchScenarioTalk({
@@ -530,7 +523,7 @@ export default Vue.extend({
           });
         }
       },
-    },
+    }
   },
   methods: {
     ...mapActions({
@@ -547,27 +540,29 @@ export default Vue.extend({
       updateSearchStartDate: SET_TALK_SEARCH_STARTDATE,
       updateSearchEndDate: SET_TALK_SEARCH_ENDDATE,
     }),
-    async handleSearch(): Promise<void> {
+    async handleSearch(state = false) {
       this.isSearching = true;
-      this.updateDatatableOptions({
-        groupBy: [],
-        groupDesc: [],
-        itemsPerPage: 10,
-        multiSort:false,
-        mustSort:false,
-        page: 1,
-        sortBy: ["updated_at"],
-        sortDesc: [true],
-      });
+      if (state !== true) {
+        this.updateDatatableOptions({
+          groupBy: [],
+          groupDesc: [],
+          itemsPerPage: 10,
+          multiSort:false,
+          mustSort:false,
+          page: 1,
+          sortBy: ["updated_at"],
+          sortDesc: [true],
+        });
+      }
       await this.fetchScenarioTalk({
         scenarioId: this.$route.params.scenarioId,
         versionId: this.$route.params.versionId,
       });
       let searchKeyword = cloneDeep(this.searchKeyword);
-      this.updateSearchKeyword(searchKeyword.trim());
+      this.updateSearchKeyword(searchKeyword !== null ? searchKeyword.trim() : '');
       this.isSearching = false;
     },
-    async handleClearAllSearchCriteria(): void {
+    async handleClearAllSearchCriteria() {
       this.showStartDateMenu = false;
       this.showEndDateMenu = false;
       await this.updateSearchKeyword(null);
@@ -576,7 +571,7 @@ export default Vue.extend({
       await this.updateSearchEndDate(null);
       await this.handleSearch();
     },
-    getScenarioInfo(): any {
+    getScenarioInfo() {
       const value =
         "envMapping" in this.activeScenarioData ? this.activeScenarioData.envMapping[this.environment] : null;
       if (value) {
@@ -589,29 +584,29 @@ export default Vue.extend({
         return null;
       }
     },
-    getDefaultSelectedVersion(): any {
+    getDefaultSelectedVersion() {
       if (this.activeScenarioData && "envMapping" in this.activeScenarioData) {
         return this.activeScenarioData.envMapping[this.environment];
       } else {
         return null;
       }
     },
-    checkActiveScenario(): any {
+    checkActiveScenario() {
       if (this.activeScenarioData) {
         return this.activeScenarioData.activeScenarioId;
       }
       return false;
     },
-    onCreateClick(): void {
+    onCreateClick() {
       this.$emit("onCreateClick");
     },
-    onTemplateClick(index: any = -1): void {
+    onTemplateClick(index  = -1) {
       this.$emit("onTemplateClick", index);
     },
-    onDeleteClick(): void {
+    onDeleteClick() {
       this.$emit("onDeleteTrigger", this.tableSelected);
     },
-    toEdit(item: any): void {
+    toEdit(item) {
       this.$router.push({
         name: "ScenarioSettingsDetailPage",
         params: {
@@ -622,10 +617,10 @@ export default Vue.extend({
         },
       });
     },
-    filterTableItems(): void {
+    filterTableItems() {
       this.filteredTableItems = this.scenarioTalks;
     },
-    async updateVersionName(newVersionName: any): Promise<void> {
+    async updateVersionName(newVersionName) {
       this.setIsSavingActiveScenario(true);
       try {
         const check = await this.updateDisplayScenarioVersionName({
@@ -641,7 +636,7 @@ export default Vue.extend({
         this.setIsSavingActiveScenario(false);
       }
     },
-    populateVersionsList(): Array<any> {
+    populateVersionsList() {
       if (this.activeScenario && this.activeScenario.versions) {
         const verList = Object.keys(this.activeScenario.versions).reduce((array, version) => {
           array.push(this.activeScenario.versions[version].displayVersionName || version);
@@ -658,10 +653,10 @@ export default Vue.extend({
       }
     },
   },
-  created() {
+  async created() {
     this.environmentInfo = SCENARIO_ENV_TYPES[this.environment];
     if (!this.activeScenarioData || !this.activeScenarioData.activeScenarioId) {
-      this.$store.dispatch(FETCH_ACTIVE_SCENARIO_DATA);
+      await this.$store.dispatch(FETCH_ACTIVE_SCENARIO_DATA);
     }
     if (this.activeScenarioData && this.activeScenarioData.envMapping) {
       this.scenarioInfo = this.getScenarioInfo();
@@ -669,7 +664,7 @@ export default Vue.extend({
       this.scenarioInfo = null;
     }
     this.versionList = this.populateVersionsList();
-    this.filteredTableItems = this.scenarioTalks;
+    this.filteredTableItems = [];
     if (this.selectedVersion == null) {
       if (this.selectedEditScenario[this.environment] != null) {
         this.selectedVersion = this.selectedEditScenario[this.environment];
@@ -677,6 +672,8 @@ export default Vue.extend({
         this.selectedVersion = this.getDefaultSelectedVersion();
       }
     }
+    await this.$store.dispatch(FETCH_SCENARIOS_SETTING)
+    this.stateProduction = (this.activeScenarioData.envMapping && this.$route.params.versionId === this.activeScenarioData.envMapping.production)
   },
 });
 </script>

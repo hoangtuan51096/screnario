@@ -71,12 +71,8 @@ import { mapState, mapMutations, mapGetters } from "vuex";
 import { UPDATE_SEGMENT_FILTER } from "@/store/mutation-types";
 
 interface TextValuePair {
-  text: string;
-  value: boolean;
-}
-
-interface LocalState {
-  enabledTags: Array<TextValuePair>;
+  text;
+  value;
 }
 
 export default Vue.extend({
@@ -88,7 +84,7 @@ export default Vue.extend({
       default: "mail-delivery-list",
     }
   },
-  data(): LocalState {
+  data() {
     return {
       enabledTags: [
         { text: "有効", value: true },
@@ -103,43 +99,43 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      mailDeliveryList: (state: any) => state.segments.mailDeliveryList,
-      talkDeliveryList: (state: any) => state.segments.talkDeliveryList,
-      filters: (state: any) => state.segments.filters,
+      mailDeliveryList: (state) => state.segments.mailDeliveryList,
+      talkDeliveryList: (state) => state.segments.talkDeliveryList,
+      filters: (state) => state.segments.filters,
     }),
     selectedEnabled: {
-      get(): any {
+      get() {
         return this.filters.enabled;
       },
-      set(value: any): void {
+      set(value) {
         this.updateData({ enabled: value === null ? 0 : value });
       },
     },
     selectedDeliveryTitle: {
-      get(): any {
+      get() {
         return this.filters.deliveryTitle;
       },
-      set(value: any): void {
+      set(value) {
         this.updateData({ deliveryTitle: value });
       },
     },
     selectedFormConfig: {
-      get(): any {
+      get() {
         return this.filters.surveyId;
       },
-      set(value: any): void {
+      set(value) {
         this.updateData({ surveyId: value });
       },
     },
     selectedTalkName: {
-      get(): any {
+      get() {
         return this.filters.talkName;
       },
-      set(value: any): void {
+      set(value) {
         this.updateData({ talkName: value });
       },
     },
-    deliveryTitleOptions(): Array<any> {
+    deliveryTitleOptions() {
       let options = [];
 
       if (this.searchStyle === "mail-delivery-list") {
@@ -164,7 +160,7 @@ export default Vue.extend({
 
       return options;
     },
-    surveyConfigOptions(): Array<any> {
+    surveyConfigOptions() {
       let options = [];
 
       options.push(
@@ -178,7 +174,7 @@ export default Vue.extend({
 
       return options;
     },
-    talkNameOptions(): Array<any> {
+    talkNameOptions() {
       let options = [];
 
       options.push(
@@ -197,7 +193,7 @@ export default Vue.extend({
     ...mapMutations({
       updateSegmentFilter: UPDATE_SEGMENT_FILTER,
     }),
-    updateData(value: any): void {
+    updateData(value) {
       this.updateSegmentFilter(Object.assign({}, this.filters, value));
     },
   },

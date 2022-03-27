@@ -102,7 +102,7 @@ export default Vue.extend({
     },
   },
   computed: {
-    datetimeTypeStyle(): string {
+    datetimeTypeStyle() {
       return `grey--text ${this.mode === "datetime" ? "pt-8" : "pt-2"}`;
     },
     date: {

@@ -54,13 +54,13 @@ under the License.
           <v-subheader style="padding: 0" v-text="'タイプ'"/>
         </v-col>
         <v-col>
-          <v-select 
-            v-model="newImageLocal" 
-            :items="imageOptions" 
-            single-line 
-            outlined 
-            dense 
-            hide-details> 
+          <v-select
+            v-model="newImageLocal"
+            :items="imageOptions"
+            single-line
+            outlined
+            dense
+            hide-details>
           </v-select>
         </v-col>
       </v-row>
@@ -104,16 +104,17 @@ under the License.
       <v-row>
         <v-col>
           <label>タイトル</label>
-          <v-text-field
+          <input-text
               outlined
               single-line
               dense
               v-model="params.title"
+              :maxlength="120"
               hide-details="auto"
               :rules="[isValidTitleLength, isValidTextChar]"
               @input="onChangeValue($event, 'title')"
           >
-          </v-text-field>
+          </input-text>
         </v-col>
       </v-row>
       <v-row>
@@ -173,33 +174,9 @@ under the License.
 
 <script lang="ts">
 import Vue from "vue";
-import ActionProperty from "@/components/BotDesigner/CommonProperties/ActionProperty.vue";
 import { cloneDeep } from "lodash";
-
-interface LocalState {
-  actions: Array<number>;
-  editImageFile: boolean;
-  newImageLocal: boolean;
-  imageOptions: Array<any>;
-  tempThumbnailFile: any;
-  validTempThumbnailFile: boolean;
-  validTempThumbnailUrl: boolean;
-  tempThumbnailFileDisplay: any;
-  tempThumbnail: any;
-  tempThumbnailUrl: any;
-  isPremadeMessage: any;
-  buttonTemplateUrlOptions: Array<any>;
-  templateImageOptions: Array<any>;
-  buttonTemplateUrl: any;
-  textSections: Array<string>;
-  isValidText: any;
-  urlSections: Array<string>;
-  isValidUrl: any;
-  isValidActionList: Array<boolean>;
-  allowedContentType: Array<string>;
-  sizeLimitThumbnail: number;
-  thumbnailImageUrlOriginal: any;
-}
+import ActionProperty from "./CommonProperties/ActionProperty.vue";
+import InputText from "./InputText.vue";
 
 export default Vue.extend({
   name: "ItemButtonTemplate",
@@ -314,7 +291,7 @@ export default Vue.extend({
       return 60;
     }
   },
-  data(): LocalState {
+  data() {
     return {
       actions: [1, 2, 3, 4],
       editImageFile: false,
@@ -327,7 +304,7 @@ export default Vue.extend({
       validTempThumbnailFile: false,
       validTempThumbnailUrl: false,
       tempThumbnailFileDisplay: null,
-      tempThumbnail: (this as any).params ? cloneDeep((this as any).params.thumbnailImageUrl) : null,
+      tempThumbnail: (this).params ? cloneDeep((this).params.thumbnailImageUrl) : null,
       tempThumbnailUrl: null,
       isPremadeMessage: null,
       buttonTemplateUrlOptions: [
@@ -358,6 +335,7 @@ export default Vue.extend({
   },
   components: {
     ActionProperty,
+    InputText
   },
   mounted() {
     this.setDefaultValues();
@@ -375,13 +353,13 @@ export default Vue.extend({
     this.$emit("updateSaveStatus", { key: `ItemButtonTemplate`, value: true });
   },
   methods: {
-    setDefaultValues(): void {
+    setDefaultValues() {
       if (this.params && !this.params.imageSize) {
         this.params.imageSize = 'cover';
       }
       this.buttonTemplateUrl = this.isUrlSet();
     },
-    scrollToAction(branchIndex: any): void {
+    scrollToAction(branchIndex) {
       if (!Number.isInteger(branchIndex)) {
         return;
       }
@@ -397,10 +375,10 @@ export default Vue.extend({
         }
       });
     },
-    isSpecialPremadeTalk(): any {
+    isSpecialPremadeTalk() {
       return "specialScenarioTalk" in this.params ? this.params["specialScenarioTalk"] : null;
     },
-    fileDataChanged(event: any): void {
+    fileDataChanged(event) {
       if (event) {
         var reader = new FileReader();
         reader.onload = (e) => {
@@ -423,7 +401,7 @@ export default Vue.extend({
         this.validTempThumbnailFile = false;
       }
     },
-    onChangeValue(event: any, keyValue: any): void {
+    onChangeValue(event, keyValue) {
       this.$nextTick(() => {
         // NOTE: タイトルとテキストで相互にvalidateし合う必要があるので、親formのvalidateを叩き直す
         this.$refs.titleTextForm.validate();
@@ -480,18 +458,18 @@ export default Vue.extend({
         this.$emit("updateParams", { key: keyValue, value: event });
       }
     },
-    getActionByNumber(number: any): any {
+    getActionByNumber(number) {
       let actionObj = this.params[`actions.${number}`];
       return actionObj;
     },
-    isUrlSet(): boolean {
+    isUrlSet() {
       if (this.params) {
         return this.params["thumbnailImageUrl"] != "none" && this.params["thumbnailImageUrl"] !== "";
       } else {
         return false;
       }
     },
-    validateText(event: any, keyValue: any): void {
+    validateText(event, keyValue) {
       if (keyValue == "thumbnailImageUrl" && !this.buttonTemplateUrl) {
         this.isValidText[keyValue] = true;
         return;
@@ -511,7 +489,7 @@ export default Vue.extend({
 
       this.isValidText[keyValue] = false;
     },
-    validateUrl(event: any, keyValue: any): void {
+    validateUrl(event, keyValue) {
       if (this.urlSections.includes(keyValue)) {
         if (event && (event.startsWith("https://") || event.startsWith("http://"))) {
           this.isValidUrl[keyValue] = true;
@@ -520,11 +498,11 @@ export default Vue.extend({
         }
       }
     },
-    validateAction(value: any, index: any): void {
+    validateAction(value, index) {
       this.isValidActionList[index] = value;
       this.reportValidation();
     },
-    reportValidation(): void {
+    reportValidation() {
       console.log(
         "ItemButtonTemplate",
         "reportValidation:",
@@ -574,17 +552,17 @@ export default Vue.extend({
       }
       this.$emit("updateSaveStatus", { key: `ItemButtonTemplate`, value: true });
     },
-    isValidTitleLength(value: any): any {
-      let result_val: any = true;
+    isValidTitleLength(value) {
+      let result_val = true;
 
-      if (value !== undefined && value.length > 40) {
-        result_val = "タイトルの最大長は40文字です";
+      if (value !== undefined && value.length > 120) {
+        result_val = "タイトルの最大長は120文字です";
       }
 
       return result_val;
     },
-    isValidTextLength(value: any): any {
-      let return_val: any = true;
+    isValidTextLength(value) {
+      let return_val = true;
       // Text is required for button template
       // If title or image is present, max size is 60
       if (value !== undefined) {
@@ -599,7 +577,7 @@ export default Vue.extend({
 
       return return_val;
     },
-    isValidTextChar(value: any): any {
+    isValidTextChar(value) {
       if (value === undefined || value.length <= 0) {
         return true;
       }
@@ -611,27 +589,27 @@ export default Vue.extend({
       }
       return "空白または改行のみは保存出来ません";
     },
-    isValidFileSize(value: any): any {
-      let return_val: any = true;
+    isValidFileSize(value) {
+      let return_val = true;
       if (value !== null && value.size > 10000000) {
         return_val = "10MB以下の画像ファイルをアップロードして下さい";
       }
 
       return return_val;
     },
-    isValidFileType(value: any): any {
-      let return_val: any = true;
+    isValidFileType(value) {
+      let return_val = true;
       let validTypeExtensions = ["image/jpg", "image/jpeg", "image/png"]
       if (value !== null && !validTypeExtensions.includes(value.type)) {
         return_val = "画像は .jpg .jpeg .png しか出来ません";
       }
       return return_val;
     },
-    resetAction(oldAction: any, actionToResetIndex: number): void {
+    resetAction(oldAction, actionToResetIndex) {
       this.params['actions.' + actionToResetIndex] = cloneDeep(oldAction);
     },
-    moveAction(movePositionUp: boolean, indexToMove: number): void {
-      let positionDelta: number = movePositionUp ? 1 : -1;
+    moveAction(movePositionUp, indexToMove) {
+      let positionDelta = movePositionUp ? 1 : -1;
       const originalAction = cloneDeep(this.params['actions.' + indexToMove]);
       this.params['actions.' + indexToMove] = cloneDeep(this.params['actions.' + (indexToMove + positionDelta)]);
       this.params['actions.' + (indexToMove + positionDelta)] = cloneDeep(originalAction);

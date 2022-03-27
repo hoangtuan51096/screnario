@@ -123,23 +123,6 @@ import { SET_DISTRIBUTION_DETAIL } from "@/store/mutation-types";
 
 import { emitSnackbar } from "@/utils/emitComponents";
 
-interface LocalState {
-  valid: boolean;
-  isEditData: boolean;
-  distributionConfigId: any;
-  deliveryTitle: string;
-  enabled: boolean;
-  selectedTalk: any;
-  selectedEnvironment: string;
-  useDisasterRichmenu: boolean;
-  deliveryTitleRules: any;
-  talkRules: any;
-  environmentRules: any;
-  listOfEnvironments: Array<any>;
-  createError: boolean;
-  updateError: boolean;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -150,7 +133,7 @@ export default Vue.extend({
     distItem: Object,
     updateTargetEstimate: Function,
   },
-  data(): LocalState {
+  data() {
     return {
       valid: false,
 
@@ -185,34 +168,34 @@ export default Vue.extend({
   components: { },
   computed: {
     ...mapState({
-      isCreatingSegmentDelivery: (state: any) => state.segments.isCreatingSegmentDelivery,
-      createSegmentDeliveryError: (state: any) => state.segments.createSegmentDeliveryError,
-      isUpdatingSegmentDelivery: (state: any) => state.segments.isUpdatingSegmentDelivery,
-      updateSegmentDeliveryError: (state: any) => state.segments.updateSegmentDeliveryError,
+      isCreatingSegmentDelivery: (state) => state.segments.isCreatingSegmentDelivery,
+      createSegmentDeliveryError: (state) => state.segments.createSegmentDeliveryError,
+      isUpdatingSegmentDelivery: (state) => state.segments.isUpdatingSegmentDelivery,
+      updateSegmentDeliveryError: (state) => state.segments.updateSegmentDeliveryError,
 
-      isFetchingTalksForOutsideDistribution: (state: any) => state.segments.isFetchingTalksForOutsideDistribution,
-      fetchTalksForOutsideDistributionError: (state: any) => state.segments.fetchTalksForOutsideDistributionError,
-      talksForOutsideDistribution: (state: any) => state.segments.talksForOutsideDistribution,
+      isFetchingTalksForOutsideDistribution: (state) => state.segments.isFetchingTalksForOutsideDistribution,
+      fetchTalksForOutsideDistributionError: (state) => state.segments.fetchTalksForOutsideDistributionError,
+      talksForOutsideDistribution: (state) => state.segments.talksForOutsideDistribution,
 
-      distributionDetail: (state: any) => state.segments.distributionDetail,
+      distributionDetail: (state) => state.segments.distributionDetail,
     }),
     talksToDisplay() {
       return this.selectedEnvironment in this.talksForOutsideDistribution ? this.talksForOutsideDistribution[this.selectedEnvironment] : [];
     },
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
       },
     },
-    isSaveDisabled(): boolean {
+    isSaveDisabled() {
       return !this.valid || !this.selectedTalkInAvailableTalks || this.isCreatingSegmentDelivery || this.isUpdatingSegmentDelivery;
     },
-    selectedTalkInAvailableTalks(): any {
+    selectedTalkInAvailableTalks() {
       return this.talksForOutsideDistribution[this.selectedEnvironment].find(elem => elem.dataId == this.selectedTalk);
     }
   },
@@ -252,7 +235,7 @@ export default Vue.extend({
     ...mapMutations({
       updateDistributionDetail: SET_DISTRIBUTION_DETAIL,
     }),
-    async initializeValues(): Promise<void> {
+    async initializeValues() {
       if (this.item) {
         this.deliveryTitle = this.item.deliveryTitle;
         this.selectedEnvironment = this.item.environment;
@@ -263,11 +246,11 @@ export default Vue.extend({
       }
       this.fetchActiveScenarioTalks();
     },
-    getTalkName(talkId: any): any {
+    getTalkName(talkId) {
       return this.talksForOutsideDistribution[this.selectedEnvironment].find(elem => elem.dataId === talkId).name;
     },
-    onSave(): void {
-      let params: any = {
+    onSave() {
+      let params  = {
         name: this.deliveryTitle,
         enabled: this.enabled,
         environment: this.selectedEnvironment,
@@ -275,7 +258,7 @@ export default Vue.extend({
         useDisasterRichmenu: this.useDisasterRichmenu
       };
       params["talkName"] = this.getTalkName(this.selectedTalk);
-      
+
       if (this.distributionConfigId) {
         params.id = this.distributionConfigId;
       }
@@ -286,7 +269,7 @@ export default Vue.extend({
         this.update(params);
       }
     },
-    async create(params: any): Promise<void> {
+    async create(params) {
       if (this.hasActionPermission("click", "backendRequest")) {
         await this.createSegmentDelivery(params)
         if (this.createSegmentDeliveryError) {
@@ -302,7 +285,7 @@ export default Vue.extend({
         this.showActionPermissionError();
       }
     },
-    async update(params: any): Promise<void> {
+    async update(params) {
       if (this.hasActionPermission("click", "backendRequest")) {
         await this.updateSegmentDelivery(params)
         if (this.updateSegmentDeliveryError) {
@@ -318,7 +301,7 @@ export default Vue.extend({
         this.showActionPermissionError();
       }
     },
-    resetValues(): void {
+    resetValues() {
       this.deliveryTitle = "";
       this.enabled = true;
       this.createError = false;
@@ -327,7 +310,7 @@ export default Vue.extend({
       this.environment = "sandbox";
       this.useDisasterRichmenu = false;
     },
-    handleUpdate(value: any): void {
+    handleUpdate(value) {
       this.updateDistributionDetail({ ...this.distributionDetail, ...value });
     },
   },

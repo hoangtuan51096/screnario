@@ -50,7 +50,7 @@ under the License.
             キャンセル
           </v-btn>
           <v-btn
-              color="warning"
+              color="error"
               elevation="4"
               class="ml-2"
               :disabled="disableDelete"
@@ -69,13 +69,8 @@ import Vue from "vue";
 import { mapState, mapActions, mapMutations } from "vuex";
 import {DELETE_TALK} from "@/store/action-types";
 import {DELETE_SCENARIO_TALK_SUCCESS} from "@/store/mutation-types";
-import MultiLine from "@/components/common/MultiLine.vue";
+import MultiLine from "../../components/common/MultiLine.vue";
 import {cloneDeep} from "lodash";
-
-interface LocalState {
-  disableDelete: boolean;
-}
-
 export default Vue.extend({
   components: {MultiLine},
   props: {
@@ -99,22 +94,22 @@ export default Vue.extend({
       }
     },
   },
-  data(): LocalState {
+  data() {
     return {
       disableDelete: false,
     };
   },
   computed: {
     ...mapState({
-      isDeletingScenarioVersion: (state: any) => state.scenarios.isDeletingScenarioVersion,
-      deletingScenarioVersionError: (state: any) => state.scenarios.deletingScenarioVersionError,
-      deleteScenarioTalkSuccess: (state: any) => state.scenarios.deleteScenarioTalkSuccess,
+      isDeletingScenarioVersion: (state) => state.scenarios.isDeletingScenarioVersion,
+      deletingScenarioVersionError: (state) => state.scenarios.deletingScenarioVersionError,
+      deleteScenarioTalkSuccess: (state) => state.scenarios.deleteScenarioTalkSuccess,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -131,10 +126,10 @@ export default Vue.extend({
     ...mapMutations({
       setDeleteScenarioTalkSuccess: DELETE_SCENARIO_TALK_SUCCESS,
     }),
-    cancelDelete(): void {
+    cancelDelete() {
       this.show = false;
     },
-    async deleteItem(): Promise<void> {
+    async deleteItem() {
       const basicPayload = cloneDeep(this.payload);
       delete basicPayload.talkNames;
       // const payloads = this.payload.talkNames.map((talkName) => ({

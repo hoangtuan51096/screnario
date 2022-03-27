@@ -41,19 +41,20 @@ under the License.
               dense
               v-model="talkName"
               @input="validateTalkName"
+              @mouseleave="validateTalkName"
               maxlength="120"
               :class="{'error--text v-input--is-focused' : talkErrorMessage}"
             >
             </v-text-field>
+            <div v-if="talkErrorMessage.length > 0" class="v-text-field__details ml-2">
+              <div class="v-messages theme--light error--text" role="alert">
+                <div class="v-messages__wrapper">
+                  <div class="v-messages__message">{{ talkErrorMessage }}</div>
+                </div>
+              </div>
+            </div>
           </v-col>
         </v-row>
-        <div v-if="talkErrorMessage.length > 0" class="v-text-field__details">
-          <div class="v-messages theme--light error--text" role="alert">
-            <div class="v-messages__wrapper">
-              <div class="v-messages__message">{{ talkErrorMessage }}</div>
-            </div>
-          </div>
-        </div>
         <v-row>
           <v-col cols="12">
             <div class="body-2 blue-grey--text font-weight-bold">
@@ -66,19 +67,20 @@ under the License.
               dense
               v-model="textMapping"
               @input="validateTextMapping"
+              @mouseleave="validateTextMapping"
               maxlength="120"
               :class="{'error--text v-input--is-focused' : mappingErrorMessage}"
             >
             </v-text-field>
+            <div v-if="mappingErrorMessage.length > 0" class="v-text-field__details ml-2">
+              <div class="v-messages theme--light error--text" role="alert">
+                <div class="v-messages__wrapper">
+                  <div class="v-messages__message">{{ mappingErrorMessage }}</div>
+                </div>
+              </div>
+            </div>
           </v-col>
         </v-row>
-        <div v-if="mappingErrorMessage.length > 0" class="v-text-field__details">
-          <div class="v-messages theme--light error--text" role="alert">
-            <div class="v-messages__wrapper">
-              <div class="v-messages__message">{{ mappingErrorMessage }}</div>
-            </div>
-          </div>
-        </div>
       </v-card-text>
       <v-card-actions class="pa-4 d-flex justify-end">
         <template>
@@ -111,18 +113,6 @@ import { generateUUID } from "@/utils/uuidUtils";
 import { SET_SCENARIO_MINDMAP_MESSAGES } from "@/store/mutation-types";
 import { CREATE_SCENARIO_TALK } from "@/store/action-types";
 
-interface LocalState {
-  talkErrorMessage: string;
-  mappingErrorMessage: string;
-  canSubmit: boolean;
-  talkName: string;
-  talkNameValid: boolean;
-  textMapping: string;
-  textMappingValid: boolean;
-  defaultMessage: any;
-  rules: any;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -137,7 +127,7 @@ export default Vue.extend({
       this.canSubmit = this.talkNameValid && this.textMappingValid;
     },
   },
-  data(): LocalState {
+  data() {
     return {
       talkErrorMessage: "",
       mappingErrorMessage: "",
@@ -169,16 +159,16 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      scenarioMindmap: (state: any) => state.scenarios.scenarioMindmap,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
+      scenarioMindmap: (state) => state.scenarios.scenarioMindmap,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
           this.talkErrorMessage = "";
@@ -199,7 +189,7 @@ export default Vue.extend({
     ...mapActions({
       createTalkData: CREATE_SCENARIO_TALK,
     }),
-    validateTalkName(): void {
+    validateTalkName() {
       this.talkErrorMessage = "";
       let validValue = true;
       const notEmpty = this.rules.notEmpty(this.talkName);
@@ -224,7 +214,7 @@ export default Vue.extend({
       }
       this.talkNameValid = validValue && this.talkName.length > 0;
     },
-    validateTextMapping(): void {
+    validateTextMapping() {
       this.mappingErrorMessage = "";
       let validValue = true;
       const notEmpty = this.rules.notEmpty(this.textMapping);
@@ -250,7 +240,7 @@ export default Vue.extend({
       }
       this.textMappingValid = validValue && this.textMapping.length > 0;
     },
-    createTalkInState(): void {
+    createTalkInState() {
       const tempBotReply = {
         ...cloneDeep(this.defaultMessage),
         talk: this.talkName,
@@ -299,7 +289,7 @@ export default Vue.extend({
         },
       });
     },
-    cancelCreate(): void {
+    cancelCreate() {
       this.show = false;
     },
   },

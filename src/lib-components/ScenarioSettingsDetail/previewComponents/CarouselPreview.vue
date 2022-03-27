@@ -56,7 +56,7 @@ under the License.
 </style>
 
 <template>
-  <v-container class="preview-carousel-container">
+  <v-container class="preview-carousel-container carousel-preview">
     <template v-for="index in message.columnCount">
       <div class="preview-text-message" v-bind:key="'carousel_' + index">
         <div class="preview-text-content">

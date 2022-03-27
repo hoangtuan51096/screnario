@@ -117,16 +117,6 @@ import { BOT_ITEM_TYPES } from "@/store/modules/scenarios/scenarios.constants";
 import MessagePreview from "./MessagePreview.vue";
 import { generateUUID } from "@/utils/uuidUtils";
 
-interface LocalState {
-  selectedMessages: Array<any>;
-  selectedTalk: any;
-  allSameSpecialTalk: boolean;
-  dataToDisplay: any;
-  compositeMessageName: string;
-  supportedMessages: Array<string>;
-  headers: Array<any>;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -135,7 +125,7 @@ export default Vue.extend({
     versionId: String,
     displayTalkOptions: Array,
   },
-  data(): LocalState {
+  data() {
     return {
       selectedMessages: [],
       selectedTalk: null,
@@ -202,10 +192,10 @@ export default Vue.extend({
   components: { MessagePreview },
   computed: {
     ...mapState({
-      scenarioMessages: (state: any) => state.scenarios.scenarioMessages,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
+      scenarioMessages: (state) => state.scenarios.scenarioMessages,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
     }),
-    filteredMessages(): any {
+    filteredMessages() {
       if (this.scenarioMessages) {
         return this.scenarioMessages.filter((message) => {
           return this.supportedMessages.includes(message.dataType) && message.params["specialScenarioTalk"] == null;
@@ -215,10 +205,10 @@ export default Vue.extend({
       }
     },
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -229,17 +219,17 @@ export default Vue.extend({
     ...mapActions({
       addCompositeMessage: ADD_COMPOSITE_MESSAGE,
     }),
-    typeIcon(value: any): any {
+    typeIcon(value) {
       if (BOT_ITEM_TYPES[value] && BOT_ITEM_TYPES[value].icon) {
         return BOT_ITEM_TYPES[value].icon;
       }
       return "mdi-border-none-variant";
     },
-    getTalkNameFromId(): void {
+    getTalkNameFromId() {
       const talk = this.scenarioTalks.find(elem => elem.dataId === this.$route.params.talkId);
       return talk && talk.params ? talk.params.name : '';
     },
-    clickAdd(): void {
+    clickAdd() {
       const listOfMessagePostbackIds = [];
       this.selectedMessages.forEach((message) => {
         listOfMessagePostbackIds.push(message.dataId);
@@ -263,14 +253,15 @@ export default Vue.extend({
       }
       this.addCompositeMessage(payload);
       this.closeComponent();
+      this.$snackbar.show({ text: "新規メッセージを作成しました。", type: "success" });
       this.$emit("close");
     },
-    closeComponent(): void {
+    closeComponent() {
       this.show = false;
       this.compositeMessageName = "";
       this.selectedMessages = [];
     },
-    selectTalk(talk: any): void {
+    selectTalk(talk) {
       if (talk) {
         var result = this.scenarioTalks.filter((obj) => {
           return obj.params.name === talk;

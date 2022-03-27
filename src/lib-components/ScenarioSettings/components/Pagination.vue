@@ -42,15 +42,15 @@
         watch: {},
         computed: {
             ...mapState({
-                scenariosListPaginate: (state: any) => state.scenarios.scenariosListPaginate,
-                dataTableOptions: (state: any) => state.scenarios.dataTableOptions,
-                isFetchingScenarios: (state: any) => state.scenarios.isFetchingScenarios
+                scenariosListPaginate: (state) => state.scenarios.scenariosListPaginate,
+                dataTableOptions: (state) => state.scenarios.dataTableOptions,
+                isFetchingScenarios: (state) => state.scenarios.isFetchingScenarios
             }),
             page: {
-                get(): any {
+                get() {
                     return this.dataTableOptions.page;
                 },
-                set(value: any): void {
+                set(value) {
                     this.setListDataTableOptions({
                         ...this.dataTableOptions,
                         page: value,
@@ -58,16 +58,16 @@
                     this.fetchData();
                 },
             },
-		        paginationText(): string {
+		        paginationText() {
                 if (this.scenariosListPaginate.meta) {
                     const totalCount = this.scenariosListPaginate.meta.total + " 件";
                     return getPaginationText(this.scenariosListPaginate.meta.from, this.scenariosListPaginate.meta.to, totalCount, this.scenariosListPaginate.data);
                 }
             },
-            isPreviousDisabled(): boolean {
+            isPreviousDisabled() {
                 return this.page <= 1 || this.isFetchingScenarioList;
             },
-            isNextDisabled(): boolean {
+            isNextDisabled() {
                 if (this.scenariosListPaginate.meta) {
                     const totalPages = Math.ceil(this.scenariosListPaginate.meta.total / this.dataTableOptions.itemsPerPage);
                     const isLastPage = this.page === totalPages;
@@ -80,13 +80,13 @@
             ...mapMutations({
                 setListDataTableOptions: SET_TABLE_OPTION_SCENARIO,
             }),
-            async fetchData(): Promise<void> {
+            async fetchData() {
                 this.$emit('change')
             },
-            handlePrevious(): void {
+            handlePrevious() {
                 this.page = this.page - 1;
             },
-            handleNext(): void {
+            handleNext() {
                 this.page = this.page + 1;
             },
         },

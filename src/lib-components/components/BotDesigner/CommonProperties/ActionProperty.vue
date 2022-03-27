@@ -277,27 +277,7 @@ import moment from "moment";
 import { mapState } from "vuex";
 import { cloneDeep } from "lodash";
 import { BOT_ITEM_TYPES, ALLOW_FREE_ACTION_CHANGE } from "@/store/modules/scenarios/scenarios.constants";
-import DatetimeProperty from "@/components/BotDesigner/CommonProperties/DatetimeProperty.vue";
-
-interface LocalState {
-  actionTypes: Array<any>;
-  datetimePickerOptions: Array<any>;
-  datetimeTypes: Array<string>;
-  componentId: number;
-  rules: any;
-  textSections: Array<string>;
-  isValidText: any;
-  urlSections: Array<string>;
-  isValidUrl: any;
-  specialCategory: string;
-  showCategory: boolean;
-  categoryName: string;
-  subCategoryName: string;
-  postbackData: string;
-  expand: boolean;
-  originalAction: any;
-  updatingCategory: boolean;
-}
+import DatetimeProperty from "./DatetimeProperty.vue";
 
 export default Vue.extend({
   props: {
@@ -324,7 +304,7 @@ export default Vue.extend({
     dataId: String,
   },
   components: { DatetimeProperty },
-  data(): LocalState {
+  data() {
     return {
       actionTypes: [
         {
@@ -553,24 +533,24 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      scenarioMindmap: (state) => (state as any).scenarios.scenarioMindmap,
-      scenarioMessages: (state) => (state as any).scenarios.scenarioMessages,
-      displayMessages: (state) => (state as any).scenarios.displayMessages,
-      scenarioTalks: (state) => (state as any).scenarios.scenarioTalks,
+      scenarioMindmap: (state) => (state).scenarios.scenarioMindmap,
+      scenarioMessages: (state) => (state).scenarios.scenarioMessages,
+      displayMessages: (state) => (state).scenarios.displayMessages,
+      scenarioTalks: (state) => (state).scenarios.scenarioTalks,
     }),
-    versionId(): string {
+    versionId() {
       return this.$route.params.versionId;
     },
-    isDamageReport(): boolean {
+    isDamageReport() {
       const talk = this.scenarioTalks.find((elem) =>
         elem.params && elem.params.name === this.$route.params.talkName
       )
       return talk && talk.dataId === 'DAMAGE_REPORT_TALK';
     },
-    messageItems(): Array<any> {
+    messageItems() {
       return this.botMessages;
     },
-    postBackIdOptions(): Array<any> {
+    postBackIdOptions() {
       var messagesToDisplay = [];
       // NOTE: 下のコメントアウトを外すとトーク全体のアクションが表示されるようになる
       // if(this.displayMessages){
@@ -612,7 +592,7 @@ export default Vue.extend({
       console.log("messagesToDisplay:", messagesToDisplay);
       return messagesToDisplay;
     },
-    actionTypesOptions(): any {
+    actionTypesOptions() {
       console.log("this.scenarioMessages", this.scenarioMessages);
       console.log("this.scenarioMindmap[this.versionId]", this.scenarioMindmap[this.versionId]);
       const result = this.actionTypes.filter(
@@ -646,13 +626,13 @@ export default Vue.extend({
       console.log("result", result);
       return result;
     },
-    areaString(): string {
+    areaString() {
       return `x=${this.action.x},
               y=${this.action.y},
               横=${this.action.width},
               縦=${this.action.height}`;
     },
-    datetimeTypeStyle(): string {
+    datetimeTypeStyle() {
       return `grey--text ${this.action.mode === "datetime" ? "pt-8" : "pt-2"}`;
     },
     overrideDisable() {
@@ -660,7 +640,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    updateDateTime({ type, value }: any): void {
+    updateDateTime({ type, value }) {
       console.log("updating datetime");
       if (this.action["mode"] === "date") {
         this.action[type] = value.date;
@@ -674,13 +654,13 @@ export default Vue.extend({
       }
       this.forceRender();
     },
-    typeTitle(value: any): any {
+    typeTitle(value) {
       return BOT_ITEM_TYPES[value] ? BOT_ITEM_TYPES[value].text : "";
     },
-    forceRender(): void {
+    forceRender() {
       this.componentId++;
     },
-    postBackDataFilter(item: any, queryText: any, itemText: any): any {
+    postBackDataFilter(item , queryText , itemText) {
       console.log("postBackDataFilter:", item);
       return (
         (item.name && item.name.toLowerCase().includes(queryText.toLowerCase())) ||
@@ -690,7 +670,7 @@ export default Vue.extend({
         (item.msgType && item.msgType.toLowerCase().includes(queryText.toLowerCase()))
       );
     },
-    validate(event: any, keyValue: any): any {
+    validate(event , keyValue) {
       if (this.textSections.includes(keyValue)) {
         this.isValidText[keyValue] = this.validateText(event);
       }
@@ -699,7 +679,7 @@ export default Vue.extend({
       }
       this.reportValidation();
     },
-    reportValidation(): void {
+    reportValidation() {
       for (const section of this.textSections) {
         if (!this.isValidText[section]) {
           this.$emit("validateAction", false);
@@ -728,7 +708,7 @@ export default Vue.extend({
       }
       this.$emit("validateAction", true);
     },
-    validateText(value: any): boolean {
+    validateText(value) {
       if (typeof value !== "undefined" && value && value.length > 0) {
         for (var ch of value) {
           if (ch !== "\n" && ch !== " " && ch !== "　") {
@@ -738,10 +718,10 @@ export default Vue.extend({
       }
       return false;
     },
-    validateUrl(value: any): any {
+    validateUrl(value) {
       return typeof value !== "undefined" && (value.startsWith("https://") || value.startsWith("http://"));
     },
-    onChangePostbackData(value: any): void {
+    onChangePostbackData(value) {
       if (this.updatingCategory) {
         this.updatingCategory = false;
         return;
@@ -773,7 +753,7 @@ export default Vue.extend({
 
       this.reportValidation();
     },
-    parsePostbackData(value: any): void {
+    parsePostbackData(value) {
       if (!this.showCategory || !value.includes('category=')) {
         this.postbackData = value;
         return;

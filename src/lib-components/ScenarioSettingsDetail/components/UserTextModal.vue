@@ -39,8 +39,10 @@ under the License.
                   single-line
                   outlined
                   dense
-                  hide-details
+                  hide-details="auto"
+                  maxlength="120"
                   :readonly="hasActionPermission('disableButton', 'ScenarioSettings_EditUserMessage_Readonly')"
+                  :rules="[rules.validNonEmpty, rules.validEqual, rules.validRepeat]"
                   @input="changedValue(item, index)"/>
             </v-col>
             <v-col cols="auto">
@@ -53,13 +55,6 @@ under the License.
               </v-btn>
             </v-col>
           </v-row>
-          <p v-if="!canSave && invalidText === ''" class="user-input-error-message">空の値は使用できません。</p>
-          <p v-if="!canSave && invalidText !== ''" class="user-input-error-message">
-            <MultiLine>
-              入力された文字列は他のユーザーテキストで使用されています。別の文字列を指定してください：{{ invalidText }}
-            </MultiLine>
-          </p>
-          <p v-if="hasRepeats" class="user-input-error-message">ユーザーテキストに同じ文字は入力できません。</p>
         </template>
       </v-container>
       <v-divider></v-divider>
@@ -94,20 +89,7 @@ under the License.
 import Vue from "vue";
 import { mapState } from "vuex";
 import { cloneDeep, indexOf } from "lodash";
-import MultiLine from "@/components/common/MultiLine.vue";
-
-interface LocalState {
-  originalInput: Array<any>;
-  validToSave: Array<any>;
-  displayItems: Array<any>;
-  hasRepeats: boolean;
-  someValue: boolean;
-  canSave: boolean;
-  textMap: any;
-  invalidText: string;
-  rules: any;
-  headers: Array<any>;
-}
+import MultiLine from "../../components/common/MultiLine.vue";
 
 export default Vue.extend({
   props: {
@@ -115,7 +97,7 @@ export default Vue.extend({
     close: Function,
     message: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       originalInput: [],
       validToSave: [],
@@ -140,6 +122,7 @@ export default Vue.extend({
           value: "delete",
         },
       ],
+      show: false
     };
   },
   watch: {
@@ -158,6 +141,12 @@ export default Vue.extend({
           });
         });
       }
+      this.show = value
+    },
+    show (value) {
+      if (!value) {
+        this.$emit("close");
+      }
     },
     scenarioTextMap () {
       this.textMap = this.textMappingList;
@@ -166,19 +155,9 @@ export default Vue.extend({
   components: {MultiLine},
   computed: {
     ...mapState({
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
     }),
-    show: {
-      get(): boolean {
-        return this.visible;
-      },
-      set(value: boolean): void {
-        if (!value) {
-          this.$emit("close");
-        }
-      },
-    },
-    textMappingList(): any {
+    textMappingList() {
       if (this.scenarioTextMap && this.scenarioTextMap.textMapping) {
         return Object.keys(this.scenarioTextMap.textMapping);
       } else {
@@ -187,7 +166,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    clickSave(): void {
+    clickSave() {
       var textMappings = [];
       this.displayItems.forEach((item) => {
         textMappings.push(item["value"]);
@@ -196,7 +175,7 @@ export default Vue.extend({
       this.$emit("save", this.message, this.originalInput);
       this.show = false;
     },
-    addTextMapping(): void {
+    addTextMapping() {
       this.validToSave.push(false);
       this.displayItems.push({
         value: "",
@@ -210,12 +189,12 @@ export default Vue.extend({
       }, 5);
       this.validate();
     },
-    deleteFromUserInput(index: any): void {
+    deleteFromUserInput(index) {
       this.validToSave.splice(index, 1);
       this.displayItems.splice(index, 1);
       this.validate();
     },
-    changedValue(item: any, index: any): void {
+    changedValue(item , index) {
       if (item.value === "" || (this.textMap.includes(item.value) && !this.originalInput.includes(item.value))) {
         this.validToSave[index] = false;
       } else {
@@ -229,7 +208,7 @@ export default Vue.extend({
       });
       this.validate();
     },
-    validate(): void {
+    validate() {
       let foundInvalid = false;
       let index = 0;
       this.validToSave.forEach((value) => {
@@ -241,13 +220,39 @@ export default Vue.extend({
       });
       this.canSave = !foundInvalid;
     },
-    closeComponent(): void {
+    closeComponent() {
       this.show = false;
       this.message.userInput = this.originalInput;
     },
   },
   created() {
     this.textMap = this.textMappingList;
+    this.rules = {
+      validNonEmpty: (value) => {
+        if (value.length <= 0) {
+          return "入力は空白のみは使用できません。";
+        }
+        return true;
+      },
+      validRepeat: (value) => {
+        let count = 0
+        this.displayItems.forEach(item => {
+          if (item.value === value) {
+            count++
+          }
+        })
+        if (count > 1) {
+          return "ユーザーテキストに同じ文字は入力できません。";
+        }
+        return true;
+      },
+      validEqual: (value) => {
+        if (value === this.invalidText) {
+          return "入力された文字列は他のユーザーテキストで使用されています。別の文字列を指定してください。";
+        }
+        return true;
+      }
+    };
   }
 });
 </script>

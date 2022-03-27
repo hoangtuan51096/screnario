@@ -49,7 +49,7 @@ under the License.
 </style>
 
 <template>
-  <v-container>
+  <v-container class="text-preview">
     <div class="preview-text-message tri-right left-top">
       <p class="preview-text-content">{{ message.text || " " }}</p>
     </div>

@@ -91,12 +91,6 @@ import { cloneDeep } from "lodash";
 import { isNullOrEmpty } from "@/utils/stringUtils";
 import { TEMPLATE_TALK_IDS } from "@/store/modules/scenarios/scenarios.constants.ts";
 
-interface LocalState {
-  newTalkName: any;
-  rules: any;
-  talkErrorMessage: any,
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -111,7 +105,7 @@ export default Vue.extend({
       }
     }
   },
-  data(): LocalState {
+  data() {
     return {
       talkErrorMessage: "",
       newTalkName: null,
@@ -131,10 +125,10 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      scenarioMindmap: (state: any) => state.scenarios.scenarioMindmap,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
+      scenarioMindmap: (state) => state.scenarios.scenarioMindmap,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
     }),
     isTemplateTalk() {
       return TEMPLATE_TALK_IDS.includes(this.talkId);
@@ -161,7 +155,7 @@ export default Vue.extend({
   methods: {
     ...mapMutations({
     }),
-    validateTalkName(): void {
+    validateTalkName() {
       this.talkErrorMessage = "";
       const notEmpty = this.rules.notEmpty(this.newTalkName);
       if (notEmpty !== true) {

@@ -22,7 +22,7 @@ export default Vue.extend({
   props: {
     value: { type: [String, Number], required: true },
   },
-  render(h, { data, props, scopedSlots }): any {
+  render(h, { data, props, scopedSlots }) {
     const { value } = props;
     const slotFn = value in scopedSlots ? scopedSlots[value] : scopedSlots.default;
 

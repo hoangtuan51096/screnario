@@ -67,16 +67,11 @@ import { mapState, mapActions, mapGetters } from "vuex";
 import SearchFragment from "./fragments/SearchFragment.vue";
 import DistributionListFragment from "./fragments/DistributionListFragment.vue";
 import OuterDistributionSettingsFragment from "./fragments/OuterDistributionSettingsFragment.vue";
-import SubAppBar from '@/components/common/SubAppBar.vue';
+import SubAppBar from '../components/common/SubAppBar.vue';
 import RemindDeliveryFragment from "./fragments/RemindDeliveryFragment.vue";
 
-interface LocalState {
-  tab: string;
-  outerDistTab: string;
-}
-
 export default {
-  data(): LocalState {
+  data() {
     return {
       tab: "status",
       outerDistTab: "mail-delivery-list",
@@ -91,9 +86,9 @@ export default {
   },
   computed: {
     ...mapState({
-      fetchSurveyConfigsListTypeError: (state: any) => state.forms.fetchSurveyConfigsListTypeError,
-      isSegmentFetching: (state: any) => state.segments.isFetchingSegments,
-      fetchSegmentsError: (state: any) => state.segments.fetchSegmentssError,
+      fetchSurveyConfigsListTypeError: (state) => state.forms.fetchSurveyConfigsListTypeError,
+      isSegmentFetching: (state) => state.segments.isFetchingSegments,
+      fetchSegmentsError: (state) => state.segments.fetchSegmentssError,
     }),
     ...mapGetters({
       surveyConfigs: "surveyConfigsWithoutAppendType",
@@ -104,7 +99,7 @@ export default {
       fetchSurveyConfigs: FETCH_SURVEY_CONFIGS,
       fetchSegmentDeliveries: FETCH_ALL_SEGMENT_DELIVERIES,
     }),
-    setOuterDistTab(value: any): void {
+    setOuterDistTab(value) {
       this.outerDistTab = value;
     }
   },

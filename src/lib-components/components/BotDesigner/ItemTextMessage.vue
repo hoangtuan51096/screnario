@@ -16,30 +16,27 @@ under the License.
 <template>
   <div>
     <label>テキスト</label>
-    <v-textarea
-      auto-grow
-      outlined
-      single-line
-      hide-details="auto"
-      rows="5"
-      :value="params.text"
-      :rules="[rules.validTextLength, rules.validTextChar]"
-      @input="onChangeText"
-      ref="textarea"
-      id="action.0"
-    ></v-textarea>
+    <InputTextArea
+        label="テキスト"
+        rows="5"
+        :value="params.text"
+        maxlength="2000"
+        :rules="[rules.validTextLength, rules.validTextChar]"
+        @input="onChangeText"
+        :required="true"
+        @change="(value) => { this.params.text = value }"
+        ref="textarea">
+    </InputTextArea>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-
-interface LocalState {
-  rules: any;
-}
+import InputTextArea from "./InputTextArea.vue";
 
 export default {
   name: "ItemTextMessage",
+  components: {InputTextArea},
   props: {
     params: {
       type: Object,
@@ -53,16 +50,15 @@ export default {
       this.scrollToAction(val);
     },
   },
-  data(): LocalState {
+  data() {
     return {
       rules: {
         validTextLength: (value) => {
-          if (value.length <= 0) {
-            return "必須";
+          if (!value) {
+            return "テキストは空白のみは使用できません。";
           }
-
-          if (value.length > 5000) {
-            return "テキストの最大長は5000文字です";
+          if (value.length > 2000) {
+            return "テキストは2000文字以内にしてください。";
           }
 
           return true;
@@ -90,7 +86,7 @@ export default {
     this.$emit("updateSaveStatus", { key: `ItemTextMessage`, value: true });
   },
   methods: {
-    scrollToAction(branchIndex: any): void {
+    scrollToAction(branchIndex) {
       if (!Number.isInteger(branchIndex)) {
         return;
       }
@@ -106,11 +102,11 @@ export default {
         );
       }
     },
-    onChangeText(value: any): void {
+    onChangeText(value) {
       this.validateText(value);
       this.$emit("updateParams", { key: "text", value: value });
     },
-    validateText(value: any): void {
+    validateText(value) {
       if (value.length > 0 && value.length <= 5000) {
         for (var ch of value) {
           if (ch !== "\n" && ch !== " " && ch !== "　") {

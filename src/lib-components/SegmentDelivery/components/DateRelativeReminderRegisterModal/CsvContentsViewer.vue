@@ -41,14 +41,8 @@ import Vue, { PropType } from 'vue';
 
 import { DateRelativeReminderSettings } from '@/store/modules/segments/segments.types';
 
-interface LocalState {
-  headers: any[];
-  maxMessageLength: number;
-}
-
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       headers: [
         {
@@ -98,7 +92,7 @@ export default Vue.extend({
     },
   },
   computed: {
-    tableHeight(): number | undefined {
+    tableHeight() {
       const maxHeight = 350;
       const excessiveMessageItem = this.contentsProp.find(({ message1, message2 }) => {
         return message1.length > this.maxMessageLength || message2.length > this.maxMessageLength;

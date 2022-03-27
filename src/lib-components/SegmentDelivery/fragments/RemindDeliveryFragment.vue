@@ -40,13 +40,8 @@ import Vue from 'vue';
 
 import RemindDeliveryListFragment from './RemindDeliveryListFragment.vue';
 import DateRelativeReminderFragment from './DateRelativeReminderFragment.vue';
-
-interface LocalState {
-  tab: string;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       tab: 'status',
     };

@@ -105,18 +105,8 @@ import { REMINDER_TYPES } from '@/store/modules/segments/segments.constants';
 
 import DatetimeFormatter from '@/mixins/DatetimeFormatter';
 
-interface LocalState {
-  statusList: {
-    RUNNING: '処理中';
-    SUCCESS: '完了';
-    ERROR: 'エラー';
-  },
-  reminderTypeList: any,
-  item: any;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       statusList: {
         RUNNING: '処理中',
@@ -133,15 +123,15 @@ export default Vue.extend({
   mixins: [DatetimeFormatter],
   computed: {
     ...mapState({
-      reminderExecutionHistory: (state: any) => state.segments.reminderExecutionHistory,
-      isFetchingSingleReminderExecutionHistory: (state: any) => state.segments.isFetchingSingleReminderExecutionHistory,
-      fetchSingleReminderExecutionHistoryError: (state: any) => state.segments.fetchSingleReminderExecutionHistoryError,
+      reminderExecutionHistory: (state) => state.segments.reminderExecutionHistory,
+      isFetchingSingleReminderExecutionHistory: (state) => state.segments.isFetchingSingleReminderExecutionHistory,
+      fetchSingleReminderExecutionHistoryError: (state) => state.segments.fetchSingleReminderExecutionHistoryError,
     }),
-    isAppointmentType(): boolean {
+    isAppointmentType() {
       return this.item.reminderType === REMINDER_TYPES.APPOINTMENT;
     },
     objectNames() {
-      const objectNames = { 
+      const objectNames = {
         sortKey: '配信ID',
         scheduledSendAt: '送信日時',
         status: '状況',
@@ -170,7 +160,7 @@ export default Vue.extend({
     ...mapActions({
       fetchReminderExecutionHistory: FETCH_ONE_REMINDER_EXECUTION_HISTORY
     }),
-    statusColor(value: any): string {
+    statusColor(value) {
       if (!value) {
         return;
       }
@@ -184,7 +174,7 @@ export default Vue.extend({
           return 'orange--text';
       }
     },
-    formatCategoryNames(categoryNames: string[]): string {
+    formatCategoryNames(categoryNames[]) {
       return categoryNames.join(' > ');
     },
     convertStatusToJapanese(value) {
@@ -193,7 +183,7 @@ export default Vue.extend({
     convertReminderTypeToJapanese(value) {
       return this.reminderTypeList[value] || value;
     },
-    async handleFetchReminderExecutionHistory(): Promise<void> {
+    async handleFetchReminderExecutionHistory() {
       const { partitionKey, sortKey } = this.$route.params;
       await this.fetchReminderExecutionHistory({ partitionKey, sortKey });
       if (this.fetchSingleReminderExecutionHistoryError) {
@@ -203,7 +193,7 @@ export default Vue.extend({
         });
       }
     },
-    moveToReservationReminderConfigurationCreation(): void {
+    moveToReservationReminderConfigurationCreation() {
       const { surveyId, categoryId } = this.item;
       if (this.isAppointmentType) {
         this.$router.push({
@@ -218,7 +208,7 @@ export default Vue.extend({
   },
   async created() {
     window.scrollTo(0, 0);
-    await this.handleFetchReminderExecutionHistory(); 
+    await this.handleFetchReminderExecutionHistory();
   },
 });
 </script>

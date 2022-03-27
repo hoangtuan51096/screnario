@@ -88,21 +88,12 @@ import Vue from "vue";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import { CREATE_RICH_MENU } from "@/store/action-types";
 
-interface LocalState {
-  errorText: boolean;
-  richMenuBody: any;
-  richMenuImageUrl: any;
-  richMenuImageFile: any;
-  fileModels: any;
-  jsonRichMenuText: any;
-}
-
 export default {
   name: "RichMenuCreateModal",
   props: {
     visible: Boolean,
   },
-  data(): LocalState {
+  data() {
     return {
       errorText: false,
       richMenuBody: null,
@@ -115,14 +106,14 @@ export default {
   components: {},
   computed: {
     ...mapState({
-      isCreatingRichMenu: (state: any) => state.scenarios.isCreatingRichMenu,
-      isCreatingRichMenuError: (state: any) => state.scenarios.isCreatingRichMenuError,
+      isCreatingRichMenu: (state) => state.scenarios.isCreatingRichMenu,
+      isCreatingRichMenuError: (state) => state.scenarios.isCreatingRichMenuError,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -133,13 +124,13 @@ export default {
     ...mapActions({
       createRichMenu: CREATE_RICH_MENU,
     }),
-    resetFields(): void {
+    resetFields() {
       this.richMenuImageUrl = null;
       this.richMenuImageFile = null;
       this.fileModels = undefined;
       this.jsonRichMenuText = "";
     },
-    fileDataChanged(event: any): void {
+    fileDataChanged(event) {
       if (event) {
         var reader = new FileReader();
         reader.onload = (e) => {
@@ -153,7 +144,7 @@ export default {
         this.richMenuImageUrl = null;
       }
     },
-    checkError(errorMessage: any, successMessage: any): void {
+    checkError(errorMessage , successMessage) {
       if (errorMessage) {
         this.$snackbar.show({
           text: errorMessage,
@@ -166,7 +157,7 @@ export default {
         });
       }
     },
-    async saveRichMenu(): Promise<void> {
+    async saveRichMenu() {
       if (this.richMenuBody && this.validateJSON(this.richMenuBody)) {
         if (this.richMenuImageFile != null) {
           if (this.richMenuImageFile.size <= 10485760) {
@@ -206,10 +197,10 @@ export default {
         this.hasError = true;
       }
     },
-    onChangeInput(value: any): void {
+    onChangeInput(value) {
       this.richMenuBody = value;
     },
-    validateJSON(value: any): boolean {
+    validateJSON(value) {
       try {
         var JSONobj = JSON.parse(value);
         return true;

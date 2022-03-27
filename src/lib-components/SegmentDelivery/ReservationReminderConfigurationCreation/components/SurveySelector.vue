@@ -19,12 +19,12 @@ under the License.
       <label>帳票</label>
     </v-col>
     <v-col cols="10">
-      <v-autocomplete 
-        v-model="selected" 
+      <v-autocomplete
+        v-model="selected"
         :items="surveyTitles"
         :disabled="isLoadingSurveyConfigs"
-        outlined 
-        dense 
+        outlined
+        dense
         hide-details>
       </v-autocomplete>
     </v-col>
@@ -46,19 +46,19 @@ import { SET_SELECTED_SURVEY_ID, SET_SELECTED_CATEGORY } from '@/store/mutation-
 export default Vue.extend({
   computed: {
     ...mapState({
-      allSurveyConfigs: (state: any)  => state.segments.allSurveyConfigs,
-      isFetchingAllSurveyConfigs: (state: any)  => state.segments.isFetchingAllSurveyConfigs,
-      selectedSurveyId: (state: any)  => state.segments.selectedSurveyId,
-      selectedCategoryId: (state: any) => state.segments.selectedCategoryId,
+      allSurveyConfigs: (state)  => state.segments.allSurveyConfigs,
+      isFetchingAllSurveyConfigs: (state)  => state.segments.isFetchingAllSurveyConfigs,
+      selectedSurveyId: (state)  => state.segments.selectedSurveyId,
+      selectedCategoryId: (state) => state.segments.selectedCategoryId,
     }),
-    isLoadingSurveyConfigs(): boolean {
+    isLoadingSurveyConfigs() {
       return this.isFetchingAllSurveyConfigs;
     },
     selected: {
-      get(): any {
+      get() {
         return this.selectedSurveyId || null;
       },
-      async set(value: any): Promise<void> {
+      async set(value) {
         this.setSelectedSurveyId(value);
         this.setSelectedCategoryId(null);
         if (value) {
@@ -69,7 +69,7 @@ export default Vue.extend({
         }
       },
     },
-    surveyTitles(): any {
+    surveyTitles() {
       // 「予約型帳票」のみにフィルタリング
       const filterdConfigs = this.allSurveyConfigs.filter(config => {
         const reservationItem = config.surveySchema.find(item => item.type === 'reservation');

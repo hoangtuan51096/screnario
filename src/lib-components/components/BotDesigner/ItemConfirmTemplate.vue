@@ -66,14 +66,7 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 import { cloneDeep } from "lodash";
-import ActionProperty from "@/components/BotDesigner/CommonProperties/ActionProperty.vue";
-
-interface LocalState {
-  rules: any;
-  textSections: Array<string>;
-  isValidText: any;
-  isValidActionList: Array<boolean>;
-}
+import ActionProperty from "./CommonProperties/ActionProperty.vue";
 
 export default Vue.extend({
   name: "ItemConfirmTemplate",
@@ -96,7 +89,7 @@ export default Vue.extend({
         for (const section of this.textSections) {
           this.isValidText[section] = true;
         }
-        for (const actionIndex in 2 as any) {
+        for (const actionIndex in 2) {
           this.isValidActionList[actionIndex] = true;
         }
       }
@@ -106,7 +99,7 @@ export default Vue.extend({
       this.scrollToAction(val);
     },
   },
-  data(): LocalState {
+  data() {
     return {
       rules: {
         validTextLength: (value) => {
@@ -148,12 +141,12 @@ export default Vue.extend({
     this.$emit("updateSaveStatus", { key: `ItemConfirmTemplate`, value: true });
   },
   computed: {
-    isSpecialPremadeTalk(): any {
+    isSpecialPremadeTalk() {
       return "specialScenarioTalk" in this.params ? this.params["specialScenarioTalk"] : null;
     },
   },
   methods: {
-    scrollToAction(branchIndex: any): void {
+    scrollToAction(branchIndex) {
       if (!Number.isInteger(branchIndex)) {
         return;
       }
@@ -169,14 +162,14 @@ export default Vue.extend({
         );
       }
     },
-    onChangeValue(event: any, keyValue: any): void {
+    onChangeValue(event, keyValue) {
       if (this.textSections.includes(keyValue)) {
         this.validateText(event, keyValue);
         this.reportValidation();
       }
       this.$emit("updateParams", { key: keyValue, value: event });
     },
-    getActionByNumber(number: any): any {
+    getActionByNumber(number) {
       let situation = "Right";
       if (number == 0) {
         situation = "Left";
@@ -184,7 +177,7 @@ export default Vue.extend({
       let actionObj = this.params[`action${situation}`];
       return actionObj;
     },
-    validateText(event: any, keyValue: any): void {
+    validateText(event, keyValue) {
       if (typeof event !== "undefined" && event.length > 0 && event.length <= 240) {
         for (var ch of event) {
           if (ch !== "\n" && ch !== " " && ch !== "　") {
@@ -195,11 +188,11 @@ export default Vue.extend({
       }
       this.isValidText[keyValue] = false;
     },
-    validateAction(value: any, index: any): void {
+    validateAction(value, index) {
       this.isValidActionList[index] = value;
       this.reportValidation();
     },
-    reportValidation(): void {
+    reportValidation() {
       for (const section of this.textSections) {
         if (!this.isValidText[section]) {
           this.$emit("updateSaveStatus", { key: `ItemConfirmTemplate`, value: false });
@@ -214,15 +207,15 @@ export default Vue.extend({
       }
       this.$emit("updateSaveStatus", { key: `ItemConfirmTemplate`, value: true });
     },
-    resetAction(oldAction: any, actionToResetIndex: number): void {
+    resetAction(oldAction, actionToResetIndex) {
       if (actionToResetIndex === 0) {
         this.params.actionLeft = cloneDeep(oldAction);
       } else {
         this.params.actionRight = cloneDeep(oldAction);
       }
     },
-    moveAction(movePositionUp: boolean, indexToMove: number): void {
-      //In the case of confirm, there are only two actions. 
+    moveAction(movePositionUp, indexToMove) {
+      //In the case of confirm, there are only two actions.
       //Literally just need to switch them
       const tempPosition = cloneDeep(this.params.actionRight);
       this.params.actionRight = cloneDeep(this.params.actionLeft);

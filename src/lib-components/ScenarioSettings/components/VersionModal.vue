@@ -74,12 +74,6 @@ import { CHANGE_ACTIVE_SCENARIO, DOWNLOAD_EXPORT_FILE } from "@/store/action-typ
 import { cloneDeep } from "lodash";
 import moment from "moment";
 
-interface LocalState {
-  selectedVersion: Array<any>;
-  scenarioVersions: Array<any>;
-  headers: Array<any>;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -87,7 +81,7 @@ export default Vue.extend({
     previousSelection: Array,
     resetSelection: Boolean,
   },
-  data(): LocalState {
+  data() {
     return {
       selectedVersion: [],
       scenarioVersions: [],
@@ -130,17 +124,17 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      scenariosList: (state: any) => state.scenarios.scenariosList,
-      selectedScenario: (state: any) => state.scenarios.selectedScenario,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
+      scenariosList: (state) => state.scenarios.scenariosList,
+      selectedScenario: (state) => state.scenarios.selectedScenario,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
     }),
     show: {
-      get(): boolean {
+      get() {
         // this.resetSelectedVersion();
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -148,7 +142,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    mapVersionData(data: any): Array<any> {
+    mapVersionData(data) {
       var mappedVersions = [];
       for (const value in data) {
         var translatedLangArray = [];
@@ -167,10 +161,10 @@ export default Vue.extend({
       }
       return mappedVersions;
     },
-    convToJapanese(value: any): any {
+    convToJapanese(value) {
       return SCENARIO_LANG_TYPES[value.substring(0, 2)] ? SCENARIO_LANG_TYPES[value.substring(0, 2)].text : value;
     },
-    onDeleteClick(): void {
+    onDeleteClick() {
       var payload = {
         scenarioName: this.activeScenario.scenarioId,
         versionNames: this.selectedVersion.map((a) => a.name),
@@ -178,7 +172,7 @@ export default Vue.extend({
       };
       this.$emit("onDeleteTrigger", payload);
     },
-    resetSelectedVersion(): void {
+    resetSelectedVersion() {
       this.selectedVersion = [];
     },
   },

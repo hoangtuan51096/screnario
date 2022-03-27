@@ -91,28 +91,9 @@ import Vue from "vue";
 import Resizable from "./Resizable.vue";
 import cloneDeep from "lodash/cloneDeep";
 
-interface LocalState {
-  mousedown: boolean;
-  originImgSize: any;
-  url:  any;
-  posImg: any;
-  areas: Array<any>;
-  moveTempX: number;
-  moveTempY: number;
-  moveCurrentX: number;
-  moveCurrentY: number;
-  temp: number;
-  tempStartX: any;
-  tempStartY: any;
-  tempRightBound: any;
-  tempBottomBound: any;
-  dragdown: boolean;
-  move: boolean;
-}
-
 export default Vue.extend({
   name: "MultiSelectAreasImage",
-  data(): LocalState {
+  data() {
     return {
       mousedown: false, // state mouse down event
       originImgSize: {
@@ -218,7 +199,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    async setSize(): Promise<void> {
+    async setSize() {
       if (!this.url) {
         return;
       }
@@ -226,7 +207,7 @@ export default Vue.extend({
       this.originImgSize = imgSize;
     },
     // Get the size of the src image
-    getSize(src: any): Promise<any> {
+    getSize(src) {
       let _this = this;
       let img = this.$el.querySelector("#c-crop--hide_img");
       return new Promise((resolve) => {
@@ -246,7 +227,7 @@ export default Vue.extend({
         }
       });
     },
-    getSizeImg(img: any): any {
+    getSizeImg(img) {
       let w = img.width;
       let h = img.height;
       let r = w === 0 && h === 0 ? 0 : w / h;
@@ -256,7 +237,7 @@ export default Vue.extend({
         r: r,
       };
     },
-    calcPosOfBox(): void {
+    calcPosOfBox() {
       // set posImg static
       let ref = this.$refs["image-area"];
       if (ref && !this.dragdown) {
@@ -265,7 +246,7 @@ export default Vue.extend({
       }
     },
     // draw rectangle on image mouseDown mouseMove mouseUp
-    mouseDown(e: any): any {
+    mouseDown(e) {
       if (e.path.find((path) => path.classList && path.classList.contains("rich-menu-properties-col"))) {
         // NOTE: we should ignore event
         return true;
@@ -315,13 +296,13 @@ export default Vue.extend({
         this.tempStartY = e.pageY - fixedYScrollOffset - this.posImg.top;
       }
     },
-    mouseMove(e: any): void {
+    mouseMove(e) {
       //Use this to draw
       if (this.mousedown) {
         this.drawRectangle(e);
       }
     },
-    mouseUp(e: any): void {
+    mouseUp(e) {
       if (!this.mousedown) {
         return;
       }
@@ -340,7 +321,7 @@ export default Vue.extend({
       this.getListAreas();
     },
     // after click rectangle area select active resizable and dragable
-    changeResizable(id: any): void {
+    changeResizable(id) {
       this.areas
         .filter((item) => item.id === id)
         .map((item) => {
@@ -354,7 +335,7 @@ export default Vue.extend({
           item.z = 0;
         });
     },
-    drawRectangle(e: any): void {
+    drawRectangle(e) {
       if (this.tempStartX && this.tempStartY) {
         var fixedYScrollOffset = window.pageYOffset || document.documentElement.scrollTop;
         var oldX = this.tempStartX;
@@ -384,16 +365,16 @@ export default Vue.extend({
       }
     },
     // delete item area
-    deleteSelected(id: any): void {
+    deleteSelected(id) {
       this.areas = this.areas.filter((item) => item.id !== id);
     },
     // drag point around rectangle on image startDrag doDrag endDrag
-    startDrag(item: any): void {
+    startDrag(item) {
       this.dragdown = true;
       this.tempRightBound = item.x + item.width;
       this.tempBottomBound = item.y + item.height;
     },
-    doDrag(item: any, type: any, e: any): void {
+    doDrag(item , type , e) {
       if (this.dragdown) {
         switch (type) {
           case "w":
@@ -437,7 +418,7 @@ export default Vue.extend({
         }
       }
     },
-    endDrag(): void {
+    endDrag() {
       if (!this.dragdown) {
         return;
       }
@@ -448,7 +429,7 @@ export default Vue.extend({
       this.getListAreas();
     },
     // Helpers for the dragging directions
-    handleDragNorth(item: any, e: any): void {
+    handleDragNorth(item , e) {
       var fixedYScrollOffset = window.pageYOffset || document.documentElement.scrollTop;
       var fixedPageY = e.pageY - fixedYScrollOffset;
       if (fixedPageY - this.posImg.top >= 0) {
@@ -468,7 +449,7 @@ export default Vue.extend({
         item.height = 0;
       }
     },
-    handleDragEast(item: any, e: any): void {
+    handleDragEast(item , e) {
       if (e.pageX - this.posImg.left <= this.originImgSize.w) {
         item.width = e.pageX - this.posImg.left - item.x;
       } else {
@@ -479,7 +460,7 @@ export default Vue.extend({
         item.width = 0;
       }
     },
-    handleDragWest(item: any, e: any): void {
+    handleDragWest(item , e) {
       if (e.pageX - this.posImg.left >= 0) {
         if (e.pageX - this.posImg.left <= this.tempRightBound) {
           item.x = e.pageX - this.posImg.left;
@@ -500,7 +481,7 @@ export default Vue.extend({
         item.width = 0;
       }
     },
-    handleDragSouth(item: any, e: any): void {
+    handleDragSouth(item , e) {
       var fixedYScrollOffset = window.pageYOffset || document.documentElement.scrollTop;
       var fixedPageY = e.pageY - fixedYScrollOffset;
       if (fixedPageY - this.posImg.top <= this.originImgSize.h) {
@@ -514,7 +495,7 @@ export default Vue.extend({
       }
     },
     // move rectangle area startMove doMove endMove
-    startMove(item: any, e: any): void {
+    startMove(item , e) {
       this.areas.forEach((elem) => {
         elem.selected = false;
         elem.resizable = false;
@@ -530,7 +511,7 @@ export default Vue.extend({
       this.moveCurrentY = item.y;
       this.getListAreas();
     },
-    doMove(item: any, e: any): void {
+    doMove(item , e) {
       if (this.move && item && item.selected) {
         let x = this.moveCurrentX + (e.clientX - this.moveTempX);
         let y = this.moveCurrentY + (e.clientY - this.moveTempY);
@@ -555,7 +536,7 @@ export default Vue.extend({
         this.drawRectangle(e);
       }
     },
-    endMove(): void {
+    endMove() {
       if (!this.move) {
         // NOTE: we should ignore event
         return;
@@ -565,7 +546,7 @@ export default Vue.extend({
       this.getListAreas();
     },
     // send data from child to parent $emit
-    getListAreas(): void {
+    getListAreas() {
       if (this.emitAreaEvent) {
         this.$emit("getListAreas", this.areas);
       } else {
@@ -573,7 +554,7 @@ export default Vue.extend({
       }
     },
     // send data from child to parent about area being clicked
-    selectAreaClicked(): void {
+    selectAreaClicked() {
       this.$emit("selectAreaClicked");
     },
   },

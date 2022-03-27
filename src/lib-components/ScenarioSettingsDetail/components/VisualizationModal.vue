@@ -1,4 +1,4 @@
-<!-- 
+<!--
 Copyright 2021 LINE Fukuoka Corporation * * LINE Corporation licenses this
 file to you under the Apache License, * version 2.0 (the "License"); you may not
 use this file except in compliance * with the License. You may obtain a copy of
@@ -6,7 +6,7 @@ the License at: * * https://www.apache.org/licenses/LICENSE-2.0 * * Unless
 required by applicable law or agreed to in writing, software * distributed under
 the License is distributed on an "AS IS" BASIS, WITHOUT * WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the * License for the
-specific language governing permissions and limitations * under the License. 
+specific language governing permissions and limitations * under the License.
 -->
 <template>
   <v-dialog scrollable v-model="show">
@@ -32,14 +32,9 @@ specific language governing permissions and limitations * under the License.
 
 <script lang="ts">
 import Vue from "vue";
-import FlowChart from "@/components/FlowChart/index.vue";
-import { mapState, mapActions, mapGetters } from "vuex";
-import { cloneDeep } from "lodash";
-import { BOT_ITEM_TYPES } from "../../../../store/modules/scenarios/scenarios.constants";
+import FlowChart from "../../components/FlowChart/index.vue";
 
-interface LocalState {
-  dataSource: any;
-}
+import { mapState, mapActions, mapGetters } from "vuex";
 
 export default Vue.extend({
   props: {
@@ -47,7 +42,7 @@ export default Vue.extend({
     close: Function,
     selectedTalk: String,
   },
-  data(): LocalState {
+  data() {
     return {
       dataSource: null
     };
@@ -75,10 +70,10 @@ export default Vue.extend({
   components: { FlowChart },
   computed: {
     ...mapState({
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
-      scenarioMessages: (state: any) => state.scenarios.scenarioMessages,
-      userMessages: (state: any) => state.scenarios.userMessages,
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
+      scenarioMessages: (state) => state.scenarios.scenarioMessages,
+      userMessages: (state) => state.scenarios.userMessages,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
     }),
     ...mapGetters(["diagramChartSource", "diagramChartSourceByTalk"]),
     show: {
@@ -93,13 +88,13 @@ export default Vue.extend({
     },
   },
   methods: {
-    closeComponent(): void {
+    closeComponent() {
       this.show = false;
     },
-    onNodeClick(id: any): void {
+    onNodeClick(id) {
       this.$emit("nodeClick", id);
     },
-    isLbdWebTalk(talkName: any): boolean {
+    isLbdWebTalk(talkName) {
       if (!this.scenarioTalks) {
         return false;
       }

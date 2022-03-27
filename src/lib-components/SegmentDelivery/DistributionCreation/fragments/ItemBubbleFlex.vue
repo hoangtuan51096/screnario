@@ -66,12 +66,6 @@ import Vue from "vue";
 import { render } from "@/services/flexRender.ts";
 import { FLEXMESSAGE_TEMPLATE_ITEMS } from "@/store/modules/segments/segments.constants";
 
-interface LocalState {
-  text: string;
-  errorText: boolean;
-  selectedTemplate: any;
-}
-
 export default Vue.extend({
   name: "ItemBubbleFlex",
   props: {
@@ -80,7 +74,7 @@ export default Vue.extend({
       required: true,
     },
   },
-  data(): LocalState {
+  data() {
     return {
       text: "",
       errorText: false,
@@ -95,7 +89,7 @@ export default Vue.extend({
     this.$emit("updateSaveStatus", { key: `ItemBubbleFlex`, value: true });
   },
   methods: {
-    onChangeText(value: string): void {
+    onChangeText(value) {
       let validateResult = this.validateJSON(value);
       this.reportValidation(validateResult);
       if (validateResult) {
@@ -104,15 +98,15 @@ export default Vue.extend({
         });
       }
     },
-    setTemplate(): void {
+    setTemplate() {
       if (this.selectedTemplate) {
         this.onChangeText(JSON.stringify(this.selectedTemplate));
       }
     },
-    reportValidation(result: any): void {
+    reportValidation(result) {
       this.$emit("updateSaveStatus", { validateResult: result });
     },
-    validateJSON(value: string): boolean {
+    validateJSON(value) {
       try {
         let parsedInput = JSON.parse(value);
         render(parsedInput)

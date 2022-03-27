@@ -46,8 +46,8 @@ under the License.
             item-key="dataId"
           >
             <template v-slot:top="{ pagination, options, updateOptions}">
-              <v-data-footer 
-              :pagination="pagination" 
+              <v-data-footer
+              :pagination="pagination"
               :options="options"
               @update:options="updateOptions"
               :disable-items-per-page="true"
@@ -84,17 +84,9 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 import { BOT_ITEM_TYPES } from "@/store/modules/scenarios/scenarios.constants";
-import MessagePreview from "@/pages/admin/ScenarioSettingsDetail/components/MessagePreview.vue";
+import MessagePreview from "../../ScenarioSettingsDetail/components/MessagePreview.vue";
 import { mapState, mapActions, mapMutations } from "vuex";
 import { isNullOrEmpty } from "@/utils/stringUtils";
-
-interface LocalState {
-  selectedIndex: number;
-  selectedMessages: any;
-  supportedMessages: Array<any>;
-  headers: Array<any>;
-  rules: any;
-}
 
 export default Vue.extend({
   name: "ItemCompositeMessage",
@@ -120,7 +112,7 @@ export default Vue.extend({
       this.selectedMessages = this.alreadySelectedMessages;
     },
   },
-  data(): LocalState {
+  data() {
     return {
       selectedIndex: 0,
       selectedMessages: [],
@@ -164,9 +156,9 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      scenarioMessages: (state) => (state as any).scenarios.scenarioMessages,
+      scenarioMessages: (state) => (state).scenarios.scenarioMessages,
     }),
-    alreadySelectedMessages(): Array<any> {
+    alreadySelectedMessages() {
       var result = [];
       if (this.params && this.params.messages) {
         this.params.messages.forEach((messageId) => {
@@ -184,7 +176,7 @@ export default Vue.extend({
       }
       return result;
     },
-    filteredMessages(): any {
+    filteredMessages() {
       if (this.messagesToDisplay) {
         return this.messagesToDisplay.filter((message) => {
           return this.supportedMessages.includes(message.dataType);
@@ -200,25 +192,25 @@ export default Vue.extend({
     },
   },
   methods: {
-    isSpecialPremadeTalk(): boolean {
+    isSpecialPremadeTalk() {
       return "params" in this.params && "specialScenarioTalk" in this.params.params;
     },
-    typeTitle(value: any): any {
+    typeTitle(value) {
       return BOT_ITEM_TYPES[value] ? BOT_ITEM_TYPES[value].text : "";
     },
-    runValidation(): void {
+    runValidation() {
       setTimeout(() => this.reportValidation(), 100);
     },
-    reportValidation(): void {
+    reportValidation() {
       this.$emit("updateSaveStatus", {
         key: `ItemCompositeMessage`,
         value: this.selectedMessages.length > 0 && this.selectedMessages.length < 6,
       });
     },
-    getIconFromItemType(dataType: string): string {
+    getIconFromItemType(dataType) {
       return dataType in BOT_ITEM_TYPES && BOT_ITEM_TYPES[dataType].icon ? BOT_ITEM_TYPES[dataType].icon : ""
     },
-    _isNullOrEmpty(name: string): boolean {
+    _isNullOrEmpty(name) {
       return isNullOrEmpty(name);
     }
   },

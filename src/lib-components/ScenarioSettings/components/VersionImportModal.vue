@@ -93,16 +93,6 @@ import {UPLOAD_IMPORT_FILE} from "@/store/action-types";
 import {SET_IMPORTING_SCENARIO_DATA_ERROR} from "@/store/mutation-types";
 import JSZip from "jszip";
 
-interface LocalState {
-  fileData: any;
-  scenarioName: string;
-  disableImport: boolean;
-  scenarioVersion: string;
-  setAsActive: boolean;
-  specialScenarios: Array<string>;
-  rules: any;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -202,7 +192,7 @@ export default Vue.extend({
       }
     },
   },
-  data(): LocalState {
+  data() {
     return {
       fileData: undefined,
       scenarioName: "",
@@ -216,11 +206,11 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      isImportingScenarioData: (state: any) => state.scenarios.isImportingScenarioData,
-      importingScenarioDataError: (state: any) => state.scenarios.importingScenarioDataError,
-      importFinishSuccess: (state: any) => state.scenarios.importFinishSuccess,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
+      isImportingScenarioData: (state) => state.scenarios.isImportingScenarioData,
+      importingScenarioDataError: (state) => state.scenarios.importingScenarioDataError,
+      importFinishSuccess: (state) => state.scenarios.importFinishSuccess,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
+      activeScenario: (state) => state.scenarios.activeScenario,
     }),
     show: {
       get() {
@@ -246,21 +236,21 @@ export default Vue.extend({
     ...mapMutations({
       setImportingScenarioDataError: SET_IMPORTING_SCENARIO_DATA_ERROR,
     }),
-    getAutoScenarioVersion(): string {
+    getAutoScenarioVersion() {
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, "0");
       const mm = String(today.getMonth() + 1).padStart(2, "0");
       const yyyy = today.getFullYear();
       return "ver" + yyyy + mm + dd;
     },
-    cancelImport(): void {
+    cancelImport() {
       this.show = false;
       this.fileData = undefined;
       this.scenarioName = "";
       this.scenarioVersion = "";
       this.setAsActive = false;
     },
-    importFile(): void {
+    importFile() {
       if (!this.checkValidVersionName(this.scenarioVersion)) {
         this.$snackbar.show({
           text: "同名のバージョンが存在しています。別のバージョン名を指定してください。",
@@ -288,7 +278,7 @@ export default Vue.extend({
       };
       this.uploadImportFile(payload);
     },
-    checkValidVersionName(value: any): boolean {
+    checkValidVersionName(value) {
       return !this.versionList.includes(value); // valid === not in the version list
     },
   },

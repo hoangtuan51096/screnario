@@ -7,6 +7,8 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import babel from '@rollup/plugin-babel';
+import image from '@rollup/plugin-image';
+import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
 import minimist from 'minimist';
 
@@ -35,10 +37,11 @@ const baseConfig = {
             replacement: `${path.resolve(projectRoot, 'src')}`,
           },
         ],
-      }),
+      })
     ],
     replace: {
-      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.NODE_ENV': true,
+      preventAssignment: true
     },
     vue: {
       css: true,
@@ -50,13 +53,13 @@ const baseConfig = {
       resolve({
         extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
       }),
-      commonjs(),
+      commonjs()
     ],
     babel: {
       exclude: 'node_modules/**',
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
       babelHelpers: 'bundled',
-    },
+    }
   },
 };
 
@@ -102,9 +105,12 @@ if (!argv.format || argv.format === 'es') {
               ...babelPresetEnvConfig,
               targets: esbrowserslist,
             },
+            '@babel/preset-typescript',
           ],
         ],
       }),
+      image(),
+      json({compact: true})
     ],
   };
   buildFormats.push(esConfig);
@@ -133,7 +139,16 @@ if (!argv.format || argv.format === 'cjs') {
         },
       }),
       ...baseConfig.plugins.postVue,
-      babel(baseConfig.plugins.babel),
+      babel({
+        ...baseConfig.plugins.babel,
+        presets: [
+          [
+            '@babel/preset-typescript'
+          ],
+        ],
+      }),
+      image(),
+      json({compact: true})
     ],
   };
   buildFormats.push(umdConfig);
@@ -156,12 +171,21 @@ if (!argv.format || argv.format === 'iife') {
       ...baseConfig.plugins.preVue,
       vue(baseConfig.plugins.vue),
       ...baseConfig.plugins.postVue,
-      babel(baseConfig.plugins.babel),
+      babel({
+        ...baseConfig.plugins.babel,
+        presets: [
+          [
+            '@babel/preset-typescript'
+          ],
+        ],
+      }),
       terser({
         output: {
           ecma: 5,
         },
       }),
+      image(),
+      json({compact: true})
     ],
   };
   buildFormats.push(unpkgConfig);

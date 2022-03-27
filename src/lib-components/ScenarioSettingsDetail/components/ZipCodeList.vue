@@ -77,12 +77,8 @@ import { mapState, mapActions } from "vuex";
 import { GET_ZIP_CODES, DELETE_ZIP_CODES, DOWNLOAD_ZIP_CSV } from "@/store/action-types";
 import { cloneDeep } from "lodash";
 
-interface LocalState {
-  headers: Array<any>;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       headers: [
         {
@@ -109,24 +105,24 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      isFetchingZipCodes: (state: any) => state.scenarios.isFetchingZipCodes,
-      fetchZipCodeError: (state: any) => state.scenarios.fetchZipCodeError,
-      zipCodes: (state: any) => state.scenarios.zipCodes,
-      isExportingScenarioData: (state: any) => state.scenarios.isExportingScenarioData,
-      exportingScenarioDataError: (state: any) => state.scenarios.exportingScenarioDataError,
-      exportingScenarioDataWarning: (state: any) => state.scenarios.exportingScenarioDataWarning,
+      isFetchingZipCodes: (state) => state.scenarios.isFetchingZipCodes,
+      fetchZipCodeError: (state) => state.scenarios.fetchZipCodeError,
+      zipCodes: (state) => state.scenarios.zipCodes,
+      isExportingScenarioData: (state) => state.scenarios.isExportingScenarioData,
+      exportingScenarioDataError: (state) => state.scenarios.exportingScenarioDataError,
+      exportingScenarioDataWarning: (state) => state.scenarios.exportingScenarioDataWarning,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
       },
     },
-    processZipCodes(): Array<any> {
+    processZipCodes() {
       var zipCodeData = cloneDeep(this.zipCodes);
       var filteredData = [];
       for (var index = 0; index < zipCodeData.length; index++) {
@@ -146,7 +142,7 @@ export default Vue.extend({
       deleteZipcodes: DELETE_ZIP_CODES,
       downloadZipCSV: DOWNLOAD_ZIP_CSV,
     }),
-    async deleteCodes(): Promise<void> {
+    async deleteCodes() {
       this.$dialog.show({
         title: "郵便番号削除",
         text: "郵便番号削除リストを削除してもよろしいですか？",
@@ -162,14 +158,14 @@ export default Vue.extend({
         },
       });
     },
-    async downloadCSV(): Promise<void> {
+    async downloadCSV() {
       var payload = {
         scenario: this.versionName,
       };
       await this.downloadZipCSV(payload);
       this.checkError(this.exportingScenarioDataError, "CSVエクスポートしました");
     },
-    checkError(errorMessage: any, successMessage: any): void {
+    checkError(errorMessage , successMessage) {
       if (errorMessage) {
         this.$snackbar.show({
           text: errorMessage,

@@ -65,16 +65,18 @@ under the License.
         <v-row>
           <v-col>
             <label>メッセージ名</label>
-            <v-text-field
+            <InputText
               outlined
               single-line
               dense
               hide-details="auto"
               v-model="modelLocal.nameLBD"
               @input="onChangeName($event)"
-              :rules="[rules.validTextLength]"
+              @change="(value) => { this.modelLocal.nameLBD = value }"
+              :maxlength="120"
+              :rules="[rules.validTextLength, rules.notStartsWhiteSpace, rules.notEndsWhiteSpace, rules.isValidVersionName]"
             >
-            </v-text-field>
+            </InputText>
           </v-col>
         </v-row>
         <v-row>
@@ -273,22 +275,10 @@ import MessagePreview from "../../ScenarioSettingsDetail/components/MessagePrevi
 import ItemBubbleFlex from "./ItemBubbleFlex.vue";
 import ItemCarouselFlex from "./ItemCarouselFlex.vue";
 import ItemJsonTemplate from "./ItemJsonTemplate.vue";
+import InputText from "./InputText.vue";
+
 import { cloneDeep } from "lodash";
 import { SPECIAL_TALK_TYPES } from "@/store/modules/scenarios/scenarios.constants";
-
-interface LocalState {
-  modelLocal: any;
-  hidePreviewDisplay: Array<string>;
-  originalModel: any;
-  imageMapFiles: Array<any>;
-  audioFiles: Array<any>;
-  imageFiles: Array<any>;
-  videoFiles: Array<any>;
-  canSave: boolean;
-  contentRendered: boolean;
-  showLeaveConfirm: boolean;
-  rules: any;
-}
 
 export default Vue.extend({
   props: {
@@ -301,7 +291,7 @@ export default Vue.extend({
     talkName: String,
     parentClicked: Boolean,
   },
-  data(): LocalState {
+  data() {
     return {
       modelLocal: {},
       hidePreviewDisplay: ["jsonTemplate", "compositeMessage"],
@@ -315,11 +305,29 @@ export default Vue.extend({
       showLeaveConfirm: false,
       rules: {
         validTextLength: (value) => {
-          if (value && value.length > 400) {
-            return "400文字の制限";
+          if (!value) {
+            return "メッセージ名は必須入力です。";
+          }
+          if (value && value.length > 120) {
+            return "メッセージ名は120文字以内にしてください。";
           } else {
             return true;
           }
+        },
+        notStartsWhiteSpace: (value) => {
+          if (value) {
+            return !value.match(/^\s+.*$/) || "先頭に空白を指定することはできません。";
+          }
+          return true
+        },
+        notEndsWhiteSpace: (value) => {
+          if (value) {
+            return !value.match(/^.*?\s+$/) || "末尾に空白を指定することはできません。";
+          }
+          return true
+        },
+        isValidVersionName: (value) => {
+          return !this.listMessages.includes(value) || "メッセージ名が存在しています。";
         },
       },
     };
@@ -359,12 +367,13 @@ export default Vue.extend({
     ItemBubbleFlex,
     ItemCarouselFlex,
     ItemJsonTemplate,
+    InputText
   },
   computed: {
     ...mapState({
-      activeScenario: (state) => (state as any).scenarios.activeScenario,
-      activeScenarioData: (state) => (state as any).scenarios.activeScenarioData,
-      scenarioMessages: (state) => (state as any).scenarios.scenarioMessages,
+      activeScenario: (state) => (state).scenarios.activeScenario,
+      activeScenarioData: (state) => (state).scenarios.activeScenarioData,
+      scenarioMessages: (state) => (state).scenarios.scenarioMessages,
     }),
     show: {
       get() {
@@ -376,7 +385,7 @@ export default Vue.extend({
         }
       },
     },
-    maxWidthDialog(): number {
+    maxWidthDialog() {
       if (
         this.modelLocal.dataType == "compositeMessage" ||
         this.modelLocal.dataType == "carouselFlex" ||
@@ -386,26 +395,33 @@ export default Vue.extend({
       }
       return 800;
     },
-    isSpecialTalk(): boolean {
+    isSpecialTalk() {
       if (!this.modelLocal.params || !this.modelLocal.params.specialScenarioTalk) {
         return false;
       }
       return SPECIAL_TALK_TYPES.includes(this.modelLocal.params.specialScenarioTalk);
     },
+    listMessages() {
+      const talk = this.scenarioMessages.filter(elem => ((elem.scenario_talk_id === this.$route.params.talkId) && (elem.id !== this.modelLocal.id)));
+      if (talk.length) {
+        return talk.map(data => data.nameLBD)
+      }
+      return [];
+    }
   },
   methods: {
     ...mapActions({
       saveScenarioData: UPDATE_SCENARIO_DATA,
       deleteScenarioMessage: DELETE_SCENARIO_MESSAGE,
     }),
-    closeModal(): void {
+    closeModal() {
       this.contentRendered = false;
       this.show = false;
       this.showLeaveConfirm = false;
       this.modelLocal = this.originalModel;
       this.$emit("updateSaveState", false);
     },
-    onUpdateItemProperties(): void {
+    onUpdateItemProperties() {
       if (this.modelLocal.nameLBD && this.modelLocal.nameLBD.length == 0) {
         delete this.modelLocal.nameLBD;
       }
@@ -437,10 +453,10 @@ export default Vue.extend({
       this.$emit("close");
       this.$emit("updateSaveStatus", { value: false });
     },
-    updateModelParams(value: any): void {
+    updateModelParams(value) {
       this.modelLocal.params = value;
     },
-    updateModelBubbles(value: any): void {
+    updateModelBubbles(value) {
       this.modelLocal.params.bubbleParam = value;
     },
     updateParams({ key, value }) {
@@ -450,43 +466,43 @@ export default Vue.extend({
         this.modelLocal.params[key] = value;
       }
     },
-    updateMessages(value: any): void {
+    updateMessages(value) {
       this.modelLocal.messages = value;
     },
-    fileImageMapDataUpdate(value: any): void {
+    fileImageMapDataUpdate(value) {
       this.imageMapFiles = value;
     },
-    fileAudioDataUpdate(value: any): void {
+    fileAudioDataUpdate(value) {
       this.audioFiles = value;
     },
-    fileImageDataUpdate(value: any): void {
+    fileImageDataUpdate(value) {
       this.imageFiles = value;
     },
-    fileVideoDataUpdate(value: any): void {
+    fileVideoDataUpdate(value) {
       this.videoFiles = value;
     },
-    updateSaveStatus({ value }: any): void {
+    updateSaveStatus({ value }) {
       this.canSave = value;
     },
-    onChangeName(event: any): void {
-      this.updateSaveStatus({ value: event.length <= 400 });
+    onChangeName(event) {
+      this.updateSaveStatus({ value: event.length <= 120 });
     },
-    copyIdToClipboard(): void {
+    copyIdToClipboard() {
       navigator.clipboard.writeText(this.modelLocal.dataId)
         .then(() => { this.$snackbar.show({ text: "クリップボードにコピーしました。" }) })
     },
-    cancelLeave(): void {
+    cancelLeave() {
         let $this = this;
         setTimeout(function(){ $this.showLeaveConfirm = false }, 100);
     },
-    onClickOutside(): void {
+    onClickOutside() {
       if(this.show && this.contentRendered && !this.showLeaveConfirm){
         this.showLeaveConfirm = true;
       }
     }
   },
   mounted() {
-    this.modelLocal = cloneDeep((this as any).model) || {};
+    this.modelLocal = cloneDeep((this).model) || {};
   }
 });
 </script>

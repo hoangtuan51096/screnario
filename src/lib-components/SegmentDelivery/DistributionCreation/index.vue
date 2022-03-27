@@ -371,7 +371,7 @@ under the License.
                                   <BubbleFlexPreview :message="message.contents.flexPayload.payload"/>
                                 </template>
                               </div>
-                            
+
                           </div>
                       </v-col>
                     </v-row>
@@ -474,46 +474,23 @@ import { emitSnackbar } from "@/utils/emitComponents";
 
 import { cloneDeep } from "lodash";
 
-import ItemImageMapMessage from "@/components/BotDesigner/ItemImageMapMessage.vue";
+import ItemImageMapMessage from "../../components/BotDesigner/ItemImageMapMessage.vue";
 import ItemBubbleFlex from "./fragments/ItemBubbleFlex.vue";
 import BubbleFlexPreview from "./fragments/BubbleFlexPreview.vue";
 import default_messages from "@/constants/default_messages.json";
 
 interface GridCols {
-  left: number;
-  right: number;
+  left;
+  right;
 }
 
 interface FieldsCols {
-  label: number;
-  input: number;
-}
-
-interface LocalState {
-  gridCols: GridCols;
-  fieldsCols: FieldsCols;
-  valid: boolean;
-  isDistributionDisabled: boolean;
-  targetPercentage: number;
-  selectedFormConfig: any;
-  showDataModal: boolean;
-  recurringSettingsModal: boolean;
-  selectedItem: any;
-  fromDatetimeString: any;
-  toDatetimeString: any;
-  periodString: any;
-  withExcludeString: string;
-  isMax: boolean;
-  isMin: boolean;
-  nameRules: any;
-  textMessageRules: any;
-  preview: boolean;
-  hasError: boolean;
-  errorMessage: string;
+  label;
+  input;
 }
 
 export default {
-  data(): LocalState {
+  data() {
     return {
       gridCols: {
         left: 8,
@@ -552,7 +529,7 @@ export default {
       errorMessage: "",
     };
   },
-  components: { 
+  components: {
     DataModal,
     RecurringSettingsModal,
     DatePickerMenu,
@@ -565,28 +542,28 @@ export default {
   mixins: [DatetimeFormatter],
   computed: {
     ...mapState({
-      isCreatingDistributionDelivery: (state: any) => state.segments.isCreatingDistributionDelivery,
-      createDistributionDeliveryError: (state: any) => state.segments.createDistributionDeliveryError,
-      isUpdatingDistributionDelivery: (state: any) => state.segments.isUpdatingDistributionDelivery,
-      updateDistributionDeliveryError: (state: any) => state.segments.updateDistributionDeliveryError,
+      isCreatingDistributionDelivery: (state) => state.segments.isCreatingDistributionDelivery,
+      createDistributionDeliveryError: (state) => state.segments.createDistributionDeliveryError,
+      isUpdatingDistributionDelivery: (state) => state.segments.isUpdatingDistributionDelivery,
+      updateDistributionDeliveryError: (state) => state.segments.updateDistributionDeliveryError,
 
-      isSavingDistributionDeliveryDraft: (state: any) => state.segments.isSavingDistributionDeliveryDraft,
-      saveDistributionDeliveryDraftError: (state: any) => state.segments.saveDistributionDeliveryDraftError,
+      isSavingDistributionDeliveryDraft: (state) => state.segments.isSavingDistributionDeliveryDraft,
+      saveDistributionDeliveryDraftError: (state) => state.segments.saveDistributionDeliveryDraftError,
 
-      isSendingBroadcastMessages: (state: any) => state.segments.isSendingBroadcastMessages,
-      sendBroadcastMessagesError: (state: any) => state.segments.sendBroadcastMessagesError,
-      distributionDetail: (state: any) => state.segments.distributionDetail,
+      isSendingBroadcastMessages: (state) => state.segments.isSendingBroadcastMessages,
+      sendBroadcastMessagesError: (state) => state.segments.sendBroadcastMessagesError,
+      distributionDetail: (state) => state.segments.distributionDetail,
 
-      distributionStatistics: (state: any) => state.segments.distributionStatistics,
-      isGettingDistributionStatistics: (state: any) => state.segments.isGettingDistributionStatistics,
-      getDistributionStatisticsError: (state: any) => state.segments.getDistributionStatisticsError,
+      distributionStatistics: (state) => state.segments.distributionStatistics,
+      isGettingDistributionStatistics: (state) => state.segments.isGettingDistributionStatistics,
+      getDistributionStatisticsError: (state) => state.segments.getDistributionStatisticsError,
 
-      isFetchingDistributionDetail: (state: any) => state.segments.isFetchingDistributionDetail
+      isFetchingDistributionDetail: (state) => state.segments.isFetchingDistributionDetail
     }),
     ...mapGetters({
       surveyConfigs: "surveyConfigsWithoutAppendType",
     }),
-    periodOptions(): any {
+    periodOptions() {
       return {
         Daily: "毎日",
         Weekly: "毎週",
@@ -596,26 +573,26 @@ export default {
       };
     },
     id: {
-      get(): any {
+      get() {
         return this.distributionDetail.id;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ id: value });
       },
     },
     name: {
-      get(): any {
+      get() {
         return this.distributionDetail.name;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ name: value });
       },
     },
     recipients: {
-      get(): any {
+      get() {
         return this.distributionDetail.surveyConditions.pickAll ? "ALL" : "FILTER";
       },
-      set(value: any): void {
+      set(value) {
         value == "ALL"
           ? this.handleUpdate({
               surveyConditions: { ...this.distributionDetail.surveyConditions, pickAll: true },
@@ -626,26 +603,26 @@ export default {
       },
     },
     surveyConditions: {
-      get(): any {
+      get() {
         return this.distributionDetail.surveyConditions;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ surveyConditions: value });
       },
     },
     recurringSettings: {
-      get(): any {
+      get() {
         return this.distributionDetail.recurringSettings;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ recurringSettings: value });
       },
     },
     startType: {
-      get(): any {
+      get() {
         return this.distributionDetail.startType;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ startType: value });
       },
     },
@@ -653,27 +630,27 @@ export default {
       set(v) {
         return this.distributionDetail.dryRun = v;
       },
-      get(): boolean {
+      get() {
         return this.distributionDetail.dryRun || false
       }
     },
     scheduledStartAt: {
-      get(): any {
+      get() {
         return this.distributionDetail.scheduledStartAt;
       },
-      set(value: any): void{
+      set(value): void{
         this.handleUpdate({ scheduledStartAt: value });
       },
     },
     messages: {
-      get(): any {
+      get() {
         return this.distributionDetail.messages;
       },
-      set(value: any): void {
+      set(value) {
         this.handleUpdate({ messages: value });
       },
     },
-    usersToSendToStatus(): string {
+    usersToSendToStatus() {
       const totalUsers = this.distributionStatistics.totalUsers;
       const usersToSendTo = this.distributionStatistics.usersToSendTo;
       if (!totalUsers || totalUsers == 0) {
@@ -752,13 +729,13 @@ export default {
       updateImagemapMessage: SET_IMAGEMAP_MESSAGE,
       updateFlexMessage: SET_FLEX_MESSAGE
     }),
-    updateModelParams(value: any, index: any): void {
+    updateModelParams(value , index) {
       this.updateImagemapMessage({
         imagemapRenderingPayload: value,
         index
       })
     },
-    updateBubbleFlex(value: any, index: any): void {
+    updateBubbleFlex(value , index) {
       this.updateFlexMessage({
         flexPayload: {
           payload: value.payload
@@ -766,7 +743,7 @@ export default {
         index
       })
     },
-    updateFlexJsonStatus(value: any, index: any): void {
+    updateFlexJsonStatus(value , index) {
       this.updateFlexMessage({
         flexPayload: {
           validateResult: value.validateResult
@@ -780,39 +757,39 @@ export default {
     startTypeList(): Array<string> {
       return ["IMMEDIATE", "ONETIME", "RECURRING"];
     },
-    handleUpdate(value: any): void {
+    handleUpdate(value) {
       this.updateDistributionDetail({ ...this.distributionDetail, ...value });
     },
-    openRecurringSettingsModal(): void {
+    openRecurringSettingsModal() {
       this.recurringSettingsModal = true;
     },
-    openDataModal(): void {
+    openDataModal() {
       this.$route.params.distributionId || this.$route.params.distCopiedDetail
         ? (this.selectedItem = this.distributionDetail)
         : null;
       this.showDataModal = true;
     },
-    closeDataModal(): void {
+    closeDataModal() {
       // this.selectedItem = null; // why reset? keep the data selected by user in DataModal dialog
       this.showDataModal = false;
     },
-    getSurveyConditions(payload: any): void {
+    getSurveyConditions(payload) {
       this.selectedItem = payload; // don't reset when closeDataModal, instead keep the selected values selected in DataModal
       this.surveyConditions = payload.surveyConditions;
     },
-    onChangeMessageTypes(value: any, index: any): void {
+    onChangeMessageTypes(value , index) {
       this.updateMessageTypes({
         type: value,
         index: index,
       });
     },
-    onChangeTextMessage(value: any, index: any): void {
+    onChangeTextMessage(value , index) {
       this.updateTextMessage({
         text: value,
         index: index,
       });
     },
-    addMessage(): void {
+    addMessage() {
       this.addMessageInput({
         contents: {
           type: "text",
@@ -832,13 +809,13 @@ export default {
         },
       });
     },
-    removeMessage(index: any): void {
+    removeMessage(index) {
       this.removeMessageInput(index);
     },
-    uploadImage(index: any): void {
+    uploadImage(index) {
       this.$refs.inputFile[index].click();
     },
-    removeImage(index: any): void {
+    removeImage(index) {
       var image = {
         originalContentUrl: "",
         previewImageUrl: "",
@@ -850,9 +827,9 @@ export default {
         index: index,
       });
     },
-    onChangeImageMessage(event: any, index: any): void {
+    onChangeImageMessage(event , index) {
       const file = event.target.files[0];
-      let totalSizeMB: any = (file.size / Math.pow(1024, 2)).toFixed(2);
+      let totalSizeMB  = (file.size / Math.pow(1024, 2)).toFixed(2);
       var image = {};
 
       if (totalSizeMB >= 10) {
@@ -885,11 +862,11 @@ export default {
       });
       this.$refs.inputFile[index].value = "";
     },
-    async updateTargetEstimate(payload: any): Promise<void> {
+    async updateTargetEstimate(payload) {
       await this.getDistributionStatistics(payload);
       this.targetPercentage = this.calculatePercentage();
     },
-    async saveDraft(): Promise<void> {
+    async saveDraft() {
       var payload = cloneDeep(this.distributionDetail);
       let valid = this.validateForm();
       if (valid) {
@@ -903,7 +880,7 @@ export default {
         if (this.saveDistributionDeliveryDraftError) emitSnackbar(this.$snackbar, this.saveDistributionDeliveryDraftError, "error");
       }
     },
-    async broadcast(): Promise<void> {
+    async broadcast() {
       let valid = this.validateForm();
       if (valid) {
         await this.sendBroadcastMessages(this.messages).then(() => {
@@ -913,7 +890,7 @@ export default {
         if (this.sendBroadcastMessagesError) emitSnackbar(this.$snackbar, this.sendBroadcastMessagesError, "error");
       }
     },
-    async send(): Promise<void> {
+    async send() {
       // BUGFIX: copy should go to CREATE NOT EDIT
       var payload = cloneDeep(this.distributionDetail);
       let valid = this.validateForm();
@@ -940,15 +917,15 @@ export default {
         }
       }
     },
-    calculatePercentage(): any {
+    calculatePercentage() {
       return !this.distributionStatistics.totalUsers || this.distributionStatistics.totalUsers == 0
         ? 100
         : ((this.distributionStatistics.usersToSendTo / this.distributionStatistics.totalUsers) * 100).toFixed(2);
     },
-    async fetchData(): Promise<void> {
+    async fetchData() {
       await this.fetchDistributionDetail(this.$route.params.distributionId || this.$route.params.distCopiedDetail);
     },
-    validateForm(): boolean {
+    validateForm() {
       let validInput = this.$refs.form.validate();
 
       let errorList = [];
@@ -973,10 +950,10 @@ export default {
 
       return this.hasError ? false : true;
     },
-    resetValidation(): void {
+    resetValidation() {
       this.$refs.form.resetValidation();
     },
-    imagemapUrl(baseUrl): string {
+    imagemapUrl(baseUrl) {
       return baseUrl.startsWith("data:") ? baseUrl : baseUrl + '/1040'
     }
   },

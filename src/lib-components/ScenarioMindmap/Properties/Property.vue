@@ -83,17 +83,20 @@ under the License.
             <v-row>
               <v-col>
                 <label>メッセージ名</label>
-                <v-text-field
+                <InputText
+                  id="textNameLBD"
                   v-model="modelLocal.nameLBD"
                   :error="modelLocal.nameLBD === ''"
-                  :rules="[rules.validNonEmpty, rules.validTextLength]"
+                  :rules="[rules.validNonEmpty, rules.validTextLength, rules.notStartsWhiteSpace, rules.notEndsWhiteSpace, rules.isValidVersionName]"
                   dense
                   outlined
+                  maxlength="120"
                   hide-details="auto"
                   single-line
                   @input="onChangeName($event)"
+                  @change="(value) => { this.modelLocal.nameLBD = value }"
                 >
-                </v-text-field>
+                </InputText>
               </v-col>
             </v-row>
             <v-row>
@@ -273,43 +276,29 @@ import { isNullOrEmpty } from "@/utils/stringUtils";
 import { DELETE_SCENARIO_MESSAGE, UPDATE_SCENARIO_DATA } from "@/store/action-types";
 import { SET_SCENARIO_MINDMAP_MESSAGES } from "@/store/mutation-types";
 import { mapActions, mapMutations, mapState } from "vuex";
-import VSwitchCase from "@/components/common/VSwitchCase.vue";
-import ItemTextMessage from "@/components/BotDesigner/ItemTextMessage.vue";
-import ItemImageMapMessage from "@/components/BotDesigner/ItemImageMapMessage.vue";
-import ItemRichMenu from "@/components/BotDesigner/ItemRichMenu.vue";
-import ItemButtonTemplate from "@/components/BotDesigner/ItemButtonTemplate.vue";
-import ItemSticker from "@/components/BotDesigner/ItemSticker.vue";
-import ItemLocation from "@/components/BotDesigner/ItemLocation.vue";
-import ItemConfirmTemplate from "@/components/BotDesigner/ItemConfirmTemplate.vue";
-import ItemImage from "@/components/BotDesigner/ItemImage.vue";
-import ItemAudio from "@/components/BotDesigner/ItemAudio.vue";
-import ItemVideo from "@/components/BotDesigner/ItemVideo.vue";
-import ItemCarouselTemplate from "@/components/BotDesigner/ItemCarouselTemplate.vue";
-import ItemCompositeMessage from "@/components/BotDesigner/ItemCompositeMessage.vue";
-import MessagePreview from "@/pages/admin/ScenarioSettingsDetail/components/MessagePreview.vue";
-import ItemBubbleFlex from "@/components/BotDesigner/ItemBubbleFlex.vue";
-import ItemCarouselFlex from "@/components/BotDesigner/ItemCarouselFlex.vue";
-import ItemJsonTemplate from "@/components/BotDesigner/ItemJsonTemplate.vue";
+import VSwitchCase from "../../components/common/VSwitchCase.vue";
+import ItemTextMessage from "../../components/BotDesigner/ItemTextMessage.vue";
+import ItemImageMapMessage from "../../components/BotDesigner/ItemImageMapMessage.vue";
+import ItemRichMenu from "../../components/BotDesigner/ItemRichMenu.vue";
+import ItemButtonTemplate from "../../components/BotDesigner/ItemButtonTemplate.vue";
+import ItemSticker from "../../components/BotDesigner/ItemSticker.vue";
+import ItemLocation from "../../components/BotDesigner/ItemLocation.vue";
+import ItemConfirmTemplate from "../../components/BotDesigner/ItemConfirmTemplate.vue";
+import ItemImage from "../../components/BotDesigner/ItemImage.vue";
+import ItemAudio from "../../components/BotDesigner/ItemAudio.vue";
+import ItemVideo from "../../components/BotDesigner/ItemVideo.vue";
+import ItemCarouselTemplate from "../../components/BotDesigner/ItemCarouselTemplate.vue";
+import ItemCompositeMessage from "../../components/BotDesigner/ItemCompositeMessage.vue";
+import MessagePreview from "../../ScenarioSettingsDetail/components/MessagePreview.vue";
+import ItemBubbleFlex from "../../components/BotDesigner/ItemBubbleFlex.vue";
+import ItemCarouselFlex from "../../components/BotDesigner/ItemCarouselFlex.vue";
+import ItemJsonTemplate from "../../components/BotDesigner/ItemJsonTemplate.vue";
 import {BOT_ITEM_TYPES, SPECIAL_TALK_TYPES} from "@/store/modules/scenarios/scenarios.constants";
-import default_messages from "@/constants/default_messages.json";
+import { default_messages } from "@/constants/default_messages";
 import {
   addElementToBubbleFlexPostbackActions,
 } from "@/services/MindMapService.ts";
-
-interface LocalState {
-  modelLocal: any;
-  hidePreviewDisplay: Array<string>;
-  originModelLocal: any;
-  imageMapFiles: Array<any>;
-  audioFiles: Array<any>;
-  imageFiles: Array<any>;
-  videoFiles: Array<any>;
-  validLocalState: any;
-  childComponentValidation: any;
-  rules: any;
-  default_messages: any;
-  branchIndex: any;
-}
+import InputText from "../../components/BotDesigner/InputText.vue";
 
 export default Vue.extend({
   props: {
@@ -321,7 +310,7 @@ export default Vue.extend({
     onClickToggleButton: Function,
     botMessages: Array,
   },
-  data(): LocalState {
+  data() {
     return {
       modelLocal: null,
       hidePreviewDisplay: ["jsonTemplate", "compositeMessage", "__INITIAL__"],
@@ -350,6 +339,7 @@ export default Vue.extend({
     },
   },
   components: {
+    InputText,
     VSwitchCase,
     ItemTextMessage,
     ItemRichMenu,
@@ -370,12 +360,13 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
-      scenarioMessages: (state: any) => state.scenarios.scenarioMessages,
-      scenarioMindmap: (state: any) => state.scenarios.scenarioMindmap,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
+      scenarioMessages: (state) => state.scenarios.scenarioMessages,
+      scenarioMindmap: (state) => state.scenarios.scenarioMindmap,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
     }),
-    maxWidthDialog(): number {
+    maxWidthDialog() {
       if (
         this.modelLocal.dataType == "compositeMessage" ||
         this.modelLocal.dataType == "carouselFlex" ||
@@ -385,22 +376,22 @@ export default Vue.extend({
       }
       return 800;
     },
-    actionTypesOptions(): Array<any> {
+    actionTypesOptions() {
       // return Object.keys(BOT_ITEM_TYPES);
       return ["text", "imagemap", "buttons", "carousel", "confirm", "bubbleFlex", "compositeMessage"].map((key) => ({
         ...BOT_ITEM_TYPES[key],
         value: key,
       }));
     },
-    actionTypesValues(): any {
+    actionTypesValues() {
       return this.actionTypesOptions.map((option) => BOT_ITEM_TYPES[option]);
     },
-    previewMessage(): any {
+    previewMessage() {
       var newModelLocal = this.modelLocal;
       newModelLocal["params"] = this.checkMessageType;
       return newModelLocal;
     },
-    checkMessageType(): any {
+    checkMessageType() {
       if (this.updatingMessageForceRender) {
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.updatingMessageForceRender = false;
@@ -419,8 +410,7 @@ export default Vue.extend({
       this.updatingMessageForceRender = false;
       return this.modelLocal.params;
     },
-    canSave(): boolean {
-      console.log("canSave");
+    canSave() {
       if (
         this.modelLocal.params &&
         this.modelLocal.params.thumbnailImageUrl &&
@@ -436,27 +426,41 @@ export default Vue.extend({
         isEqual(this.modelLocal.nameLBD, this.originModelLocal.nameLBD) &&
         isEqual(this.modelLocal.params, this.originModelLocal.params) &&
         isEqual(this.modelLocal.messages, this.originModelLocal.messages);
-      console.log("isSameModel:", isSameModel, this.modelLocal, this.originModelLocal);
       if (isSameModel) {
-        console.log("emit:", "updateEditState", false);
         this.$emit("updateEditState", false);
         return false;
       }
 
-      console.log("validate status:", this.childComponentValidation[this.modelLocal.dataType], this.validLocalState);
       const isValid =
         !Object.values(this.childComponentValidation[this.modelLocal.dataType] || {}).includes(false) &&
         !Object.values(this.validLocalState || {}).includes(false);
-      console.log("emit:", "updateEditState", isValid);
       this.$emit("updateEditState", isValid);
       return isValid;
     },
-    isSpecialTalk(): boolean {
+    isSpecialTalk() {
       return SPECIAL_TALK_TYPES.includes(this.talkName);
+    },
+    listMessages() {
+      const talk = this.botMessages.filter(elem => ((elem.scenario_talk_id === this.talkId) && (elem.id !== this.originModel.id)));
+      if (talk.length) {
+        return talk.map(data => data.nameLBD)
+      }
+      return [];
+    },
+    talkId() {
+      const talk = this.scenarioTalks.find(elem => elem.params.name === this.$route.params.talkName);
+      return talk ? talk.dataId : '';
     },
   },
   mounted() {
     this.onChangeName(this.modelLocal.nameLBD);
+    const input = document.getElementById('textNameLBD');
+    input.addEventListener('input', updateValue);
+
+    function updateValue(event) {
+      let value = event.target.value;
+      event.target.value = value;
+    }
   },
   methods: {
     ...mapActions({
@@ -466,11 +470,11 @@ export default Vue.extend({
     ...mapMutations({
       updateMindMapMessages: SET_SCENARIO_MINDMAP_MESSAGES,
     }),
-    copyIdToClipboard(): void {
+    copyIdToClipboard() {
       navigator.clipboard.writeText(this.modelLocal.dataId)
         .then(() => { this.$snackbar.show({ text: "クリップボードにコピーしました。" }) })
     },
-    disableDeleteButton(): boolean {
+    disableDeleteButton() {
       //Check for message being part of special scenario talk
       if (this.modelLocal.params && "specialScenarioTalk" in this.modelLocal.params) {
         if (!("userCreatedSpecialTalkComposite" in this.modelLocal.params)) {
@@ -495,15 +499,14 @@ export default Vue.extend({
 
       return false;
     },
-    closeModal(): void {
+    closeModal() {
       this.modelLocal = cloneDeep(this.originModelLocal);
       this.updateSaveStatus(false);
       this.$emit("stopProperties", false);
       this.updatingMessageForceRender = false;
     },
-    onUpdateItemProperties(): void {
+    onUpdateItemProperties() {
       const oldState = this.scenarioMindmap[this.versionId][this.talkName];
-      console.log("🚀 ~ file: Property.vue ~ line 404 ~ onUpdateItemProperties ~ oldState", oldState);
       const newState = oldState.map((obj) => {
         if (obj.dataId === this.modelLocal.dataId) {
           const newState = {
@@ -558,7 +561,6 @@ export default Vue.extend({
           return obj;
         }
       });
-      console.log("🚀 ~ file: Property.vue ~ line 406 ~ onUpdateItemProperties ~ newState", cloneDeep(newState));
       const payload = {
         versionName: this.versionId,
         valueName: this.talkName,
@@ -579,7 +581,6 @@ export default Vue.extend({
       //   break;
       //   default:
       // }
-      console.log(payload);
       this.updateMindMapMessages(payload);
 
       const updatedModel = { ...this.modelLocal };
@@ -587,7 +588,7 @@ export default Vue.extend({
       this.$emit("updateScenarioMessage", oldState, newState, updatedModel);
       this.$emit("stopProperties", false);
     },
-    onDeleteItem(): void {
+    onDeleteItem() {
       var payload = {
         dataId: this.modelLocal.dataId,
         dataType: this.modelLocal.dataType,
@@ -603,39 +604,37 @@ export default Vue.extend({
 
       this.$emit("close");
     },
-    updateModelParams(value: any): void {
+    updateModelParams(value) {
       this.modelLocal.params = value;
       this.updatingMessageForceRender = true;
       this.modelLocal.params = value;
     },
-    updateModelBubbles(value: any): void {
+    updateModelBubbles(value) {
       this.modelLocal.params.bubbleParam = value;
     },
-    updateParams({ key, value }: any): void {
+    updateParams({ key, value }) {
       if (key === "__REPLACE__") {
         this.modelLocal.params = value;
       } else {
         this.modelLocal.params[key] = value;
       }
     },
-    updateMessages(value: any): void {
+    updateMessages(value) {
       this.modelLocal.messages = value;
     },
-    fileImageMapDataUpdate(value: any): void {
+    fileImageMapDataUpdate(value) {
       this.imageMapFiles = value;
     },
-    fileAudioDataUpdate(value: any): void {
+    fileAudioDataUpdate(value) {
       this.audioFiles = value;
     },
-    fileImageDataUpdate(value: any): void {
+    fileImageDataUpdate(value) {
       this.imageFiles = value;
     },
-    fileVideoDataUpdate(value: any): void {
+    fileVideoDataUpdate(value) {
       this.videoFiles = value;
     },
-    updateSaveStatus({ key, value }: any): void {
-      console.log("updateSaveStatus:", key, value);
-
+    updateSaveStatus({ key, value }) {
       if (!this.childComponentValidation[this.modelLocal.dataType]) {
         this.childComponentValidation[this.modelLocal.dataType] = {};
       }
@@ -648,18 +647,26 @@ export default Vue.extend({
         },
       };
     },
-    onChangeName(event: any): void {
+    onChangeName(event) {
       this.validLocalState.name = ![this.isValidNonEmpty(event), this.isValidTextLength(event)].includes(false);
     },
-    isValidNonEmpty(value: any): boolean {
+    isValidNonEmpty(value) {
+      if (value === null) {
+        return false
+      }
       return value.replace(/\n/g, "").replace(/\s/g, "").length !== 0;
     },
-    isValidTextLength(value: any): boolean {
-      return value && value.length <= 400;
+    isValidTextLength(value) {
+      return value && value.length <= 120;
     },
-    changeInLocalModelType(dataType: any): void {
+    changeInLocalModelType(dataType) {
       this.updatingMessageForceRender = false;
       this.$emit("localDataTypeUpdate", dataType);
+    },
+    onlyNumber($event) {
+      if (this.modelLocal.nameLBD.length >= 120) {
+        $event.preventDefault()
+      }
     }
   },
   created() {
@@ -671,14 +678,29 @@ export default Vue.extend({
         if (this.isValidNonEmpty(value)) {
           return true;
         }
-        return "未入力または空白のみは使用できません";
+        return "メッセージ名は空白のみは使用できません。";
       },
       validTextLength: (value) => {
         if (this.isValidTextLength(value)) {
           return true;
         }
-        return "400文字の制限";
-      }
+        return "メッセージ名は120文字以内にしてください。";
+      },
+      notStartsWhiteSpace: (value) => {
+        if (value) {
+          return !value.match(/^\s+.*$/) || "先頭に空白を指定することはできません。";
+        }
+        return true
+      },
+      notEndsWhiteSpace: (value) => {
+        if (value) {
+          return !value.match(/^.*?\s+$/) || "末尾に空白を指定することはできません。";
+        }
+        return true
+      },
+      isValidVersionName: (value) => {
+        return !this.listMessages.includes(value) || "メッセージ名が存在しています。";
+      },
     };
 
     this.branchIndex = (this.originModel && this.originModel.branchIndex) || -1;

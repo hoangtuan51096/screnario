@@ -85,16 +85,10 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 
-interface LocalState {
-  index: number;
-  tabs: Array<any>;
-  title: string;
-}
-
 export default Vue.extend({
   name: "Tabs",
   props: {},
-  data(): LocalState {
+  data() {
     return {
       index: -1,
       tabs: [],
@@ -116,19 +110,19 @@ export default Vue.extend({
   },
   computed: {},
   methods: {
-    onClickBackButton(): void {
+    onClickBackButton() {
       if (this.index !== 0) {
         this.index = this.index - 1;
         this.select();
       }
     },
-    onClickNextButton(): void {
+    onClickNextButton() {
       if (this.index < this.tabs.length) {
         this.index = this.index + 1;
         this.select();
       }
     },
-    select(index: any = -1): void {
+    select(index  = -1) {
       if (index < 0) {
         index = this.index;
       }

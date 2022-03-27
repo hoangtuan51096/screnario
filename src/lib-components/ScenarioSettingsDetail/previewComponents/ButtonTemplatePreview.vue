@@ -52,7 +52,7 @@ under the License.
 </style>
 
 <template>
-  <v-container>
+  <v-container class="button-template-preview">
     <div class="preview-text-message">
       <div class="preview-text-content">
         <template

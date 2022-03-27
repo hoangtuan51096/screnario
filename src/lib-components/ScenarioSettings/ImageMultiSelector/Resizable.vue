@@ -126,12 +126,8 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 
-interface LocalState {
-  pos: any;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       pos: null,
     };
@@ -157,18 +153,18 @@ export default Vue.extend({
     },
   },
   methods: {
-    startDrag(item: any, type: any): void {
+    startDrag(item, type) {
       this.pos = type;
       document.addEventListener("mousemove", this.doDrag);
       this.$emit("startDrag", this.item);
     },
-    doDrag(e: any): void {
+    doDrag(e) {
       this.$emit("doDrag", this.item, this.pos, e);
     },
   },
   updated() {
     if (this.item.resizable === false) {
-      window.addEventListener("mouseup", (document as any).removeEventListener("mousemove", this.doDrag));
+      window.addEventListener("mouseup", (document).removeEventListener("mousemove", this.doDrag));
     }
   },
 });

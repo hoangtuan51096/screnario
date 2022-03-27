@@ -42,7 +42,7 @@ under the License.
 </style>
 
 <template>
-  <v-container>
+  <v-container class="location-preview">
     <div class="preview-text-message tri-right left-top">
       <div class="preview-text-content">
         <v-row>

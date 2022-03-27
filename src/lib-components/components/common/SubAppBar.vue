@@ -43,25 +43,20 @@ under the License.
 <script lang="ts">
 import Vue from "vue";
 
-interface LocalState {
-  spacerHeight: number;
-  resizeObserver: any;
-}
-
 export default Vue.extend({
   props: {
     full: Boolean,
     followContainer: Boolean,
     dense: Boolean,
   },
-  data(): LocalState {
+  data() {
     return {
       spacerHeight: 0,
       resizeObserver: null,
     };
   },
   methods: {
-    onUpdateSubAppBar(): void {
+    onUpdateSubAppBar() {
       if (!this.$refs.subAppBar) {
         this.spacerHeight = 0;
       }

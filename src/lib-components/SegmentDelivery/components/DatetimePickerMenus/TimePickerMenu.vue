@@ -48,16 +48,12 @@ import Vue from "vue";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import { SET_DISTRIBUTION_DETAIL, SET_RECURRING_SETTINGS } from "@/store/mutation-types";
 
-interface LocalState {
-  menu_time: any;
-}
-
 export default Vue.extend({
   props: {
     field: String,
     enablePicker: Boolean,
   },
-  data(): LocalState {
+  data() {
     return {
       menu_time: false,
     };
@@ -66,27 +62,27 @@ export default Vue.extend({
   mixins: [],
   computed: {
     ...mapState({
-      distributionDetail: (state: any) => state.segments.distributionDetail,
+      distributionDetail: (state) => state.segments.distributionDetail,
     }),
     time: {
-      get(): any {
+      get() {
         return this.field == "recurringSettings"
           ? this.distributionDetail.recurringSettings.fromTime
           : this.distributionDetail.scheduledStartTime;
       },
-      set(value: any): void {
+      set(value) {
         this.field == "recurringSettings"
           ? this.handleUpdate({ fromTime: value })
           : this.handleUpdate({ scheduledStartTime: value });
       },
     },
     startType: {
-      get(): any {
+      get() {
         return this.distributionDetail.startType;
       },
     },
     timeRules: {
-      get(): any {
+      get() {
         if (this.enablePicker) {
           return [(v) => !!v || "時間は必須入力です。"];
         }
@@ -100,7 +96,7 @@ export default Vue.extend({
       updateDistributionDetail: SET_DISTRIBUTION_DETAIL,
       updateRecurringSettings: SET_RECURRING_SETTINGS,
     }),
-    handleUpdate(value: any): void {
+    handleUpdate(value) {
       this.field == "recurringSettings"
         ? this.updateRecurringSettings({ ...this.distributionDetail.recurringSettings, ...value })
         : this.updateDistributionDetail({ ...this.distributionDetail, ...value });

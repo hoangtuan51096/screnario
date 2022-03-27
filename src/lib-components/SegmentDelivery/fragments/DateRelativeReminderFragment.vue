@@ -77,17 +77,8 @@ import { DateRelativeReminderSettings } from '@/store/modules/segments/segments.
 
 import DateRelativeReminderRegisterModal from '../components/DateRelativeReminderRegisterModal/index.vue';
 
-interface LocalState {
-  isFetching: boolean;
-  isDeleting: boolean;
-  isShowRegisterModal: boolean;
-  headers: any[];
-  selectedSettingsList: DateRelativeReminderSettings[];
-  maxMessageLength: number;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       isFetching: false,
       isDeleting: false,
@@ -141,12 +132,12 @@ export default Vue.extend({
   computed: {
     ...mapState({
       dateRelativeReminderSettingsList: (state) =>
-        (state as any).segments.dateRelativeReminderSettingsList as DateRelativeReminderSettings[],
+        (state).segments.dateRelativeReminderSettingsList as DateRelativeReminderSettings[],
     }),
-    isSelectedSettings(): boolean {
+    isSelectedSettings() {
       return this.selectedSettingsList.length > 0;
     },
-    tableHeight(): number | undefined {
+    tableHeight() {
       const maxHeight = 550;
       const excessiveMessageItem = this.dateRelativeReminderSettingsList.find(({ message1, message2 }) => {
         return message1.length > this.maxMessageLength || message2.length > this.maxMessageLength;
@@ -182,7 +173,7 @@ export default Vue.extend({
       }
       return message;
     },
-    showDeleteConfirm(): void {
+    showDeleteConfirm() {
       this.$dialog.show({
         title: '確認',
         text: '選択中の項目を全て削除してもよろしいですか？\nこの操作は取り消せません。',
@@ -191,10 +182,10 @@ export default Vue.extend({
         onConfirm: () => this.handleDeleteSettings(),
       });
     },
-    showRegisterModal(): void {
+    showRegisterModal() {
       this.isShowRegisterModal = true;
     },
-    async handleDeleteSettings(): Promise<void> {
+    async handleDeleteSettings() {
       try {
         this.isDeleting = true;
         await this.deleteReminderSettings(this.selectedSettingsList);

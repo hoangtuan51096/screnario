@@ -51,7 +51,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    reportValidation(packageId: any, stickerId: any): void {
+    reportValidation(packageId , stickerId) {
       if ((packageId || this.params.sticker.packageId) && (stickerId || this.params.sticker.stickerId)) {
         this.$emit("updateSaveStatus", { key: `ItemSticker`, value: true });
       } else {

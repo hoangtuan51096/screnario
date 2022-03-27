@@ -46,12 +46,6 @@ under the License.
 import Vue from "vue";
 import { render } from "@/services/flexRender.ts";
 
-interface LocalState {
-  text: string;
-  errorText: boolean;
-  localParam: string;
-}
-
 export default Vue.extend({
   name: "ItemBubbleFlex",
   props: {
@@ -60,7 +54,7 @@ export default Vue.extend({
       required: true,
     },
   },
-  data(): LocalState {
+  data() {
     return {
       text: "",
       errorText: false,
@@ -87,17 +81,17 @@ export default Vue.extend({
     this.$emit("updateSaveStatus", { key: `ItemBubbleFlex`, value: true });
   },
   methods: {
-    onChangeText(value: any): void {
+    onChangeText(value) {
       let validateResult = this.validateJSON(value);
       this.reportValidation(validateResult);
       if (validateResult) {
         this.$emit("updateModelParams", JSON.parse(value));
       }
     },
-    reportValidation(result: any): void {
+    reportValidation(result) {
       this.$emit("updateSaveStatus", { key: `ItemBubbleFlex`, value: result });
     },
-    validateJSON(value: any): boolean {
+    validateJSON(value) {
       try {
         let parsedInput = JSON.parse(value);
         render(parsedInput)

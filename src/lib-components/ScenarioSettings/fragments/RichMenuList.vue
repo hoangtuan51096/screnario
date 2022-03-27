@@ -165,24 +165,11 @@ import {
 import { SET_IS_FETCHING_RICHMENU_INFO } from "@/store/mutation-types";
 import { cloneDeep } from "lodash";
 
-interface LocalState {
-  showRichMenuDesigner: boolean;
-  showRichMenuDesignerConfirm: boolean;
-  searchProduction: string;
-  searchSandbox: string;
-  createRichMenuName: string;
-  tab: number;
-  richButtonItems: Array<any>;
-  itemsRichMenu: Array<any>;
-  allRichMenuAliasList: Array<any>;
-  selectedRichMenus: any;
-}
-
 export default Vue.extend({
   props: {
     searchCriteria: Object,
   },
-  data(): LocalState {
+  data() {
     return {
       // showRichMenuCreateModal: false,
       showRichMenuDesigner: false,
@@ -235,30 +222,30 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      activeProductionRichMenu: (state: any) => state.scenarios.activeProductionRichMenu,
-      activeSandboxRichMenu: (state: any) => state.scenarios.activeSandboxRichMenu,
-      defaultProductionRichMenu: (state: any) => state.scenarios.defaultProductionRichMenu,
-      defaultSandboxRichMenu: (state: any) => state.scenarios.defaultSandboxRichMenu,
-      bosaiProductionRichMenu: (state: any) => state.scenarios.bosaiProductionRichMenu,
-      bosaiSandboxRichMenu: (state: any) => state.scenarios.bosaiSandboxRichMenu,
+      activeProductionRichMenu: (state) => state.scenarios.activeProductionRichMenu,
+      activeSandboxRichMenu: (state) => state.scenarios.activeSandboxRichMenu,
+      defaultProductionRichMenu: (state) => state.scenarios.defaultProductionRichMenu,
+      defaultSandboxRichMenu: (state) => state.scenarios.defaultSandboxRichMenu,
+      bosaiProductionRichMenu: (state) => state.scenarios.bosaiProductionRichMenu,
+      bosaiSandboxRichMenu: (state) => state.scenarios.bosaiSandboxRichMenu,
 
-      productionRichMenuList: (state: any) => state.scenarios.productionRichMenuList,
-      sandboxRichMenuList: (state: any) => state.scenarios.sandboxRichMenuList,
+      productionRichMenuList: (state) => state.scenarios.productionRichMenuList,
+      sandboxRichMenuList: (state) => state.scenarios.sandboxRichMenuList,
 
-      isFetchingRichMenuInfo: (state: any) => state.scenarios.isFetchingRichMenuInfo,
-      errorFetchingRichMenuInfo: (state: any) => state.scenarios.errorFetchingRichMenuInfo,
-      errorFetchingAllRichMenus: (state: any) => state.scenarios.errorFetchingAllRichMenus,
+      isFetchingRichMenuInfo: (state) => state.scenarios.isFetchingRichMenuInfo,
+      errorFetchingRichMenuInfo: (state) => state.scenarios.errorFetchingRichMenuInfo,
+      errorFetchingAllRichMenus: (state) => state.scenarios.errorFetchingAllRichMenus,
 
-      isCreatingRichMenu: (state: any) => state.scenarios.isCreatingRichMenu,
-      isCreatingRichMenuError: (state: any) => state.scenarios.isCreatingRichMenuError,
+      isCreatingRichMenu: (state) => state.scenarios.isCreatingRichMenu,
+      isCreatingRichMenuError: (state) => state.scenarios.isCreatingRichMenuError,
 
-      isSavingActiveScenario: (state: any) => state.scenarios.isSavingActiveScenario,
-      activeScenarioData: (state: any) => state.scenarios.activeScenarioData,
+      isSavingActiveScenario: (state) => state.scenarios.isSavingActiveScenario,
+      activeScenarioData: (state) => state.scenarios.activeScenarioData,
 
-      errorDeletingRichMenu: (state: any) => state.scenarios.errorDeletingRichMenu,
-      errorSettingRichMenu: (state: any) => state.scenarios.errorSettingRichMenu,
+      errorDeletingRichMenu: (state) => state.scenarios.errorDeletingRichMenu,
+      errorSettingRichMenu: (state) => state.scenarios.errorSettingRichMenu,
 
-      isFetchingAllRichMenus: (state: any) => state.scenarios.isFetchingAllRichMenus,
+      isFetchingAllRichMenus: (state) => state.scenarios.isFetchingAllRichMenus,
     }),
     isValidRichMenuName() {
       return !isNullOrEmpty(this.createRichMenuName) && !this.namedRichMenuAlreadyExists;
@@ -276,13 +263,13 @@ export default Vue.extend({
       deleteRichMenu: DELETE_RICH_MENU,
       fetchAllRichMenuAliasList: FETCH_ALL_RICHMENUS_ALIAS_LIST,
     }),
-    async fetchRichMenuData(): Promise<void> {
+    async fetchRichMenuData() {
       this.fetchDefaultRichMenus();
       this.fetchActiveRichMenus();
       this.fetchAllRichMenus();
       await this.updateSwitchRichmenuItem();
     },
-    async updateSwitchRichmenuItem(): Promise<void>  {
+    async updateSwitchRichmenuItem()  {
       let params = {
         richMenuId: "",
         environment: "production",
@@ -307,12 +294,12 @@ export default Vue.extend({
     updateSelectedMenus(value, environment) {
       this.selectedRichMenus[environment] = value;
     },
-    async openDesigner(): Promise<void> {
+    async openDesigner() {
       await this.updateSwitchRichmenuItem();
       this.showRichMenuDesigner = true;
       this.showRichMenuDesignerConfirm = false;
     },
-    async deleteSelectedMenus() : Promise<void> {
+    async deleteSelectedMenus() {
       let deleteCheckList = [];
       let displayText = "";
       let deleteCheckText = "";

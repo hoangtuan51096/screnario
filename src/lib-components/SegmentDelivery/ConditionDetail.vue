@@ -256,39 +256,12 @@ import {
 import { mapState, mapActions, mapMutations } from "vuex";
 
 interface GridCols {
-  half: number;
-  full: number;
-}
-
-interface LocalState {
-  gridCols: GridCols;
-  distributionConfigId: any;
-  distributionConfigs: any;
-  conditionMode: string;
-  condition: {
-    subjectExtractionCondition: string;
-    subjectTest: string;
-    bodyExtractionCondition: string;
-    bodyTest: string;
-  },
-  content: {
-    bodyChangeCondition: string;
-    bodyTest: string;
-  },
-  isSubjectMatched: boolean;
-  isBodyMatched: boolean;
-  bodyChangeResult: string;
-  valid: {
-    subject: boolean;
-    body: boolean;
-  },
-  changeError: boolean;
-  updateError: boolean;
-  btnGroupVisibility: boolean;
+  half;
+  full;
 }
 
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       gridCols: {
         half: 6,
@@ -344,22 +317,22 @@ export default Vue.extend({
   },
   computed: {
     ...mapState({
-      isFetchingDistributionConfigs: (state: any) => state.segments.isFetchingDistributionConfigs,
+      isFetchingDistributionConfigs: (state) => state.segments.isFetchingDistributionConfigs,
 
-      isCheckingSubjectCondition: (state: any) => state.segments.isCheckingSubjectCondition,
-      checkSubjectConditionError: (state: any) => state.segments.checkSubjectConditionError,
+      isCheckingSubjectCondition: (state) => state.segments.isCheckingSubjectCondition,
+      checkSubjectConditionError: (state) => state.segments.checkSubjectConditionError,
 
-      isCheckingBodyCondition: (state: any) => state.segments.isCheckingBodyCondition,
-      checkBodyConditionError: (state: any) => state.segments.checkBodyConditionError,
+      isCheckingBodyCondition: (state) => state.segments.isCheckingBodyCondition,
+      checkBodyConditionError: (state) => state.segments.checkBodyConditionError,
 
-      isChangingBodyContent: (state: any) => state.segments.isChangingBodyContent,
-      changeBodyContentError: (state: any) => state.segments.changeBodyContentError,
+      isChangingBodyContent: (state) => state.segments.isChangingBodyContent,
+      changeBodyContentError: (state) => state.segments.changeBodyContentError,
 
-      isUpdatingCondition: (state: any) => state.segments.isUpdatingCondition,
-      isUpdatingContent: (state: any) => state.segments.isUpdatingContent,
-      updateConditionContentError: (state: any) => state.segments.updateConditionContentError,
+      isUpdatingCondition: (state) => state.segments.isUpdatingCondition,
+      isUpdatingContent: (state) => state.segments.isUpdatingContent,
+      updateConditionContentError: (state) => state.segments.updateConditionContentError,
     }),
-    isNotTalkDistribution(): boolean {
+    isNotTalkDistribution() {
       return this.distributionConfigs && !("talkName" in this.distributionConfigs);
     }
   },
@@ -374,7 +347,7 @@ export default Vue.extend({
       updateCondition: UPDATE_CONDITION,
       updateContent: UPDATE_CONTENT,
     }),
-    async fetchData(): Promise<void> {
+    async fetchData() {
       this.distributionConfigId = this.$route.params.distributionConfigId;
       let result = await this.fetchDistributionConfigs(this.distributionConfigId);
       if (result) {
@@ -383,7 +356,7 @@ export default Vue.extend({
         this.initializeValues();
       }
     },
-    initializeValues(): void {
+    initializeValues() {
       if (this.distributionConfigs.distributionCondition) {
         this.condition.subjectExtractionCondition =
           this.distributionConfigs.distributionCondition.condition.subjectExtractionCondition;
@@ -403,7 +376,7 @@ export default Vue.extend({
         this.content.bodyTest = this.distributionConfigs.distributionCondition.content.bodyTest;
       }
     },
-    async onCheckSubject(): Promise<void> {
+    async onCheckSubject() {
       try {
         this.isSubjectMatched = await this.checkSubjectCondition({
           subjectExtractionCondition: this.condition.subjectExtractionCondition,
@@ -411,7 +384,7 @@ export default Vue.extend({
         });
       } catch {}
     },
-    async onCheckBody(): Promise<void> {
+    async onCheckBody() {
       try {
         this.isBodyMatched = await this.checkBodyCondition({
           bodyExtractionCondition: this.condition.bodyExtractionCondition,
@@ -419,7 +392,7 @@ export default Vue.extend({
         });
       } catch {}
     },
-    async onChangeContent(): Promise<void> {
+    async onChangeContent() {
       try {
         this.bodyChangeResult = await this.changeBodyContent({
           bodyChangeCondition: this.content.bodyChangeCondition,
@@ -427,7 +400,7 @@ export default Vue.extend({
         });
       } catch {}
     },
-    onSave(): void {
+    onSave() {
       switch (this.conditionMode) {
         case "extract":
           this.saveCondition({
@@ -447,7 +420,7 @@ export default Vue.extend({
           break;
       }
     },
-    async saveCondition(params: any): Promise<void> {
+    async saveCondition(params) {
       try {
         await this.updateCondition(params);
 
@@ -458,7 +431,7 @@ export default Vue.extend({
         }
       } catch (error) {}
     },
-    async saveContent(params: any): Promise<void> {
+    async saveContent(params) {
       try {
         await this.updateContent(params);
 
@@ -469,7 +442,7 @@ export default Vue.extend({
         }
       } catch (error) {}
     },
-    onClear(): void {
+    onClear() {
       switch (this.conditionMode) {
         case "extract":
           this.clearCondition();
@@ -479,13 +452,13 @@ export default Vue.extend({
           break;
       }
     },
-    clearCondition(): void {
+    clearCondition() {
       this.condition.subjectExtractionCondition = "";
       this.condition.subjectTest = "";
       this.condition.bodyExtractionCondition = "";
       this.condition.bodyTest = "";
     },
-    clearContent(): void {
+    clearContent() {
       this.content.bodyChangeCondition = "";
       this.content.bodyTest = "";
       this.bodyChangeResult = "";

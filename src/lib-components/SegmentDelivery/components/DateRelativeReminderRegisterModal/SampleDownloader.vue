@@ -25,13 +25,8 @@ under the License.
 <script lang="ts">
 import Vue from 'vue';
 
-interface LocalState {
-  sampleContents: Array<Array<string | number>>;
-  href: string;
-}
-
 export default Vue.extend({
-  data(): LocalState {
+  data() {
     return {
       sampleContents: [
         ['経過年数', '経過日数', 'メッセージ1', 'メッセージ2'],

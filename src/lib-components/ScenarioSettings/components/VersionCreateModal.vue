@@ -69,15 +69,6 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import { CREATE_SCENARIO_VERSION } from "@/store/action-types";
 import { SET_IMPORTING_SCENARIO_DATA_ERROR } from "@/store/mutation-types";
 
-interface LocalState {
-  scenarioName: string;
-  disableCreate: boolean;
-  scenarioVersion: string;
-  versionList: Array<any>;
-  specialScenarios: Array<string>;
-  rules: any;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -125,17 +116,17 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      isImportingScenarioData: (state: any) => state.scenarios.isImportingScenarioData,
-      creatingScenarioDataError: (state: any) => state.scenarios.importingScenarioDataError,
-      createFinishSuccess: (state: any) => state.scenarios.createFinishSuccess,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      settings: (state: any) => state.scenarios.settings,
+      isImportingScenarioData: (state) => state.scenarios.isImportingScenarioData,
+      creatingScenarioDataError: (state) => state.scenarios.importingScenarioDataError,
+      createFinishSuccess: (state) => state.scenarios.createFinishSuccess,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      settings: (state) => state.scenarios.settings,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -149,20 +140,18 @@ export default Vue.extend({
     ...mapMutations({
       setImportingScenarioDataError: SET_IMPORTING_SCENARIO_DATA_ERROR,
     }),
-    getAutoScenarioVersion(): string {
+    getAutoScenarioVersion() {
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, "0");
       const mm = String(today.getMonth() + 1).padStart(2, "0");
       const yyyy = today.getFullYear();
       return "ver" + yyyy + mm + dd;
     },
-    cancelCreate(): void {
+    cancelCreate() {
       this.show = false;
-      this.scenarioName = "";
-      this.scenarioVersion = "";
       this.versionList = [];
     },
-    createVersion(): void {
+    createVersion() {
       if (!this.checkValidVersionName(this.scenarioVersion)) {
         this.$snackbar.show({
           text: "同名のバージョンが存在しています。別のバージョン名を指定してください。",
@@ -177,10 +166,10 @@ export default Vue.extend({
       };
       this.createScenarioVersion(payload);
     },
-    checkValidVersionName(value: any): boolean {
+    checkValidVersionName(value) {
       return !this.versionList.includes(value); // valid === not in the version list
     },
-    validate(): void {
+    validate() {
       this.$nextTick(() => {
         if (
           this.$refs.scenarioVersion &&
@@ -212,7 +201,7 @@ export default Vue.extend({
       }
       this.disableCreate = false;
     },
-    populateVersionsList(): Array<any> {
+    populateVersionsList() {
       if (this.activeScenario && this.activeScenario.versions) {
         const verList = Object.keys(this.activeScenario.versions).reduce((array, version) => {
           array.push(this.activeScenario.versions[version].displayVersionName || version);

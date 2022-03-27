@@ -200,30 +200,8 @@ under the License.
 
 <script lang="ts">
 import Vue from "vue";
-import ActionProperty from "@/components/BotDesigner/CommonProperties/ActionProperty.vue";
+import ActionProperty from "./CommonProperties/ActionProperty.vue";
 import { cloneDeep } from "lodash";
-
-interface LocalState {
-  columns: Array<number>;
-  editThumbnailFile: Array<boolean>;
-  newImageLocal: Array<boolean>;
-  tempThumbnailUrl: Array<any>;
-  tempThumbnailFile: Array<any>;
-  tempThumbnailFileDisplay: Array<any>;
-  expandColumn: Array<any>;
-  imageOptions: Array<any>;
-  actions: Array<number>;
-  useThumbnailImage: Array<any>;
-  templateImageOptions: Array<any>;
-  actionsAreValid: boolean
-  allowedContentType: Array<string>;
-  displayThumbnails: any;
-  isPremadeMessage: any;
-  sizeLimitThumbnail: number;
-  rules: any;
-  isValidText: any;
-  paramsOriginal: any;
-}
 
 export default Vue.extend({
   name: "ItemCarouselTemplate",
@@ -285,7 +263,7 @@ export default Vue.extend({
       this.scrollToAction(val);
     },
   },
-  data(): LocalState {
+  data() {
     var temp = [];
     for (var i = 0; i < 10; i++) {
       temp["title." + i.toString()] = true;
@@ -353,12 +331,12 @@ export default Vue.extend({
     this.displayThumbnails = this.setDisplayThumbnails();
   },
   methods: {
-    setDefaultValues(): void {
+    setDefaultValues() {
       if(this.params && !this.params.imageSize) {
         this.params.imageSize = 'cover';
       }
     },
-    scrollToAction(branchIndex: any): void {
+    scrollToAction(branchIndex) {
       if (!Number.isInteger(branchIndex)) {
         return;
       }
@@ -374,10 +352,10 @@ export default Vue.extend({
         );
       }
     },
-    isSpecialPremadeTalk(): any {
+    isSpecialPremadeTalk() {
       return "specialScenarioTalk" in this.params ? this.params["specialScenarioTalk"] : null;
     },
-    onChangeValue(event: any, keyValue: any): void {
+    onChangeValue(event, keyValue) {
       if (keyValue.includes("thumbnail.")) {
         var thumbnailNumber = keyValue.split(".")[1];
         const response = fetch(event, {
@@ -414,18 +392,18 @@ export default Vue.extend({
         this.$emit("updateParams", { key: keyValue, value: event });
       }
     },
-    getActionByNumber(index: any, number: any): number {
+    getActionByNumber(index, number) {
       let actionObj = this.params[`action.${index - 1}.${number}`];
       return actionObj;
     },
-    setDisplayThumbnails(): any {
+    setDisplayThumbnails() {
       var result = {};
       for (var x = 0; x < 10; x++) {
         result["thumbnail." + x] = this.params["thumbnail." + x];
       }
       return result;
     },
-    validateText(event: any, keyValue: any): void {
+    validateText(event, keyValue) {
       if (event.length > 0) {
         for (var ch of event) {
           if (ch !== "\n" && ch !== " " && ch !== "　") {
@@ -436,11 +414,11 @@ export default Vue.extend({
       }
       this.isValidText[keyValue] = false;
     },
-    validateAction(value: any): void {
+    validateAction(value) {
       this.actionsAreValid = value;
       this.reportValidation();
     },
-    editingThumbnailImage(event: any, index: any): void {
+    editingThumbnailImage(event, index) {
       if (event === false) {
         this.params["thumbnail." + index] = this.paramsOriginal["thumbnail." + index];
         this.$set(this.tempThumbnailUrl, index, null);
@@ -449,21 +427,21 @@ export default Vue.extend({
       this.$emit("updateParams", { key: "editingThumbnailImage." + index, value: event });
       this.reportValidation();
     },
-    thumbnailImageLocal(event: any, index: any): void {
+    thumbnailImageLocal(event, index) {
       this.$emit("updateParams", { key: "thumbnailImageEditLocal." + index, value: event });
       this.reportValidation();
     },
-    inputThumbnailUrl(event: any, index: any): void {
+    inputThumbnailUrl(event, index) {
       this.$emit("updateParams", { key: "tempThumbnailUrl." + index, value: event });
       this.checkValidImage(event, index);
       this.reportValidation();
     },
-    inputThumbnailFile(event: any, index: any): void {
+    inputThumbnailFile(event, index) {
       this.$emit("updateParams", { key: "tempThumbnailFile." + index, value: event });
       this.checkValidFile(event, index);
       this.reportValidation();
     },
-    checkValidFile(file: any, columnIndex: any): void {
+    checkValidFile(file, columnIndex) {
       if (file) {
         var reader = new FileReader();
         reader.onload = (e) => {
@@ -490,7 +468,7 @@ export default Vue.extend({
         this.reportValidation();
       }
     },
-    checkValidImage(url: any, columnIndex: any): void {
+    checkValidImage(url, columnIndex) {
       const response = fetch(url, {
         method: "HEAD",
         cache: "no-cache",
@@ -525,7 +503,7 @@ export default Vue.extend({
           return error;
         });
     },
-    reportValidation(): void {
+    reportValidation() {
       for (var i = 0; i < this.params.columnCount; i++) {
         if (this.params.useTitle && !this.isValidText["title." + i.toString()]) {
           this.$emit("updateSaveStatus", { key: `ItemCarouselTemplate`, value: false });
@@ -560,17 +538,17 @@ export default Vue.extend({
       }
       this.$emit("updateSaveStatus", { key: `ItemCarouselTemplate`, value: true });
     },
-    setExpandColumn(indexOfColumn: number): void {
+    setExpandColumn(indexOfColumn) {
       this.$set(this.expandColumn, indexOfColumn, !this.expandColumn[indexOfColumn]);
     },
-    resetAction(oldAction: any, columnIndex: number, actionToResetIndex: number): void {
+    resetAction(oldAction, columnIndex, actionToResetIndex) {
       console.log("in reset action");
       console.log(columnIndex);
       console.log(actionToResetIndex);
       this.params['action.' + columnIndex + '.' + actionToResetIndex] = cloneDeep(oldAction);
     },
-    moveAction(movePositionUp: boolean, columnIndex: number, indexToMove: number): void {
-      let positionDelta: number = movePositionUp ? 1 : -1;
+    moveAction(movePositionUp, columnIndex, indexToMove) {
+      let positionDelta = movePositionUp ? 1 : -1;
       const originalAction = cloneDeep(this.params['action.' + columnIndex + '.' + indexToMove]);
       this.params['action.' + columnIndex + '.' + indexToMove] =
         cloneDeep(this.params['action.' + columnIndex + '.' + (indexToMove + positionDelta)]);

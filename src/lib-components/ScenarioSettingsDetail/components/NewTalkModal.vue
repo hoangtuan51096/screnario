@@ -93,17 +93,6 @@ import { cloneDeep } from "lodash";
 import { generateUUID } from "@/utils/uuidUtils";
 import { SET_SCENARIO_MINDMAP_MESSAGES } from "@/store/mutation-types";
 
-interface LocalState {
-  talkErrorMessage: string;
-  mappingErrorMessage: string;
-  canSubmit: boolean;
-  talkName: string;
-  talkNameValid: boolean;
-  textMapping: string;
-  textMappingValid: boolean;
-  defaultMessage: any;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -118,7 +107,7 @@ export default Vue.extend({
       this.canSubmit = this.talkNameValid && this.textMappingValid;
     },
   },
-  data(): LocalState {
+  data() {
     return {
       talkErrorMessage: "",
       mappingErrorMessage: "",
@@ -139,16 +128,16 @@ export default Vue.extend({
   components: {},
   computed: {
     ...mapState({
-      scenarioMindmap: (state: any) => state.scenarios.scenarioMindmap,
-      activeScenario: (state: any) => state.scenarios.activeScenario,
-      scenarioTextMap: (state: any) => state.scenarios.scenarioTextmap,
-      scenarioTalks: (state: any) => state.scenarios.scenarioTalks,
+      scenarioMindmap: (state) => state.scenarios.scenarioMindmap,
+      activeScenario: (state) => state.scenarios.activeScenario,
+      scenarioTextMap: (state) => state.scenarios.scenarioTextmap,
+      scenarioTalks: (state) => state.scenarios.scenarioTalks,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
           this.talkErrorMessage = "";
@@ -166,7 +155,7 @@ export default Vue.extend({
     ...mapMutations({
       updateMindMap: SET_SCENARIO_MINDMAP_MESSAGES,
     }),
-    validateTalkName(): void {
+    validateTalkName() {
       this.talkErrorMessage = "";
       var validValue = true;
       var mappedNames = this.scenarioTalks.map((a) => a.params.name);
@@ -176,7 +165,7 @@ export default Vue.extend({
       }
       this.talkNameValid = validValue && this.talkName.length > 0;
     },
-    validateTextMapping(): void {
+    validateTextMapping() {
       this.mappingErrorMessage = "";
       var validValue = true;
       if (this.scenarioTextMap && this.scenarioTextMap.textMapping) {
@@ -187,7 +176,7 @@ export default Vue.extend({
       }
       this.textMappingValid = validValue && this.textMapping.length > 0;
     },
-    createTalkInState(): void {
+    createTalkInState() {
       const tempBotReply = {
         ...cloneDeep(this.defaultMessage),
         talk: this.talkName,
@@ -230,7 +219,7 @@ export default Vue.extend({
         },
       });
     },
-    cancelCreate(): void {
+    cancelCreate() {
       this.show = false;
     },
   },

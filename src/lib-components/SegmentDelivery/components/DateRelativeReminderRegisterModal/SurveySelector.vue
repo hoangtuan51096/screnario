@@ -20,7 +20,7 @@ under the License.
       <label>帳票</label>
     </v-col>
     <v-col cols="10">
-      <v-autocomplete 
+      <v-autocomplete
         dense
         hide-details
         outlined
@@ -53,10 +53,10 @@ export default Vue.extend({
   },
   computed: {
     selectedSurveyId: {
-      get(): any {
+      get() {
         return this.selectedSurveyIdProp;
       },
-      set(surveyId: string | null): void {
+      set(surveyId) {
         this.$emit('selectSurvey', surveyId);
       },
     },
@@ -80,7 +80,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    async getSurveyConfigs(): Promise<void> {
+    async getSurveyConfigs() {
       this.$emit('getSurveyConfigs');
     },
   },

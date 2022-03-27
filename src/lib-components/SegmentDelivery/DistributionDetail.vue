@@ -159,32 +159,13 @@ import {
 } from "@/store/mutation-types";
 import DatetimeFormatter from "@/mixins/DatetimeFormatter";
 
-interface LocalState {
-  objectName: {
-    id: string;
-    mailSubject: string;
-    mailBody: string;
-    createdAt: string;
-    completedAt: string;
-    state: string;
-    error: string;
-    deliverySuccessCount: string;
-    deliveryFailureCount: string;
-  },
-  resendError: boolean;
-  resendFinished: boolean;
-  distributionId: number;
-  editVisibility: boolean;
-  copyVisibility: boolean;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
     close: Function,
     refreshTable: Function,
   },
-  data(): LocalState {
+  data() {
     return {
       objectName: {
         id: "ID",
@@ -207,18 +188,18 @@ export default Vue.extend({
   mixins: [DatetimeFormatter],
   computed: {
     ...mapState({
-      isResendingDistributionItem: (state: any) => state.segments.isResendingDistributionItem,
-      resendDistributionItemError: (state: any) => state.segments.resendDistributionItemError,
-      isFetchingDistributionDetail: (state: any) => state.segments.isFetchingDistributionDetail,
-      item: (state: any) => state.segments.distributionDetail,
-      isDeletingDistributionItem: (state: any) => state.segments.isDeletingDistributionItem,
-      deleteDistributionItemError: (state: any) => state.segments.deleteDistributionItemError,
+      isResendingDistributionItem: (state) => state.segments.isResendingDistributionItem,
+      resendDistributionItemError: (state) => state.segments.resendDistributionItemError,
+      isFetchingDistributionDetail: (state) => state.segments.isFetchingDistributionDetail,
+      item: (state) => state.segments.distributionDetail,
+      isDeletingDistributionItem: (state) => state.segments.isDeletingDistributionItem,
+      deleteDistributionItemError: (state) => state.segments.deleteDistributionItemError,
     }),
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
@@ -252,7 +233,7 @@ export default Vue.extend({
     ...mapMutations({
       setResendDistributionItemError: SET_RESEND_DISTRIBUTION_ITEM_ERROR,
     }),
-    statusColor(value: any): string {
+    statusColor(value) {
       switch (value) {
         case "FINISHED":
           return "primary--text";
@@ -262,10 +243,10 @@ export default Vue.extend({
           return "orange--text";
       }
     },
-    resendItem(): void {
+    resendItem() {
       this.resendDistributionItem(this.item);
     },
-    onEditDistribution(): any {
+    onEditDistribution() {
       return {
         name: "DistributionEditPage",
         params: {
@@ -273,7 +254,7 @@ export default Vue.extend({
         },
       };
     },
-    onCopyDistribution(): any {
+    onCopyDistribution() {
       return {
         name: "DistributionCopyPage",
         params: {
@@ -281,7 +262,7 @@ export default Vue.extend({
         },
       };
     },
-    convertToJapanese(value: any): any {
+    convertToJapanese(value) {
       if (value === "ALL") {
         return "全て";
       }
@@ -311,7 +292,7 @@ export default Vue.extend({
       }
       return value;
     },
-    async dataProcessing(): Promise<void> {
+    async dataProcessing() {
       await this.fetchById(this.$route.params.distributionId);
       if (this.item.type == "distributionDelivery#v2") {
         this.objectName = {
@@ -336,7 +317,7 @@ export default Vue.extend({
       )
         this.editVisibility = true;
     },
-    async deleteItem(): Promise<void> {
+    async deleteItem() {
       this.$dialog.show({
         title: "配信削除確認",
         text: "この配信を削除してもよろしいですか？",

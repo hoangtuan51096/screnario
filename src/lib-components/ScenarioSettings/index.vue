@@ -44,15 +44,9 @@ import RichMenuSearch from './components/RichMenuSearch.vue';
 import SubAppBar from '../components/common/SubAppBar.vue';
 import {mapState} from 'vuex';
 
-interface LocalState {
-  tab: string;
-  showSearch: boolean;
-  searchCriteria: any;
-}
-
 export default {
   name: 'ScenarioCommon',
-  data(): LocalState {
+  data() {
     return {
       tab: 'scenario-setting',
       showSearch: false,
@@ -68,18 +62,18 @@ export default {
   },
   computed: {
     ...mapState({
-      isFetchingScenarios: (state: any) => state.scenarios.isFetchingScenarios,
+      isFetchingScenarios: (state) => state.scenarios.isFetchingScenarios,
     }),
   },
   methods: {
-    toggleShowSearch(show: any): void {
+    toggleShowSearch(show) {
       if (show != null) {
         this.showSearch = show;
       } else {
         this.showSearch = !this.showSearch;
       }
     },
-    updateSearchCriteria(value: any): void {
+    updateSearchCriteria(value) {
       this.searchCriteria = value;
     },
   },

@@ -157,32 +157,9 @@ import ConditionListFragment from "../../fragments/ConditionListFragment.vue";
 import { emitSnackbar } from "@/utils/emitComponents";
 
 interface GridCols {
-  label: number;
-  input: number;
+  label;
+  input;
 }
-
-interface LocalState {
-  gridCols: GridCols;
-  valid: boolean;
-  isEditData: boolean;
-  distributionConfigId: any;
-  deliveryTitle: string;
-  enabled: boolean;
-  recipients: string;
-  isFormConfigChanged: boolean;
-  selectedFormConfig: any;
-  surveyId: any;
-  surveyTitle: any;
-  conditions: Array<any>;
-  deliveryTitleRules: any;
-  formConfigRules: any;
-  createError: boolean;
-  updateError: boolean;
-  noConditionsSelectedError: boolean;
-  foundSurveySchema: boolean;
-  dryRun: boolean;
-}
-
 export default Vue.extend({
   props: {
     visible: Boolean,
@@ -193,7 +170,7 @@ export default Vue.extend({
     distItem: Object,
     updateTargetEstimate: Function,
   },
-  data(): LocalState {
+  data() {
     return {
       gridCols: {
         label: 3,
@@ -230,26 +207,26 @@ export default Vue.extend({
   components: { ConditionListFragment },
   computed: {
     ...mapState({
-      viewSurveyConditions: (state: any) => state.segments.surveyConditions,
+      viewSurveyConditions: (state) => state.segments.surveyConditions,
 
-      surveySchema: (state: any) => state.segments.surveySchema,
-      isCreatingSegmentDelivery: (state: any) => state.segments.isCreatingSegmentDelivery,
-      createSegmentDeliveryError: (state: any) => state.segments.createSegmentDeliveryError,
-      isUpdatingSegmentDelivery: (state: any) => state.segments.isUpdatingSegmentDelivery,
-      updateSegmentDeliveryError: (state: any) => state.segments.updateSegmentDeliveryError,
+      surveySchema: (state) => state.segments.surveySchema,
+      isCreatingSegmentDelivery: (state) => state.segments.isCreatingSegmentDelivery,
+      createSegmentDeliveryError: (state) => state.segments.createSegmentDeliveryError,
+      isUpdatingSegmentDelivery: (state) => state.segments.isUpdatingSegmentDelivery,
+      updateSegmentDeliveryError: (state) => state.segments.updateSegmentDeliveryError,
 
-      isFetchingSurveyConfigsListType: (state: any) => state.forms.isFetchingSurveyConfigsListType,
-      isFetchingSurveyConfigsById: (state: any) => state.forms.isFetchingSurveyConfigsById,
+      isFetchingSurveyConfigsListType: (state) => state.forms.isFetchingSurveyConfigsListType,
+      isFetchingSurveyConfigsById: (state) => state.forms.isFetchingSurveyConfigsById,
 
-      fetchSurveyConfigsListTypeError: (state: any) => state.forms.fetchSurveyConfigsListTypeError,
-      fetchSurveyConfigsByIdError: (state: any) => state.forms.fetchSurveyConfigsByIdError,
+      fetchSurveyConfigsListTypeError: (state) => state.forms.fetchSurveyConfigsListTypeError,
+      fetchSurveyConfigsByIdError: (state) => state.forms.fetchSurveyConfigsByIdError,
 
-      distributionDetail: (state: any) => state.segments.distributionDetail,
+      distributionDetail: (state) => state.segments.distributionDetail,
     }),
     ...mapGetters({
       surveyConfigs: "surveyConfigsWithoutAppendType",
     }),
-    surveyConfigOptions(): Array<any> {
+    surveyConfigOptions() {
       let options = [];
 
       options.push(
@@ -264,19 +241,19 @@ export default Vue.extend({
       return options;
     },
     show: {
-      get(): boolean {
+      get() {
         return this.visible;
       },
-      set(value: boolean): void {
+      set(value) {
         if (!value) {
           this.$emit("close");
         }
       },
     },
-    isSaveDisabled(): boolean {
+    isSaveDisabled() {
       return !this.valid || !this.foundSurveySchema || this.isCreatingSegmentDelivery || this.isUpdatingSegmentDelivery;
     },
-    noConditionsSelected(): boolean {
+    noConditionsSelected() {
       if (this.conditions) {
         for (let condition of this.conditions) {
             if (condition.conditionValues && condition.conditionValues.length > 0) {
@@ -294,10 +271,10 @@ export default Vue.extend({
 
       return false;
     },
-    maxWidthDialog(): number {
+    maxWidthDialog() {
       return 1000;
     },
-    colorChooser(): string {
+    colorChooser() {
       return "primary";
     },
   },
@@ -339,7 +316,7 @@ export default Vue.extend({
       updateDistributionDetail: SET_DISTRIBUTION_DETAIL,
       setSurveySchema: SET_SURVEY_SCHEMA
     }),
-    async initializeValues(): Promise<void> {
+    async initializeValues() {
       if (this.source !== "broadcast") {
         if (this.item) {
           this.deliveryTitle = this.item.deliveryTitle;
@@ -365,7 +342,7 @@ export default Vue.extend({
         }
       }
     },
-    async onChangeFormConfigOption(value: any): Promise<void> {
+    async onChangeFormConfigOption(value) {
       if (value) {
         var counter = 0;
         this.isFormConfigChanged = !this.isFormConfigChanged;
@@ -388,11 +365,11 @@ export default Vue.extend({
         this.setSurveySchema([])
       }
     },
-    onChangeCondition(payload: any): void {
+    onChangeCondition(payload) {
       this.conditions = JSON.parse(JSON.stringify(payload));
     },
-    onSave(): void {
-      let params: any = {
+    onSave() {
+      let params = {
         name: this.deliveryTitle,
         enabled: this.enabled,
         dryRun: this.dryRun,
@@ -437,7 +414,7 @@ export default Vue.extend({
         }
       }
     },
-    async create(params: any): Promise<void> {
+    async create(params) {
       if (this.source === "broadcast") {
         this.$emit("getSurveyConditions", params);
         this.$emit("updateTargetEstimate", params.surveyConditions);
@@ -463,7 +440,7 @@ export default Vue.extend({
         }
       }
     },
-    async update(params: any): Promise<void> {
+    async update(params) {
       if (this.hasActionPermission("click", "backendRequest")) {
         await this.updateSegmentDelivery(params)
         if (this.updateSegmentDeliveryError) {
@@ -479,7 +456,7 @@ export default Vue.extend({
         this.showActionPermissionError();
       }
     },
-    resetValues(): void {
+    resetValues() {
       this.deliveryTitle = "";
       this.enabled = true;
       this.selectedFormConfig = null;
@@ -492,7 +469,7 @@ export default Vue.extend({
       this.dryRun = false;
       this.setSurveySchema([]);
     },
-    async convertSchema(index: any): Promise<void> {
+    async convertSchema(index) {
       if (this.surveyConfigs[index]) {
         await this.fetchSurveyConfigsById(this.surveyConfigs[index].surveyId).then(response => {
           this.surveyConfigs[index].surveySchema = response.data.surveySchema;
@@ -513,10 +490,10 @@ export default Vue.extend({
         })
       }
     },
-    handleUpdate(value: any): void {
+    handleUpdate(value) {
       this.updateDistributionDetail({ ...this.distributionDetail, ...value });
     },
-    isSelection(item: any): boolean {
+    isSelection(item) {
       return item.blockType === "dropdown" || item.blockType === "radio" || item.blockType == "checkboxes";
     },
   },
